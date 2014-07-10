@@ -8,7 +8,7 @@ import com.twitter.finagle.smtp.{MailingAddress, EmailBuilder, EmailMessage}
 
 object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
    def apply(msg: EmailMessage, send: Service[EmailMessage, Unit]): Future[Unit] = {
-     val fields = Seq(
+     val fields = Map(
          "Date: " + new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ", Locale.forLanguageTag("eng")).format(msg.getDate),
          "From: " + MailingAddress.mailboxList(msg.getFrom),
          "Sender: " + msg.getSender.mailbox,
@@ -20,7 +20,7 @@ object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
        ).filter(_.split(": ").length > 1)
 
        val richmsg = EmailBuilder(msg)
-                     .setBodyLines(fields ++ msg.getBody)
+                     .set
                      .build
 
        send(richmsg)

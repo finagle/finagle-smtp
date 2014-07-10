@@ -29,5 +29,5 @@ trait EmailMessage {
   def getReplyTo: Seq[MailingAddress]
   def getDate: Date
   def getSubject: String
-  def getBody: Seq[String]
+  def getBody: Mime
 }

@@ -10,7 +10,7 @@ case class Payload(from: Seq[MailingAddress],
                    reply_to: Seq[MailingAddress],
                    date: Date,
                    subject: String,
-                   body: Seq[String])
+                   body: Mime)
 
 case class EmailBuilder(payload: Payload) {
   /*Add addrs to the From: field*/
@@ -51,10 +51,13 @@ case class EmailBuilder(payload: Payload) {
   /*Set Subject: field to sbj*/
   def subject(sbj: String): EmailBuilder = copy(payload.copy(subject = sbj))
 
-  /*Add lines to the body*/
-  def bodyLines(lines: String*): EmailBuilder = setBodyLines(payload.body ++ lines)
-  /*Set body to lines*/
-  def setBodyLines(lines: Seq[String]): EmailBuilder = copy(payload.copy(body = lines))
+  /*Add part to the body*/
+  def bodyPart(part: MimePart): EmailBuilder = payload.body match {
+    case multipart: MimeMultipart => setBody(multipart + part)
+    case singlepart: MimePart => setBody(MimeMultipart(singlepart) + part)
+  }
+  /*Set body to bdy*/
+  def setBody(bdy: Mime): EmailBuilder = copy(payload.copy(body = bdy))
 
   def build: EmailMessage = new EmailMessage {
     def getBcc = payload.bcc
@@ -80,7 +83,7 @@ object EmailBuilder {
                                        reply_to = Seq.empty,
                                        date = null,
                                        subject = "",
-                                       body = Seq.empty))
+                                       body = MimeMultipart.empty))
 
   def apply(msg: EmailMessage) = new EmailBuilder(Payload(from = msg.getFrom,
                                                           sender = msg.getSender,
