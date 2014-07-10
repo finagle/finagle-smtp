@@ -80,7 +80,13 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
    */
   protected def dispatch(req: Request, p: Promise[Reply]): Future[Unit] = {
     connPhase flatMap { _ =>
-      log.trace("client: %s", req.cmd)
+      //logging
+      val msg = req match {
+        case txt: TextRequest => txt.cmd
+        case ent: MimeRequest => ent.mime.message
+      }
+      log.info("client: %s", msg)
+
       trans.write(req) rescue {
         wrapWriteException
       } flatMap { unit =>
@@ -112,152 +118,109 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
     case specified: Reply => specified
     case _: UnspecifiedReply => {
       resp.code match {
-        case SYSTEM_STATUS =>
-          new SystemStatus(resp.info) {
-          override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
 
-        case HELP => new Help(resp.info) {
-          override val isMultiline = resp.isMultiline
-          override val lines = resp.lines
-        }
+        case SYSTEM_STATUS              => new SystemStatus(resp.info) {
+                                                override val isMultiline = resp.isMultiline
+                                                override val lines = resp.lines
+                                                }
+        case HELP                       => new Help(resp.info)  {
+                                                override val isMultiline = resp.isMultiline
+                                                override val lines = resp.lines
+                                            }
+        case SERVICE_READY              => val (domain, info) = resp.info span {_ != ' '}
+                                           new ServiceReady(domain, info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case CLOSING_TRANSMISSION       => new ClosingTransmission(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case OK_REPLY                   => new OK(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case TEMP_USER_NOT_LOCAL        => new TempUserNotLocal(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case TEMP_USER_NOT_VERIFIED     => new TempUserNotVerified(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case START_INPUT                => new StartInput(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case SERVICE_NOT_AVAILABLE      => new ServiceNotAvailable(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case TEMP_MAILBOX_UNAVAILABLE   => new TempMailboxUnavailable(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case PROCESSING_ERROR           => new ProcessingError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case TEMP_INSUFFICIENT_STORAGE  => new TempInsufficientStorage(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case PARAMS_ACCOMODATION_ERROR  => new ParamsAccommodationError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case SYNTAX_ERROR               => new SyntaxError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case ARGUMENT_SYNTAX_ERROR      => new ArgumentSyntaxError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case COMMAND_NOT_IMPLEMENTED    => new CommandNotImplemented(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case BAD_COMMAND_SEQUENCE       => new BadCommandSequence(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case PARAMETER_NOT_IMPLEMENTED  => new ParameterNotImplemented(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case MAILBOX_UNAVAILABLE_ERROR  => new MailboxUnavailableError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case USER_NOT_LOCAL_ERROR       => new UserNotLocalError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case INSUFFICIENT_STORAGE_ERROR => new InsufficientStorageError(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case INVALID_MAILBOX_NAME       => new InvalidMailboxName(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case TRANSACTION_FAILED         => new TransactionFailed(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
+        case ADDRESS_NOT_RECOGNIZED     => new AddressNotRecognized(resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
 
-        case SERVICE_READY =>
-          val (domain, info) = resp.info span {_ != ' '}
-          new ServiceReady(domain, info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case CLOSING_TRANSMISSION =>
-          new ClosingTransmission(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-        case OK_REPLY => new OK(resp.info) {
-          override val isMultiline = resp.isMultiline
-          override val lines = resp.lines
-        }
-
-        case TEMP_USER_NOT_LOCAL =>
-          new TempUserNotLocal(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case TEMP_USER_NOT_VERIFIED =>
-          new TempUserNotVerified(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case START_INPUT => new StartInput(resp.info) {
-          override val isMultiline = resp.isMultiline
-          override val lines = resp.lines
-        }
-
-        case SERVICE_NOT_AVAILABLE =>
-          new ServiceNotAvailable(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case TEMP_MAILBOX_UNAVAILABLE =>
-          new TempMailboxUnavailable(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case PROCESSING_ERROR =>
-          new ProcessingError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case TEMP_INSUFFICIENT_STORAGE =>
-          new TempInsufficientStorage(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case PARAMS_ACCOMODATION_ERROR =>
-          new ParamsAccommodationError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case SYNTAX_ERROR =>
-          new SyntaxError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case ARGUMENT_SYNTAX_ERROR =>
-          new ArgumentSyntaxError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case COMMAND_NOT_IMPLEMENTED =>
-          new CommandNotImplemented(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-
-          }
-        case BAD_COMMAND_SEQUENCE =>
-          new BadCommandSequence(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case PARAMETER_NOT_IMPLEMENTED =>
-          new ParameterNotImplemented(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case MAILBOX_UNAVAILABLE_ERROR =>
-          new MailboxUnavailableError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case USER_NOT_LOCAL_ERROR =>
-          new UserNotLocalError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case INSUFFICIENT_STORAGE_ERROR =>
-          new InsufficientStorageError(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case INVALID_MAILBOX_NAME =>
-          new InvalidMailboxName(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case TRANSACTION_FAILED =>
-          new TransactionFailed(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case ADDRESS_NOT_RECOGNIZED =>
-          new AddressNotRecognized(resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
-
-        case _ =>
-          new UnknownReplyCodeError(resp.code, resp.info) {
-            override val isMultiline = resp.isMultiline
-            override val lines = resp.lines
-          }
+        case _                          => new UnknownReplyCodeError(resp.code, resp.info)  {
+                                                 override val isMultiline = resp.isMultiline
+                                                 override val lines = resp.lines
+                                               }
       }
     }
   }

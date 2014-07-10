@@ -1,7 +1,10 @@
 package com.twitter.finagle.smtp.filter
 
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.smtp.{DefaultEmail, EmailMessage}
+import com.twitter.finagle.smtp.{EmailBuilder, MailingAddress, DefaultEmail, EmailMessage}
 import com.twitter.util.Future
 
 /**
@@ -9,11 +12,20 @@ import com.twitter.util.Future
  */
 object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
    def apply(msg: EmailMessage, send: Service[EmailMessage, Unit]): Future[Unit] = {
-     val fields = msg.headers groupBy { case (k, v) => k } map {
-       case (key, values) => "%s: %s".format(key, values.map(_._2).mkString(","))
-     }
+     val fields = Map(
+         "Date: " + new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ", Locale.forLanguageTag("eng")).format(msg.getDate),
+         "From: " + MailingAddress.mailboxList(msg.getFrom),
+         "Sender: " + msg.getSender.mailbox,
+         "To: " + MailingAddress.mailboxList(msg.getTo),
+         "Cc: " + MailingAddress.mailboxList(msg.getCc),
+         "Bcc: " + MailingAddress.mailboxList(msg.getBcc),
+         "Reply-To: " + MailingAddress.mailboxList(msg.getReplyTo),
+         "Subject: " + msg.getSubject
+       ).filter(_.split(": ").length > 1)
 
-     val richMsg = DefaultEmail(msg) setText (fields.toSeq ++ msg.body)
+       val richmsg = EmailBuilder(msg)
+                     .set
+                     .build
 
      send(richMsg)
    }

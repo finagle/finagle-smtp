@@ -68,42 +68,15 @@ object MailingAddress {
  * Defines fields and body of an email message.
  * */
 trait EmailMessage {
-  def headers: Seq[(String, String)]
-
-  private def getAddresses(header: String) = headers collect {
-    case (key, addr) if key.toLowerCase() == header.toLowerCase() => MailingAddress(addr)
-  }
-
-  def from: Seq[MailingAddress] = getAddresses("from")
-
-  def sender: MailingAddress = {
-    if (from.length > 1) {
-      getAddresses("sender").headOption getOrElse from.head
-    }
-    else if (from.length == 0) MailingAddress.empty
-    else from.head
-  }
-
-  def to: Seq[MailingAddress] = getAddresses("to")
-
-  def cc: Seq[MailingAddress] = getAddresses("cc")
-
-  def bcc: Seq[MailingAddress] = getAddresses("bcc")
-
-  def replyTo: Seq[MailingAddress] = getAddresses("reply-to")
-
-  def date: Time =
-    headers collectFirst {
-      case (key, d) if key.toLowerCase == "date" => EmailMessage.DateFormat.parse(d)
-    } getOrElse Time.now
-
-
-  def subject: String =
-    headers collectFirst {
-      case (key, subj) if key.toLowerCase == "subject" => subj
-    } getOrElse ""
-
-  def body: Seq[String]
+  def getFrom: Seq[MailingAddress]
+  def getSender: MailingAddress
+  def getTo: Seq[MailingAddress]
+  def getCc: Seq[MailingAddress]
+  def getBcc: Seq[MailingAddress]
+  def getReplyTo: Seq[MailingAddress]
+  def getDate: Date
+  def getSubject: String
+  def getBody: Mime
 }
 
 object EmailMessage {
