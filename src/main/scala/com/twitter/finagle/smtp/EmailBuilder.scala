@@ -1,6 +1,7 @@
 package com.twitter.finagle.smtp
 
 import java.util.{Calendar, Date}
+import java.nio.charset.Charset
 
 case class Payload(from: Seq[MailingAddress],
                    sender: MailingAddress,
@@ -58,6 +59,9 @@ case class EmailBuilder(payload: Payload) {
   }
   /*Set body to bdy*/
   def setBody(bdy: Mime): EmailBuilder = copy(payload.copy(body = bdy))
+  /*Set text body*/
+  def text(t: String, enc: Charset): EmailBuilder = copy(payload.copy(body = Mime.plainText(t, enc)))
+  def text(t: String): EmailBuilder = copy(payload.copy(body = Mime.plainText(t)))
 
   def build: EmailMessage = new EmailMessage {
     def getBcc = payload.bcc
@@ -66,7 +70,7 @@ case class EmailBuilder(payload: Payload) {
     def getCc = payload.cc
     def getTo = payload.to
     def getSubject = payload.subject
-    def getSender = if (payload.from.length > 1) payload.sender else MailingAddress.empty
+    def getSender = payload.sender
     def getBody = payload.body
     def getFrom = payload.from
     def getReplyTo = payload.reply_to

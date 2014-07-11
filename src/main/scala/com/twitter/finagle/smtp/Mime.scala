@@ -1,5 +1,7 @@
 package com.twitter.finagle.smtp
 
+import java.nio.charset.Charset
+
 /*A trait for general MIME messages*/
 sealed trait Mime {
   val version = "1.0"
@@ -23,20 +25,25 @@ sealed trait Mime {
   }
 
 //TODO: various shortcuts for common media types
-object MimePart {
-  def apply(hdrs: Map[String, String], cnt: Array[Byte]) = new MimePart {
-    val headers = hdrs
-    val content = cnt
-  }
+
+object Mime {
+  def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc),
+    Map { "Content-Type" -> ("text/plain;charset="+enc.displayName()) }
+  )
+  def plainText(text: String) = MimePart(text.getBytes(Charset.forName("US-ASCII")),
+    Map { "Content-Type" -> ("text/plain") }
+  )
 }
 
-trait MimePart extends Mime {
-  val content: Array[Byte]
+object MimePart {
+  val empty = MimePart(Array.empty)
+}
 
+case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.empty) extends Mime {
   def message = String.copyValueOf(content.map(_.toChar))
 
-  def addHeader(key: String, value: String) = MimePart(headers.updated(key, value), content)
-  def addHeaders(newHeaders: Map[String, String]) = MimePart(headers ++ newHeaders, content)
+  def addHeader(key: String, value: String) = copy(content, headers.updated(key, value))
+  def addHeaders(newHeaders: Map[String, String]) = copy(content, headers ++ newHeaders)
 
   def setContentType(ct: ContentType) = addHeader("Content-Type", ct.toString)
   def setTransferEncoding(te: String) = addHeader("Content-Transfer-Encoding", te)
@@ -67,7 +74,7 @@ case class MimeMultipart(parts: Seq[MimePart], headers: Map[String, String])(imp
 
 object MimeMultipart {
   val empty = MimeMultipart(Seq.empty, Map.empty)
-  def apply(part: MimePart) = MimeMultipart(Seq(part), Map.empty)
+  def apply(part: MimePart): MimeMultipart = MimeMultipart(Seq(part), Map.empty)
 }
 
 object TransferEncoding {
