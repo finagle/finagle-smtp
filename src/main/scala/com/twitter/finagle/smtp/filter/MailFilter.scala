@@ -28,8 +28,9 @@ object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
 
     val reqs: Seq[Request] =
       Seq(Request.Reset) ++
-        envelope ++
-        data
+      envelope ++
+      Seq(Request.BeginData) ++
+      data
 
     val freqs = for (req <- reqs) yield send(req)
 

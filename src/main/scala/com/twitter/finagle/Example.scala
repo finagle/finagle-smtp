@@ -13,7 +13,7 @@ object Example {
                 .sender("from@from.com")
                 .to("first@to.com", "second@to.com")
                 .subject("test")
-                .bodyLines("first line", "second line") //body is a sequence of lines
+                .text("text")
                 .build
     //connect to a local SMTP server
     val send = SmtpSimple.newService("localhost:25")
