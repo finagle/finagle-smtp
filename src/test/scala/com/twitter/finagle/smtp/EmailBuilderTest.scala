@@ -4,6 +4,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import com.twitter.util.Try
+import com.twitter.io.TempFile
+import java.io.{File, FileOutputStream}
 
 @RunWith(classOf[JUnitRunner])
 class EmailBuilderTest extends FunSuite {
@@ -33,7 +35,10 @@ class EmailBuilderTest extends FunSuite {
     val built = testBuilder.build
 
     assert(built.getBcc === Seq(testBcc))
-    assert(built.getBody === Seq("body"))
+    assert(built.getBody.isInstanceOf[MimePart])
+    val mimePartBody = built.getBody.asInstanceOf[MimePart]
+    assert(String.copyValueOf(mimePartBody.content.map(_.toChar)) === "body")
+    assert(mimePartBody.headers === Map("Content-Type" -> "text/plain"))
     assert(built.getCc === Seq(testCc))
     assert(built.getDate != null, "should default to now")
     assert(built.getFrom === Seq(testFrom))
@@ -79,12 +84,50 @@ class EmailBuilderTest extends FunSuite {
     assert(setreplyto.payload.reply_to.map(_.mailbox) === Seq("reply3@to.com"), "set reply-to")
   }
 
-  /*test("body") {
-    val addlines = defaultBuilder.bodyLines("line1").bodyLines("line2")
-    assert(addlines.payload.body === Seq("line1", "line2"), "add lines to body")
-    val setlines = addlines.setBodyLines(Seq("line3"))
-    assert(setlines.payload.body === Seq("line3"), "set lines of body")
-  }*/
+  test("add single body part") {
+    val singlepart = defaultBuilder.addBodyPart(Mime.plainText("part 1"))
+    assert(singlepart.payload.body.isInstanceOf[MimeMultipart])
+    val mimepart = singlepart.payload.body.asInstanceOf[MimeMultipart]
+    assert(new String(mimepart.parts.head.content) === "part 1")
+  }
+
+  test("add multiple body parts") {
+    val multipart = defaultBuilder.addBodyPart(Mime.plainText("part 1")).addBodyPart(Mime.plainText("part 2"))
+    assert(multipart.payload.body.isInstanceOf[MimeMultipart])
+    val multimime = multipart.payload.body.asInstanceOf[MimeMultipart]
+    assert(multimime.parts.length === 2)
+    assert(new String(multimime.parts(0).content) === "part 1")
+    assert(new String(multimime.parts(1).content) === "part 2")
+  }
+
+  test("set text body") {
+    val textmsg = defaultBuilder.text("text")
+    val body = textmsg.payload.body.asInstanceOf[MimePart]
+    assert(body.contentType === "text/plain")
+    assert(new String(body.content) === "text")
+  }
+
+  test("set text body with encoding") {
+    val textmsg = defaultBuilder.text("text", "UTF-8")
+    val body = textmsg.payload.body.asInstanceOf[MimePart]
+    assert(body.contentType === "text/plain; charset=\"UTF-8\"")
+    assert(new String(body.content) === "text")
+  }
+
+  test("attach") {
+    val file = File.createTempFile("file", ".txt")
+    val os = new FileOutputStream(file)
+    os.write("test attachment".getBytes("UTF-8"))
+    os.close()
+
+    val msg = defaultBuilder.text("text").attach(file.getAbsolutePath)
+    assert(msg.payload.body.isInstanceOf[MimeMultipart])
+    val body = msg.payload.body.asInstanceOf[MimeMultipart]
+    assert(body.parts(1).contentDisposition === "attachment; filename=\"%s\"".format(file.getName))
+    assert(body.parts(1).contentType === "text/plain")
+    assert(new String(body.parts(1).content, "UTF-8") === "test attachment")
+    file.delete()
+  }
 
   test("sender") {
     val setsender = defaultBuilder.sender("sender@sender.com")

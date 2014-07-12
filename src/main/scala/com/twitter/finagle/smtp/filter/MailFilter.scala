@@ -16,14 +16,16 @@ object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
 
     val body = msg.getBody
     val data: Seq[Request] = body match {
-      //TODO: plaintext
       case mimepart: MimePart => Seq(Request.MimeData(mimepart))
       case multipart: MimeMultipart =>
         Seq(Request.TextData(multipart.getMimeHeaders)) ++ {
         for (part <- multipart.parts)
-        yield Seq(Request.TextData(Seq(multipart.richBoundary)),
-                  Request.MimeData(part))
-      }.flatten
+        yield Seq (
+          Request.TextData(Seq(multipart.delimiter)),
+          Request.MimeData(part)
+        )
+        }.flatten ++
+        Seq(Request.TextData(Seq(multipart.closingDelimiter)))
     }
 
     val reqs: Seq[Request] =
