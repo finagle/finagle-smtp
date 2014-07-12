@@ -26,6 +26,12 @@ class MimeTest extends FunSuite{
     assert(mime.getMimeHeaders contains "Content-Type: image/jpg; x-some-param=\"value\"")
   }
 
+  test("parse Content-Type") {
+    val typestring = "type/subtype; normal-par=normal; qsemicolon=\"; \""
+    val ct = ContentType.parse(typestring)
+    assert(ct === ContentType("type", "subtype", Map("normal-par" -> "normal", "qsemicolon" -> "; ")))
+  }
+
   test("Content-Disposition structure") {
     val cd = ContentDisposition.attachment("file.png")
     val mime = Mime.empty.setContentDisposition(cd)

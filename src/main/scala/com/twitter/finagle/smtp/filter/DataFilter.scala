@@ -1,9 +1,10 @@
 package com.twitter.finagle.smtp.filter
 
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.reply.Reply
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
+import scala.collection.immutable.IndexedSeq
 
 /**
  * Duplicates dots in the beginning of each line of email body for transparency
@@ -21,10 +22,19 @@ object DataFilter extends SimpleFilter[Request, Reply] {
        send(Request.TextData(body))
      }
 
-     case Request.MimeData(data) =>
-       //convert to text data to check all lines
-       val textReq = Request.TextData(data.getMimeHeaders ++ data.message.split("\r\n"))
-       apply(textReq, send)
+     case Request.MimeData(data) => {
+       val cr = "\r".getBytes("US-ASCII")
+       val lf = "\n".getBytes("US-ASCII")
+       val dot = ".".getBytes("US-ASCII")
+
+       val shieldedBytes: Array[Byte] = { for ( i <- data.content.indices drop 2 )
+                           yield if (data.content(i-2) == cr && data.content(i-1) == lf && data.content(i) == dot) Seq(dot, dot)
+                                 else data.content(i)
+                         }.flatten.toArray[Byte]
+       val shieldedMime = MimePart(shieldedBytes, data.headers)
+
+       send(Request.MimeData(shieldedMime))
+     }
 
      case other => send(other)
    }
