@@ -20,3 +20,8 @@ case class InvalidReply(info: String) extends Error {
  * A syntactically correct SMTP reply with unknown reply code.
  */
 case class UnknownReplyCodeError(override val code: Int, info: String) extends Error
+
+class RequestNotAllowed extends Error {
+  val code = ReplyCode.INVALID_REPLY_CODE
+  val info = "The request you were trying to send is not allowed by client. This must be due to TestHelloFilter."
+}

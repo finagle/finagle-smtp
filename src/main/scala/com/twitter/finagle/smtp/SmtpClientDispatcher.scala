@@ -1,15 +1,20 @@
 package com.twitter.finagle.smtp
 
 import com.twitter.finagle.dispatch.GenSerialClientDispatcher
-import com.twitter.logging.Logger
 import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.transport.Transport
-import com.twitter.util.{Await, Time, Future, Promise}
-/**
- * A ClientDispatcher that implements SMTP client/server protocol.
- */
-class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
-  extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
+import com.twitter.logging.Logger
+import com.twitter.util.{Time, Try, Future, Promise}
+
+object SmtpClientDispatcher {
+  private def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
+   p.updateIfEmpty(Try(value))
+   Future.Done
+  }
+}
+
+class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply], extensions: SmtpExtensions)
+extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans){
   import GenSerialClientDispatcher.wrapWriteException
   import ReplyCode._
 
