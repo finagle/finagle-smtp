@@ -55,6 +55,12 @@ case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.emp
   def addHeaders(newHeaders: Map[String, String]) = copy(headers = this.headers ++ newHeaders)
 
   def setContentType(ct: ContentType) = addHeader(ct)
+  def setCharset(charset: String) = {
+    val ct = ContentType parse contentType
+
+    if (ct.mediatype == "text") setContentType(ct.copy(params = ct.params.updated("charset", charset)))
+    else this
+  }
   def setContentTransferEncoding(te: TransferEncoding) = addHeader(te)
   def setContentDisposition(cd: ContentDisposition) = addHeader(cd)
 }
