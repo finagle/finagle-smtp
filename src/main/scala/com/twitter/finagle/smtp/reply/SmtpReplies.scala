@@ -44,6 +44,11 @@ case class OK(info: String) extends MailOkReply {
   val code = OK_REPLY
 }
 
+//This reply is only sent to EHLO command
+case class Extensions(info: String) extends MailOkReply {
+  val code = OK_REPLY
+}
+
 case class TempUserNotLocal(info: String) extends MailOkReply {
   val code = TEMP_USER_NOT_LOCAL
 }

@@ -13,7 +13,7 @@ object SmtpClientDispatcher {
   }
 }
 
-class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
+class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply], extensions: SmtpExtensions)
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans){
   import GenSerialClientDispatcher.wrapWriteException
   import SmtpClientDispatcher._
