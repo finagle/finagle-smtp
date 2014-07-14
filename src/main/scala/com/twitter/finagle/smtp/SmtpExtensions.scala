@@ -1,5 +1,3 @@
 package com.twitter.finagle.smtp
 
-case class SmtpExtensions (
-   eightBitMime: Boolean = false
-)
+case class SmtpExtensions (extensionList: Seq[String] = Seq.empty)
