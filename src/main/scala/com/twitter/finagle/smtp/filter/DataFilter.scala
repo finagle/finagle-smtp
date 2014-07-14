@@ -18,14 +18,14 @@ object DataFilter extends SimpleFilter[Request, Reply] {
      }
 
      case Request.MimeData(data) => {
-       val cr = "\r".getBytes("US-ASCII")
-       val lf = "\n".getBytes("US-ASCII")
-       val dot = ".".getBytes("US-ASCII")
+       val cr = "\r".getBytes("US-ASCII")(0)
+       val lf = "\n".getBytes("US-ASCII")(0)
+       val dot = ".".getBytes("US-ASCII")(0)
 
-       val shieldedBytes: Array[Byte] = { for ( i <- data.content.indices drop 2 )
+       val shieldedBytes = { for ( i <- data.content.indices drop 2 )
                            yield if (data.content(i-2) == cr && data.content(i-1) == lf && data.content(i) == dot) Seq(dot, dot)
-                                 else data.content(i)
-                         }.flatten.toArray[Byte]
+                                 else Seq(data.content(i))
+                         }.flatten.toArray
        val shieldedMime = MimePart(shieldedBytes, data.headers)
 
        send(Request.MimeData(shieldedMime))
