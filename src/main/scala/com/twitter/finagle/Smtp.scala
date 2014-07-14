@@ -4,34 +4,25 @@ import com.twitter.util.{Await, Promise, Time, Future}
 import com.twitter.finagle.client.{DefaultClient, Bridge}
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.reply._
-import com.twitter.finagle.smtp.filter.{TestHelloFilter, MailFilter, HeadersFilter, DataFilter}
+import com.twitter.finagle.smtp.filter._
 import com.twitter.finagle.smtp.transport.SmtpTransporter
-
-trait SmtpRichClient {
-  /*
-   * Parses Extension reply from server into SmtpExtensions object
-   * that is used to define extended behaviour.
-   *
-   * */
-  protected def availableExtensions(list: Extensions): SmtpExtensions
-}
+import com.twitter.finagle.smtp.reply.Extensions
+import com.twitter.finagle.smtp.SmtpExtensions
 
 /* A client used to connect firstly and receive all supported extensions. */
-private[smtp] object TestEsmtp extends Client[Request, Reply] {
-
+private object TestEsmtp extends Client[Request, Reply] {
   override def newClient(dest: Name, label: String) =
-    TestHelloFilter andThen Smtp.defaultClient(SmtpExtensions()).newClient(dest, label)
+    TestHelloFilter andThen Smtp.defaultClient.newClient(dest, label)
 }
 
 /* Constructs SMTP client with extensions supported by server. */
-object Smtp extends Client[Request, Reply]
-  with SmtpRichClient {
+object Smtp extends Client[Request, Reply] {
 
-  def defaultClient(ext: SmtpExtensions) = DefaultClient[Request, Reply] (
+  val defaultClient = DefaultClient[Request, Reply] (
     name = "smtp",
     endpointer = {
       val bridge = Bridge[Request, UnspecifiedReply, Request, Reply](
-        SmtpTransporter, new SmtpClientDispatcher(_, ext)
+        SmtpTransporter, new SmtpClientDispatcher(_)
       )
       (addr, stats) => bridge(addr, stats)
     })
@@ -43,7 +34,8 @@ object Smtp extends Client[Request, Reply]
       //if everything is all right, add available extensions
       case ext: Extensions => {
         extService(Request.Quit)
-        Future.value(availableExtensions(ext))
+        val esmtp = SmtpExtensions( ext.lines.tail map { _.toUpperCase } )
+        Future.value(esmtp)
       }
       //else construct client without extensions
       case _ => Future.value(SmtpExtensions())
@@ -59,12 +51,17 @@ object Smtp extends Client[Request, Reply]
 /* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
 case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
   override def newClient(dest: Name, label: String) = {
-    val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Smtp.defaultClient(extensions).newClient(dest, label)){
+
+    val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Smtp.defaultClient.newClient(dest, label)){
 
       override def apply(conn: ClientConnection) = {
+
         self.apply(conn) flatMap { service =>
+
           val quitOnClose = new ServiceProxy[Request, Reply](service) {
+
             override def close(deadline: Time) = {
+
               if (service.isAvailable)
                 service(Request.Quit)
               service.close(deadline)
@@ -75,7 +72,7 @@ case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply]
       }
     }
 
-    DataFilter andThen quitOnCloseClient
+    DataFilter andThen new ExtensionsFilter(extensions) andThen quitOnCloseClient
   }
 }
 

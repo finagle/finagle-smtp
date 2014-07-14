@@ -10,6 +10,15 @@ import com.twitter.finagle.smtp.{TextRequest, Request}
 class SmtpEncoder extends SimpleChannelDownstreamHandler {
   override def writeRequested(ctx: ChannelHandlerContext, evt: MessageEvent) =
     evt.getMessage match {
+      case Request.TextData(text, enc) =>
+        try {
+          val buf = ChannelBuffers.copiedBuffer(text.mkString("","\r\n","\r\n"), enc)
+          Channels.write(ctx, evt.getFuture, buf, evt.getRemoteAddress)
+        } catch {
+          case NonFatal(e) =>
+            evt.getFuture.setFailure(new ChannelException(e.getMessage))
+        }
+
       case req: TextRequest =>
         try {
           val buf = ChannelBuffers.copiedBuffer(req.cmd + "\r\n", CharsetUtil.US_ASCII)

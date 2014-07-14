@@ -1,6 +1,8 @@
 package com.twitter.finagle.smtp
 
 import java.net.InetAddress
+import java.nio.charset.Charset
+import org.jboss.netty.util.CharsetUtil
 
 trait Request
 
@@ -18,7 +20,7 @@ object Request {
 case class AddSender(addr: MailingAddress) extends TextRequest("MAIL FROM: <" + addr.mailbox + ">")
 case class AddRecipient(rcpt: MailingAddress) extends TextRequest("RCPT TO: <" + rcpt.mailbox + ">")
 
-case class TextData(text: Seq[String]) extends TextRequest(text.mkString("\r\n"))
+case class TextData(text: Seq[String], enc: Charset = CharsetUtil.US_ASCII) extends TextRequest(text.mkString("\r\n"))
 case class MimeData(data: MimePart) extends MimeRequest(data)
 
 case class VerifyAddress(address: MailingAddress) extends TextRequest("VRFY " + address.mailbox)

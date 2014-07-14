@@ -8,7 +8,7 @@ import scala.collection.immutable.IndexedSeq
 
 object DataFilter extends SimpleFilter[Request, Reply] {
    override def apply(req: Request, send: Service[Request, Reply]): Future[Reply] = req match {
-     case Request.TextData(lines) => {
+     case Request.TextData(lines, _) => {
        //duplicate leading dot
        val shieldedLines = for (line <- lines) yield if (line.head == '.') (".." + line.tail) else line
        //add dot at the end
@@ -18,13 +18,13 @@ object DataFilter extends SimpleFilter[Request, Reply] {
      }
 
      case Request.MimeData(data) => {
-       val cr = "\r".getBytes("US-ASCII")
-       val lf = "\n".getBytes("US-ASCII")
-       val dot = ".".getBytes("US-ASCII")
+       val cr = "\r".getBytes("US-ASCII")(0)
+       val lf = "\n".getBytes("US-ASCII")(0)
+       val dot = ".".getBytes("US-ASCII")(0)
 
        val shieldedBytes: Array[Byte] = { for ( i <- data.content.indices drop 2 )
                            yield if (data.content(i-2) == cr && data.content(i-1) == lf && data.content(i) == dot) Seq(dot, dot)
-                                 else data.content(i)
+                                 else Seq(data.content(i))
                          }.flatten.toArray[Byte]
        val shieldedMime = MimePart(shieldedBytes, data.headers)
 
