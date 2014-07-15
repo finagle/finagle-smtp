@@ -72,7 +72,7 @@ object NoSizeDeclarationFilter extends SimpleFilter[Request, Reply] {
 class SizeDeclarationFilter(maxSize: Int) extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
     case Request.NewMailingSession(sender, msgSize) => 
-      if (msgSize > maxSize) 
+      if (maxSize > 0 && msgSize > maxSize)
         Future.exception(InsufficientStorageError("Message size is more than the server can accept"))
       else service(request)
 
