@@ -12,7 +12,7 @@ import com.twitter.finagle.smtp.SmtpExtensions
 /* A client used to connect firstly and receive all supported extensions. */
 private object TestEsmtp extends Client[Request, Reply] {
   override def newClient(dest: Name, label: String) =
-    TestHelloFilter andThen Smtp.defaultClient.newClient(dest, label)
+    TestHelloFilter andThen OkToExtFilter andThen Smtp.defaultClient.newClient(dest, label)
 }
 
 /* Constructs SMTP client with extensions supported by server. */
@@ -34,9 +34,12 @@ object Smtp extends Client[Request, Reply] {
       //if everything is all right, add available extensions
       case ext: Extensions => {
         extService(Request.Quit)
-        val esmtp = SmtpExtensions( ext.lines.tail map { _.toUpperCase } )
-        Future.value(esmtp)
-      }
+        val supported = for {
+          line <- ext.lines.tail map { _.toUpperCase split " " }
+        } yield Extension(line.head, line.tail)
+          val esmtp = SmtpExtensions(supported)
+          Future.value(esmtp)
+        }
       //else construct client without extensions
       case _ => Future.value(SmtpExtensions())
     } onSuccess { extensions =>
@@ -50,6 +53,17 @@ object Smtp extends Client[Request, Reply] {
 
 /* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
 case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
+
+  val hasExt = for {
+    extension <- extensions.supported
+    if GetExtensionFilter.forSupported.isDefinedAt(extension)
+  } yield GetExtensionFilter forSupported extension
+
+  val noExt = for {
+    (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
+    if !(extensions.supported.map(_.keyword) contains extension)
+  } yield filter
+
   override def newClient(dest: Name, label: String) = {
 
     val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Smtp.defaultClient.newClient(dest, label)){
@@ -72,7 +86,8 @@ case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply]
       }
     }
 
-    DataFilter andThen new ExtensionsFilter(extensions) andThen quitOnCloseClient
+    val extFilters = (hasExt ++ noExt).reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
+    DataFilter andThen OkToExtFilter andThen extFilters andThen quitOnCloseClient
   }
 }
 

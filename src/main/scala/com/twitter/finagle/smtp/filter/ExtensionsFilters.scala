@@ -2,39 +2,13 @@ package com.twitter.finagle.smtp.filter
 
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.smtp.reply.Reply
+import com.twitter.finagle.smtp.reply.{InsufficientStorageError, Reply}
 import org.jboss.netty.util.CharsetUtil
-import com.twitter.util.Base64StringEncoder
+import com.twitter.util.{Future, Base64StringEncoder}
 import com.twitter.finagle.smtp.SmtpExtensions
 
-class ExtensionsFilter(supportedExtensions: SmtpExtensions) extends SimpleFilter[Request, Reply] {
-  // filters applied for available extensions
-  lazy val extFilters = Map[String, SimpleFilter[Request, Reply]] {
-    "8BITMIME" -> EightBitMimeFilter
-  }
-  // filters applied in case there are no extensions with such names
-  lazy val noExtFilters = Map[String, SimpleFilter[Request, Reply]] {
-    "8BITMIME" -> NoEightBitMimeFilter
-  }
-
-  def apply(request: Request, service: Service[Request, Reply]) = {
-    val hasExt = for {
-      (extension, filter) <- extFilters
-      if supportedExtensions.extensionList contains extension
-    } yield filter
-
-    val noExt = for {
-      (extension, filter) <- noExtFilters
-      if !(supportedExtensions.extensionList contains extension)
-    } yield filter
-
-    val extendedService = (hasExt ++ noExt).foldRight(service) { _ andThen _}
-    extendedService(request)
-  }
-}
-
 /*
-* Filter that is applied when 8BITMIME extension is missing.
+* Filter that is applied when 8BITMIME extension is not supported.
 * Transforms all 8-bit data into 7-bit. In case of a MIME message
 * encodes the content with base64 codec.
 * */
@@ -70,6 +44,36 @@ object EightBitMimeFilter extends SimpleFilter[Request, Reply] {
         val mime = Mime.plainText(text.mkString("\r\n"), enc).setContentTransferEncoding(TransferEncoding.EightBit)
         service(Request.MimeData(mime))
       }
+      else service(request)
+
+    case _ => service(request)
+  }
+}
+
+/*
+* Filter that is applied when SIZE extension is not supported.
+* Transforms a NewMailingSession request that declares message size
+* into AddSender request, which does not.
+* */
+object NoSizeDeclarationFilter extends SimpleFilter[Request, Reply] {
+  def apply(request: Request, service: Service[Request, Reply]) = request match {
+    case Request.NewMailingSession(sender, _) => service(Request.AddSender(sender))
+
+    case _ => service(request)
+  }
+}
+
+/*
+* Filter that is applied when SIZE extension is supported.
+* If declared message size is more than the value set by extension,
+* completes the future with InsufficientStorageError
+* and doesn't send anything.
+* */
+class SizeDeclarationFilter(maxSize: Int) extends SimpleFilter[Request, Reply] {
+  def apply(request: Request, service: Service[Request, Reply]) = request match {
+    case Request.NewMailingSession(sender, msgSize) => 
+      if (msgSize > maxSize) 
+        Future.exception(InsufficientStorageError("Message size is more than the server can accept"))
       else service(request)
 
     case _ => service(request)
