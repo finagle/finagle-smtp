@@ -21,7 +21,7 @@ case class InvalidReply(info: String) extends Error {
  */
 case class UnknownReplyCodeError(override val code: Int, info: String) extends Error
 
-class RequestNotAllowed extends Error {
+class RequestNotAllowed extends PermanentNegativeCompletionReply {
   val code = ReplyCode.INVALID_REPLY_CODE
   val info = "The request you were trying to send is not allowed by client. " +
     "This may be due to the necessary extension not being supported by server."

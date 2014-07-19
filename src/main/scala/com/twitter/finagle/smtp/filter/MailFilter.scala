@@ -11,9 +11,15 @@ import com.twitter.util.Future
 object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
   override def apply(msg: EmailMessage, send: Service[Request, Reply]): Future[Unit] = {
     val body = msg.getBody
-
+    val bodyEnc = body.contentTransferEncoding match {
+      case "8bit"   => BodyEncoding.EightBit
+      case "binary" => BodyEncoding.Binary
+      case _        => BodyEncoding.SevenBit
+    }
     val envelope: Seq[Request] =
-      Seq(Request.NewMailingSession(msg.getSender, body.size))   ++
+      Seq(Request.NewMailingSession(msg.getSender)
+                 .messageSize(body.size)
+                 .bodyEncoding(bodyEnc)) ++
         msg.getTo.map(Request.AddRecipient(_))  ++
         msg.getCc.map(Request.AddRecipient(_))  ++
         msg.getBcc.map(Request.AddRecipient(_))

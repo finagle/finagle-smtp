@@ -25,7 +25,9 @@ class SmtpEncoder extends SimpleChannelDownstreamHandler {
 
       case req: TextRequest =>
         try {
-          val buf = ChannelBuffers.copiedBuffer(req.cmd + "\r\n", CharsetUtil.US_ASCII)
+          val params = req.extensions map {case (k, v) => "%s=%s".format(k, v)}
+          val fullCmd = req.cmd + params.mkString(" " , " ", "")
+          val buf = ChannelBuffers.copiedBuffer(fullCmd + "\r\n", CharsetUtil.US_ASCII)
           Channels.write(ctx, evt.getFuture, buf, evt.getRemoteAddress)
         } catch {
           case NonFatal(e) =>

@@ -45,7 +45,7 @@ class DataFilterTest extends FunSuite {
 
   test("ignores non-Data commands") {
     val req1 = Request.Hello
-    val req2 = Request.AddSender(MailingAddress("test@test.test"))
+    val req2 = Request.NewMailingSession(MailingAddress("test@test.test"))
     val rep1 = Await.result(dataFilterService(req1)).asInstanceOf[TestReply]
     assert(rep1.req === req1)
     val rep2 = Await.result(dataFilterService(req2)).asInstanceOf[TestReply]
@@ -60,8 +60,8 @@ class MailFilterTest extends FunSuite {
   def MailTestService(msg: EmailMessage) = new Service[Request, Reply] {
     var cmdSeq = Seq(
       Request.Hello,
-      Request.AddSender(msg.sender)) ++
-      msg.to.map(Request.AddRecipient(_)) ++ Seq(
+      Request.NewMailingSession(msg.getSender)) ++
+      msg.getTo.map(Request.AddRecipient(_)) ++ Seq(
       Request.BeginData,
       Request.TextData(Seq("MIME-Version: 1.0", "Content-Type: text/plain","body")),
       Request.Quit

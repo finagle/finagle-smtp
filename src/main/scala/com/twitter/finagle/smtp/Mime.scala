@@ -43,9 +43,6 @@ sealed trait Mime{
   def addHeaders(newHeaders: Seq[MimeHeader]): Mime
   }
 
-
-//TODO: various shortcuts for common media types
-
 object Mime {
   val empty = MimePart.empty
 
