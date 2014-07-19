@@ -20,5 +20,6 @@ object GetExtensionFilter {
     "8BITMIME" -> NoEightBitMimeFilter
     "SIZE"     -> NoSizeDeclarationFilter
     "CHUNKING" -> NoChunkingFilter
+    "BINARYMIME" -> NoBinaryMimeFilter
   }
 }
