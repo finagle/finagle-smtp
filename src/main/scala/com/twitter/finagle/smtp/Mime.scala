@@ -15,8 +15,20 @@ sealed trait Mime{
   }.toSeq.sortWith((s1, s2) => s1 == ("MIME-Version: %s" format version))
 
 
-  /*Returns the body of the message that should be sent after headers*/
+  /**
+   * Returns the body of the message that should be sent after headers.
+   * Meant to be used mainly for test purposes.
+   */
   def message: String
+
+  /**
+   * The size of the whole message in bytes.
+   */
+  def size: Int = {
+    val headersSize = getMimeHeaders map { _.length } reduceLeft { _ + _ }
+    val contentSize = message.length
+    headersSize + contentSize
+  }
 
   def contentTransferEncoding: String = headers.getOrElse("Content-Transfer-Encoding", TransferEncoding.default.value)
   def contentDisposition: String = headers.getOrElse("Content-Disposition", ContentDisposition.default.value)
@@ -47,7 +59,7 @@ object Mime {
 
 /*A simple MIME message with some content*/
 case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.empty) extends Mime {
-  def message = new String(content, "US-ASCII") //TODO: 8bit
+  def message = new String(content, "UTF-8")
 
   def addHeader(key: String, value: String) = copy(headers = this.headers.updated(key, value))
   def addHeader(header: MimeHeader) = copy(headers = this.headers.updated(header.name, header.value))

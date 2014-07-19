@@ -17,10 +17,13 @@ object Request {
   val Noop = new TextRequest("NOOP")  //Wait an OK response from server
   val BeginData = new TextRequest("DATA") //Indicate that data is sent
 
-  case class NewMailingSession(sender: MailingAddress, msgSize: Int)
+  case class NewMailingSession(sender: MailingAddress, msgSize: Int) //for enabled SIZE
     extends TextRequest("MAIL FROM: <%s> SIZE %d".format(sender.mailbox, msgSize))
   case class AddSender(addr: MailingAddress) extends TextRequest("MAIL FROM: <" + addr.mailbox + ">")
   case class AddRecipient(rcpt: MailingAddress) extends TextRequest("RCPT TO: <" + rcpt.mailbox + ">")
+
+  case class BeginDataChunk(size: Int) extends TextRequest("BDAT %d" format size) //for CHUNKING
+  case class BeginLastDataChunk(size: Int) extends TextRequest("BDAT %d LAST" format size) //for CHUNKING; only for the last part
 
   case class TextData(text: Seq[String], enc: Charset = CharsetUtil.US_ASCII) extends TextRequest(text.mkString("\r\n"))
   case class MimeData(data: MimePart) extends MimeRequest(data)
