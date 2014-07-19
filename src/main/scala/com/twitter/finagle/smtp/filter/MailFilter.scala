@@ -10,13 +10,14 @@ import com.twitter.util.Future
  */
 object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
   override def apply(msg: EmailMessage, send: Service[Request, Reply]): Future[Unit] = {
+    val body = msg.getBody
+
     val envelope: Seq[Request] =
-      Seq(Request.AddSender(msg.getSender))   ++
+      Seq(Request.NewMailingSession(msg.getSender, body.size))   ++
         msg.getTo.map(Request.AddRecipient(_))  ++
         msg.getCc.map(Request.AddRecipient(_))  ++
         msg.getBcc.map(Request.AddRecipient(_))
 
-    val body = msg.getBody
     val data: Seq[Request] = body match {
       case mimepart: MimePart => Seq(Request.MimeData(mimepart))
       case multipart: MimeMultipart =>

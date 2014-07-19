@@ -12,11 +12,13 @@ object GetExtensionFilter {
   val forSupported: PartialFunction[Extension, SimpleFilter[Request, Reply]] = {
     case Extension("8BITMIME", _) => EightBitMimeFilter
     case Extension("SIZE", size::_) => new SizeDeclarationFilter(size.toInt)
+    case Extension("CHUNKING") => ChunkingFilter
   }
 
   // filters applied in case there are no extensions with such names
   val forUnsupportedExtensions = Map[String, SimpleFilter[Request, Reply]] {
     "8BITMIME" -> NoEightBitMimeFilter
     "SIZE"     -> NoSizeDeclarationFilter
+    "CHUNKING" -> NoChunkingFilter
   }
 }
