@@ -28,9 +28,8 @@ object Smtp extends Client[Request, Reply] {
     })
 
   override def newClient(dest: Name, label: String) = {
-    val client = Promise[ServiceFactory[Request, Reply]]
     val extService = TestEsmtp.newService(dest, label)
-    extService(Request.Hello) flatMap {
+    val client = extService(Request.Hello) flatMap {
       //if everything is all right, add available extensions
       case ext: Extensions => {
         extService(Request.Quit)
@@ -38,12 +37,12 @@ object Smtp extends Client[Request, Reply] {
           line <- ext.lines.tail map { _.toUpperCase split " " }
         } yield Extension(line.head, line.tail)
           val esmtp = SmtpExtensions(supported)
-          Future.value(esmtp)
+        Future.value(SmtpClient(esmtp).newClient(dest, label))
         }
       //else construct client without extensions
-      case _ => Future.value(SmtpExtensions())
-    } onSuccess { extensions =>
-      client.setValue(SmtpClient(extensions).newClient(dest, label))
+      case _ => Future.value(SmtpClient(SmtpExtensions()).newClient(dest, label))
+    } rescue {
+      case _ => Future.value(SmtpClient(SmtpExtensions()).newClient(dest, label))
     }
 
     Await.result(client)
