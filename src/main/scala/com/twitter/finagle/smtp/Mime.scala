@@ -1,6 +1,9 @@
 package com.twitter.finagle.smtp
 
+import java.io.File
 import java.nio.charset.Charset
+
+import com.twitter.io.Files
 
 /*A trait for general MIME messages*/
 sealed trait Mime{
@@ -32,22 +35,38 @@ sealed trait Mime{
 //TODO: various shortcuts for common media types
 
 object Mime {
-  val empty = MimePart.empty  
+  val empty = MimePart.empty
+
+  private def textContent(text: String, subtype: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
+    ContentType("text", subtype, Map("charset" -> enc.displayName()))
+  }
   
-  def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
-                                                  ContentType("text", "plain", Map("charset" -> enc.displayName()))
-                                              }
+  def plainText(text: String, enc: Charset): MimePart = textContent(text, "plain", enc)
 
-  def plainText(text: String, encName: String) = MimePart(text.getBytes(Charset.forName(encName))) setContentType {
-                                                  ContentType("text", "plain", Map("charset" -> encName))
-                                              }
+  def plainText(text: String, encName: String): MimePart = plainText(text, Charset.forName(encName))
 
-  def plainText(text: String) = MimePart(text.getBytes(Charset.forName("US-ASCII"))) setContentType ContentType("text", "plain")
+  def plainText(text: String): MimePart = plainText(text, Charset.forName("US-ASCII"))
+
+  def html(text: String, enc: Charset): MimePart = textContent(text, "html", enc)
+
+  def html(text: String, encName: String): MimePart = html(text, Charset.forName(encName))
+
+  def html(text: String): MimePart = html(text, Charset.forName("US-ASCII"))
+
+  def fromFile(path: String) = {
+    val contents = Files.readBytes(new File(path))
+    val javaPath = java.nio.file.Paths.get(path)
+    val probe = java.nio.file.Files.probeContentType(javaPath)
+    val ct = if (probe == null) ContentType.default
+             else ContentType parse probe
+
+    MimePart(contents, Map("Content-Type" -> ct.value))
+  }
 }
 
 /*A simple MIME message with some content*/
 case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.empty) extends Mime {
-  def message = new String(content, "US-ASCII") //TODO: 8bit
+  def message = new String(content, "US-ASCII")
 
   def addHeader(key: String, value: String) = copy(headers = this.headers.updated(key, value))
   def addHeader(header: MimeHeader) = copy(headers = this.headers.updated(header.name, header.value))

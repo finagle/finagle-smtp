@@ -1,5 +1,7 @@
 package com.twitter.finagle.smtp
 
+import java.io.{FileOutputStream, File}
+
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -94,5 +96,20 @@ class MimeTest extends FunSuite{
     ) mkString "\r\n"
 
     assert(multipart.message === expectedMessage)
+  }
+
+  test("MimePart from file") {
+    val bytes = "<html><h1>Test file</h1></html>".getBytes("US-ASCII")
+    val file = File.createTempFile("file", ".html")
+    val os = new FileOutputStream(file)
+    os.write(bytes)
+    os.close()
+
+    val mime = Mime.fromFile(file.getAbsolutePath)
+
+    assert(mime.contentType === "text/html")
+    assert(mime.content === bytes)
+
+    file.delete()
   }
 }
