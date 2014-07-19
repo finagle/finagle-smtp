@@ -40,7 +40,6 @@ object Smtp extends Client[Request, Reply] {
         Future.value(SmtpClient(esmtp).newClient(dest, label))
         }
       //else construct client without extensions
-      case _ => Future.value(SmtpClient(SmtpExtensions()).newClient(dest, label))
     } rescue {
       case _ => Future.value(SmtpClient(SmtpExtensions()).newClient(dest, label))
     }
