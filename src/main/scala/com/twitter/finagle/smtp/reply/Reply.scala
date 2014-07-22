@@ -39,6 +39,119 @@ object ReplyCode {
 
   val INVALID_REPLY_CODE          = -1
 }
+import ReplyCode._
 
 trait Reply extends UnspecifiedReply
+
+object Reply {
+  def apply(rep: UnspecifiedReply) = rep match {
+    case specified: Reply => specified
+    case _: UnspecifiedReply => {
+      rep.code match {
+        case SYSTEM_STATUS              => new SystemStatus(rep.info) {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case HELP                       => new Help(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case SERVICE_READY              => val (domain, info) = rep.info span {_ != ' '}
+          new ServiceReady(domain, info)  {
+            override val isMultiline = rep.isMultiline
+            override val lines = rep.lines
+          }
+        case CLOSING_TRANSMISSION       => new ClosingTransmission(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case OK_REPLY                   => new OK(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case TEMP_USER_NOT_LOCAL        => new TempUserNotLocal(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case TEMP_USER_NOT_VERIFIED     => new TempUserNotVerified(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case START_INPUT                => new StartInput(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case SERVICE_NOT_AVAILABLE      => new ServiceNotAvailable(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case TEMP_MAILBOX_UNAVAILABLE   => new TempMailboxUnavailable(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case PROCESSING_ERROR           => new ProcessingError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case TEMP_INSUFFICIENT_STORAGE  => new TempInsufficientStorage(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case PARAMS_ACCOMODATION_ERROR  => new ParamsAccommodationError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case SYNTAX_ERROR               => new SyntaxError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case ARGUMENT_SYNTAX_ERROR      => new ArgumentSyntaxError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case COMMAND_NOT_IMPLEMENTED    => new CommandNotImplemented(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case BAD_COMMAND_SEQUENCE       => new BadCommandSequence(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case PARAMETER_NOT_IMPLEMENTED  => new ParameterNotImplemented(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case MAILBOX_UNAVAILABLE_ERROR  => new MailboxUnavailableError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case USER_NOT_LOCAL_ERROR       => new UserNotLocalError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case INSUFFICIENT_STORAGE_ERROR => new InsufficientStorageError(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case INVALID_MAILBOX_NAME       => new InvalidMailboxName(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case TRANSACTION_FAILED         => new TransactionFailed(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case ADDRESS_NOT_RECOGNIZED     => new AddressNotRecognized(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+
+        case _                          => new UnknownReplyCodeError(rep.code, rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+      }
+    }
+  }
+}
 

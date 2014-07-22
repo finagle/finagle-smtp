@@ -1,5 +1,6 @@
 package com.twitter.finagle.smtp
 
+import org.jboss.netty.util.CharsetUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
@@ -29,18 +30,35 @@ class DataFilterTest extends FunSuite {
   }
   val dataFilterService = DataFilter andThen TestService
 
-  test("makes data end with <CRLF>.<CRLF>") {
+  test("makes text data end with <CRLF>.<CRLF>") {
     val data = Seq("line1", "line2.")
     val request = Request.TextData(data)
     val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
-    assert(response.req.asInstanceOf[Request.TextData].cmd === "line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
+    assert(response.req.asInstanceOf[Request.TextData].cmd === "line1\r\nline2.\r\n.") //last /r/n will be added by encoder,
+                                                                                       // as after any other text command
   }
 
-  test("duplicates leading dot") {
+  test("makes byte data end with <CRLF>.<CRLF>") {
+    val data = "line1\r\nline2.".getBytes("US-ASCII")
+    val request = Request.MimeData(MimePart(data))
+    val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
+    val repContent = new String(response.req.asInstanceOf[Request.MimeData].data.content, CharsetUtil.US_ASCII)
+    assert(repContent === "line1\r\nline2.\r\n.\r\n") //last /r/n should be present, as it will not be added by encoder
+  }
+
+  test("duplicates leading dot in text data") {
     val data = Seq(".", ".line1", "line2.")
     val request = Request.TextData(data)
     val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
     assert(response.req.asInstanceOf[Request.TextData].cmd === "..\r\n..line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
+  }
+
+  test("duplicates leading dot in byte data") {
+    val data = ".\r\n.line1\r\nline2.".getBytes("US-ASCII")
+    val request = Request.MimeData(MimePart(data))
+    val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
+    val repContent = new String(response.req.asInstanceOf[Request.MimeData].data.content, CharsetUtil.US_ASCII)
+    assert(repContent === "..\r\n..line1\r\nline2.\r\n.\r\n") //last /r/n should be present, as it will not be added by encoder
   }
 
   test("ignores non-Data commands") {

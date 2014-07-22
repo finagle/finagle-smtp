@@ -1,6 +1,7 @@
 package com.twitter.finagle
 
-import com.twitter.util.{Await, Promise, Time, Future}
+import com.twitter.logging.Logger
+import com.twitter.util.{Await, Time, Future}
 import com.twitter.finagle.client.{DefaultClient, Bridge}
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.reply._
@@ -12,12 +13,10 @@ import com.twitter.finagle.smtp.SmtpExtensions
 /* A client used to connect firstly and receive all supported extensions. */
 private object TestEsmtp extends Client[Request, Reply] {
   override def newClient(dest: Name, label: String) =
-    TestHelloFilter andThen OkToExtFilter andThen Smtp.defaultClient.newClient(dest, label)
+    TestHelloFilter andThen OkToExtFilter andThen Clients.defaultClient.newClient(dest, label)
 }
 
-/* Constructs SMTP client with extensions supported by server. */
-object Smtp extends Client[Request, Reply] {
-
+private object Clients {
   val defaultClient = DefaultClient[Request, Reply] (
     name = "smtp",
     endpointer = {
@@ -27,49 +26,94 @@ object Smtp extends Client[Request, Reply] {
       (addr, stats) => bridge(addr, stats)
     })
 
-  override def newClient(dest: Name, label: String) = {
+  val pipeliningClient = DefaultClient[Request, UnspecifiedReply] (
+    name = "smtp",
+    endpointer = {
+      val bridge = Bridge[Request, UnspecifiedReply, Request, UnspecifiedReply](
+        SmtpTransporter, new SmtpPipeliningDispatcher(_)
+      )
+      (addr, stats) => bridge(addr, stats)
+    })
+}
+
+trait SmtpRichClient { self: Client[Request, Reply] =>
+  /**
+   * Constructs a new SMTP client that can pipeline requests.
+   * If pipelining is not allowed (no PIPELINING extension),
+   * an ordinary SMTP client is constructed.
+   */
+  def newPipeliningClient(dest: Name, label: String): ServiceFactory[Request, Reply]
+
+  /**
+   * Constructs a new client that can send emails.
+   */
+  def newSimpleClient(dest: Name, label: String): ServiceFactory[EmailMessage, Unit]
+}
+
+object Smtp extends Client[Request, Reply] with SmtpRichClient {
+  private def getExtensions(dest: Name, label: String): SmtpExtensions = {
     val extService = TestEsmtp.newService(dest, label)
-    val client = extService(Request.Hello) flatMap {
+    val extensions = extService(Request.Hello) flatMap {
       //if everything is all right, add available extensions
       case ext: Extensions => {
         extService(Request.Quit)
         val supported = for {
           line <- ext.lines.tail map { _.toUpperCase split " " }
         } yield Extension(line.head, line.tail)
-          val esmtp = SmtpExtensions(supported)
-        Future.value(SmtpClient(esmtp).newClient(dest, label))
-        }
-      //else construct client without extensions
+        Future.value(SmtpExtensions(supported))
+      }
+      //else no extensions are supported
     } rescue {
-      case _ => Future.value(SmtpClient(SmtpExtensions()).newClient(dest, label))
+      case _ => Future.value(SmtpExtensions())
     }
 
-    Await.result(client)
+    Await.result(extensions)
   }
+
+  override def newClient(dest: Name, label: String) = {
+    val esmtp = getExtensions(dest, label)
+    SmtpClient(esmtp).newClient(dest, label)
+  }
+
+  def newPipeliningClient(dest: Name, label: String) = {
+    val esmtp = getExtensions(dest, label)
+    SmtpPipelining(esmtp).newClient(dest, label)
+  }
+
+  def newSimpleClient(dest: Name, label: String) = SmtpSimple.newClient(dest, label)
 }
 
-
-/* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
-case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
-
-  val hasExt = for {
+//adds extensions to SMTP clients
+case class Esmtp(extensions: SmtpExtensions) {
+  // filters for supported SMTP extensions
+  val supportedExtFilters = for {
     extension <- extensions.supported
     if GetExtensionFilter.forSupported.isDefinedAt(extension)
   } yield GetExtensionFilter forSupported extension
 
-  val noExt = for {
+  // filters applied when some SMTP extensions are not supported
+  val unsupportedExtFilters = for {
     (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
     if !(extensions.supported.map(_.keyword) contains extension)
   } yield filter
 
+  def extend(client: ServiceFactory[Request, Reply]): ServiceFactory[Request, Reply] = {
+    val extFilters = (supportedExtFilters ++ unsupportedExtFilters).reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
+
+    DataFilter andThen
+    OkToExtFilter andThen
+    extFilters andThen
+    client
+  }
+}
+
+/* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
+case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
+
   override def newClient(dest: Name, label: String) = {
-
-    val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Smtp.defaultClient.newClient(dest, label)){
-
+    val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Clients.defaultClient.newClient(dest, label)){
       override def apply(conn: ClientConnection) = {
-
         self.apply(conn) flatMap { service =>
-
           val quitOnClose = new ServiceProxy[Request, Reply](service) {
 
             override def close(deadline: Time) = {
@@ -84,8 +128,7 @@ case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply]
       }
     }
 
-    val extFilters = (hasExt ++ noExt).reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
-    DataFilter andThen OkToExtFilter andThen extFilters andThen quitOnCloseClient
+    Esmtp(extensions) extend quitOnCloseClient
   }
 }
 
@@ -105,4 +148,20 @@ object SmtpSimple extends Client[EmailMessage, Unit] {
   }
 }
 
+/**
+ * An SMTP client that can pipeline requests,
+ * if there is pipelining support.
+ */
+private case class SmtpPipelining(extensions: SmtpExtensions) extends Client[Request, Reply] {
+  override def newClient(dest: Name, label: String) = {
+    val client = extensions.supported find {
+      case Extension(SmtpExtensions.PIPELINING, _) => true
+      case _ => false
+    } match {
+      case Some(_) => SpecifyingFilter andThen Clients.pipeliningClient.newClient(dest, label)
+      case None => Smtp.newClient(dest, label)
+    }
 
+    Esmtp(extensions) extend client
+  }
+}
