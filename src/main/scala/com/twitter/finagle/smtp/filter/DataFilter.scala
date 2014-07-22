@@ -27,12 +27,15 @@ object DataFilter extends SimpleFilter[Request, Reply] {
        val lf = "\n".getBytes("US-ASCII")(0)
        val dot = ".".getBytes("US-ASCII")(0)
 
-       val shieldedBytes = { for ( i <- data.content.indices drop 2 )
-                           yield if (data.content(i-2) == cr && data.content(i-1) == lf && data.content(i) == dot) Seq(dot, dot)
+       val shieldedBytes: Seq[Byte] = { for ( i <- data.content.indices )
+                           yield if (i >= 2 && data.content.indexOfSlice(Seq(cr, lf, dot), i-2) == i-2 ||
+                                     i == 0 && data.content(i) == dot
+                                    ) Seq(dot, dot)
                                  else Seq(data.content(i))
-                         }.flatten.toArray[Byte]
-
-       val shieldedMime = MimePart(shieldedBytes, data.headers)
+                         }.flatten
+       //add last dot; the bytes are copied as-is, so we need to add <CRLF> after the dot too
+       val withLastDot = shieldedBytes ++ Seq(cr, lf, dot, cr, lf)
+       val shieldedMime = MimePart(withLastDot.toArray[Byte], data.headers)
 
        send(Request.MimeData(shieldedMime))
      }

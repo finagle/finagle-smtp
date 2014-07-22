@@ -2,12 +2,37 @@ package com.twitter.finagle.smtp
 
 import java.net.InetAddress
 import java.nio.charset.Charset
+import org.jboss.netty.buffer.{ChannelBuffers, ChannelBuffer}
 import org.jboss.netty.util.CharsetUtil
 
-trait Request
+trait Request {
+  def toChannelBuffer: ChannelBuffer
+}
 
-class TextRequest(val cmd: String, val extensions: Map[String, String] = Map.empty) extends Request
-class MimeRequest(val mime: MimePart) extends Request
+class TextRequest(val cmd: String) extends Request {
+  def toChannelBuffer = ChannelBuffers.copiedBuffer(cmd + "\r\n", CharsetUtil.US_ASCII)
+}
+
+class ExtendedRequest(cmd: String, val extensions: Map[String,String]) extends TextRequest(cmd) {
+  override def toChannelBuffer = {
+    val params = extensions map {case (k, v) => "%s=%s".format(k, v)}
+    val fullCmd = cmd + params.mkString(" " , " ", "")
+    ChannelBuffers.copiedBuffer(fullCmd + "\r\n", CharsetUtil.US_ASCII)
+  }
+}
+
+class MimeRequest(val mime: MimePart) extends Request {
+  def toChannelBuffer = {
+    val headerBytes = mime.getMimeHeaders.mkString("", "\r\n", "\r\n").getBytes(CharsetUtil.US_ASCII)
+    ChannelBuffers.copiedBuffer(headerBytes, mime.content)
+  }
+}
+
+case class BatchedRequest(val reqs: Seq[Request]) extends Request {
+  // The contents (subrequests) of this request are supposed to be sent
+  // separately, so the request itself cannot be sent
+  def toChannelBuffer = ChannelBuffers.wrappedBuffer(Array[Byte]())
+}
 
 sealed trait BodyEncoding
 object BodyEncoding {
@@ -25,7 +50,7 @@ object Request {
   val BeginData = new TextRequest("DATA") //Indicate that data is sent
 
   case class NewMailingSession(sender: MailingAddress, ext: Map[String, String] = Map.empty)
-    extends TextRequest("MAIL FROM: <%s>".format(sender.mailbox), ext) {
+    extends ExtendedRequest("MAIL FROM: <%s>".format(sender.mailbox), ext){
     def messageSize(size: Int) = copy(ext = this.ext.updated("SIZE", size.toString))
     def bodyEncoding(be: BodyEncoding) = copy(ext = this.ext.updated("BODY", be.toString))
   }
