@@ -38,10 +38,17 @@ object ReplyCode {
   val ADDRESS_NOT_RECOGNIZED      = 555
 
   val INVALID_REPLY_CODE          = -1
+  val GROUPED_REPLY               = 111
 }
 import ReplyCode._
+import com.twitter.util.Future
 
 trait Reply extends UnspecifiedReply
+
+case class GroupedReply(val reps: Seq[Future[Reply]]) extends Reply {
+  val code = GROUPED_REPLY
+  val info = ""
+}
 
 object Reply {
   def apply(rep: UnspecifiedReply) = rep match {

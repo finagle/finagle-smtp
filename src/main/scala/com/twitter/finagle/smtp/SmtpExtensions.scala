@@ -15,20 +15,3 @@ object SmtpExtensions {
 }
 
 case class Extension(keyword: String, params: Seq[String])
-
-object GetExtensionFilter {
-  import SmtpExtensions._
-  val forSupported: PartialFunction[Extension, SimpleFilter[Request, Reply]] = {
-    case Extension(EIGHTBITMIME, _) => EightBitMimeFilter
-    case Extension(SIZE, size::_) => new SizeDeclarationFilter(size.toInt)
-    case Extension(CHUNKING, _) => ChunkingFilter
-  }
-
-  // filters applied in case there are no extensions with such names
-  val forUnsupportedExtensions = Map[String, SimpleFilter[Request, Reply]] {
-    EIGHTBITMIME -> NoEightBitMimeFilter
-    SIZE         -> NoSizeDeclarationFilter
-    CHUNKING     -> NoChunkingFilter
-    BINARYMIME   -> NoBinaryMimeFilter
-  }
-}

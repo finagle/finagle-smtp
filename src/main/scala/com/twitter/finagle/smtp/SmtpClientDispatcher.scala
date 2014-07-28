@@ -15,7 +15,10 @@ object SmtpClientDispatcher {
 }
 
 class SmtpPipeliningDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends PipeliningDispatcher[Request, UnspecifiedReply](trans)
+extends PipeliningDispatcher[Request, UnspecifiedReply](trans) {
+  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] =
+    super.dispatch(req, p)
+}
 
 class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
@@ -52,7 +55,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
         case ext: ExtendedRequest => ext.toChannelBuffer.toString(CharsetUtil.US_ASCII)
         case txt: TextRequest => txt.cmd
         case ent: MimeRequest => ent.mime.getMimeHeaders.mkString("","\r\n","\r\n") + ent.mime.message
-        case _ => "<Unknown request type>" //batched request are not supposed to be dispatched here
+        case _ => "<Unknown request type>" //grouped request are not supposed to be dispatched here
       }
       log.info("client: %s", msg)
 

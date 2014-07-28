@@ -13,6 +13,9 @@ class TextRequest(val cmd: String) extends Request {
   def toChannelBuffer = ChannelBuffers.copiedBuffer(cmd + "\r\n", CharsetUtil.US_ASCII)
 }
 
+private[smtp] class HelloRequest(keyword: String) extends TextRequest("%s %s".format(keyword, InetAddress.getLocalHost.getHostName))
+private[smtp] class BeginDataRequest(cmd: String) extends TextRequest(cmd)
+
 class ExtendedRequest(cmd: String, val extensions: Map[String,String]) extends TextRequest(cmd) {
   override def toChannelBuffer = {
     val params = extensions map {case (k, v) => "%s=%s".format(k, v)}
@@ -28,7 +31,7 @@ class MimeRequest(val mime: MimePart) extends Request {
   }
 }
 
-case class BatchedRequest(val reqs: Seq[Request]) extends Request {
+case class GroupedRequest(val reqs: Seq[Request]) extends Request {
   // The contents (subrequests) of this request are supposed to be sent
   // separately, so the request itself cannot be sent
   def toChannelBuffer = ChannelBuffers.wrappedBuffer(Array[Byte]())
@@ -42,12 +45,12 @@ object BodyEncoding {
 }
 
 object Request {
-  val Hello = new TextRequest("EHLO " + InetAddress.getLocalHost.getHostName) //Get information about the server
-  val SimpleHello = new TextRequest("HELO " + InetAddress.getLocalHost.getHostName)
+  val Hello = new HelloRequest("EHLO") //Get information about the server
+  val SimpleHello = new HelloRequest("HELO")
   val Quit = new TextRequest("QUIT")  //Close connection
   val Reset = new TextRequest("RSET") //Reset mailing session, returning to initial state
   val Noop = new TextRequest("NOOP")  //Wait an OK response from server
-  val BeginData = new TextRequest("DATA") //Indicate that data is sent
+  val BeginData = new BeginDataRequest("DATA") //Indicate that data is sent
 
   case class NewMailingSession(sender: MailingAddress, ext: Map[String, String] = Map.empty)
     extends ExtendedRequest("MAIL FROM: <%s>".format(sender.mailbox), ext){
@@ -56,8 +59,8 @@ object Request {
   }
   case class AddRecipient(rcpt: MailingAddress) extends TextRequest("RCPT TO: <" + rcpt.mailbox + ">")
 
-  case class BeginDataChunk(size: Int) extends TextRequest("BDAT %d" format size) //for CHUNKING
-  case class BeginLastDataChunk(size: Int) extends TextRequest("BDAT %d LAST" format size) //for CHUNKING; only for the last part
+  case class BeginDataChunk(size: Int) extends BeginDataRequest("BDAT %d" format size) //for CHUNKING
+  case class BeginLastDataChunk(size: Int) extends BeginDataRequest("BDAT %d LAST" format size) //for CHUNKING; only for the last part
 
   case class TextData(text: Seq[String], enc: Charset = CharsetUtil.US_ASCII) extends TextRequest(text.mkString("\r\n"))
   case class MimeData(data: MimePart) extends MimeRequest(data)
