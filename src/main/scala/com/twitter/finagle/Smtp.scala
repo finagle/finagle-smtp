@@ -86,20 +86,21 @@ object Smtp extends Client[Request, Reply] with SmtpRichClient {
 //adds extensions to SMTP clients
 case class Esmtp(extensions: SmtpExtensions) {
   // filters for supported SMTP extensions
-  val supportedExtFilters = for {
+  lazy val supportedExtFilters = for {
     extension <- extensions.supported
     if GetExtensionFilter.forSupported.isDefinedAt(extension)
   } yield GetExtensionFilter forSupported extension
 
   // filters applied when some SMTP extensions are not supported
-  val unsupportedExtFilters = for {
+  lazy val unsupportedExtFilters = for {
     (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
     if !(extensions.supported.map(_.keyword) contains extension)
   } yield filter
 
-  def extend(client: ServiceFactory[Request, Reply]): ServiceFactory[Request, Reply] = {
-    val extFilters = (supportedExtFilters ++ unsupportedExtFilters).reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
+  lazy val extFilters = (supportedExtFilters ++ unsupportedExtFilters)
+                         .reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
 
+  def extend(client: ServiceFactory[Request, Reply]): ServiceFactory[Request, Reply] = {
     DataFilter andThen
     OkToExtFilter andThen
     extFilters andThen
@@ -164,7 +165,7 @@ private case class SmtpPipelining(extensions: SmtpExtensions) extends Client[Req
       case Extension(SmtpExtensions.PIPELINING, _) => true
       case _ => false
     } match {
-      case Some(_) => SpecifyingFilter andThen Clients.pipeliningClient.newClient(dest, label)
+      case Some(_) => PipeliningFilter andThen SpecifyingFilter andThen Clients.pipeliningClient.newClient(dest, label)
       case None => Smtp.newClient(dest, label)
     }
 
