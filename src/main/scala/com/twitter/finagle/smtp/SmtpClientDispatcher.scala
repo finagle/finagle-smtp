@@ -7,41 +7,48 @@ import com.twitter.finagle.smtp.reply._
 import com.twitter.logging.Logger
 import org.jboss.netty.util.CharsetUtil
 
-object SmtpClientDispatcher {
-  private def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
+trait SmtpDispatcherOps[Rep, Out] { self: GenSerialClientDispatcher[Request, Rep, Request, Out] =>
+  def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
    p.updateIfEmpty(Try(value))
    Future.Done
   }
-}
 
-class SmtpPipeliningDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends PipeliningDispatcher[Request, UnspecifiedReply](trans) {
-  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] =
-    super.dispatch(req, p)
-}
-
-class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
-  import GenSerialClientDispatcher.wrapWriteException
-  import SmtpClientDispatcher._
-  import ReplyCode._
-
-  val log = Logger(getClass)
-
-  /*Connection phase: should receive greeting from the server*/
-  private val connPhase: Future[Unit] = {
+  def receiveGreeting(trans: Transport[Request, UnspecifiedReply]) = {
     trans.read flatMap { greet =>
-      val p = new Promise[Reply]
-      decodeReply(greet, p) flatMap { unit =>
-        p flatMap {
+      Reply(greet) match {
           case ServiceReady(_,_) => Future.Done
           case other => Future.exception(InvalidReply(other.toString))
-        }
       }
     } onFailure {
       case _ =>  close()
     }
   }
+}
+
+class SmtpPipeliningDispatcher(trans: Transport[Request, UnspecifiedReply])
+extends PipeliningDispatcher[Request, UnspecifiedReply](trans)
+with SmtpDispatcherOps[UnspecifiedReply, UnspecifiedReply]{
+  /*Connection phase: should receive greeting from the server*/
+  private val connPhase: Future[Unit] = receiveGreeting(trans)
+
+  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] = {
+    connPhase flatMap { _ =>
+      super.dispatch(req, p)
+    } onFailure {
+      case _ => close()
+    }
+  }
+
+}
+
+class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
+extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans)
+with SmtpDispatcherOps[Reply, UnspecifiedReply] {
+  import GenSerialClientDispatcher.wrapWriteException
+  val log = Logger(getClass)
+
+  /*Connection phase: should receive greeting from the server*/
+  private val connPhase: Future[Unit] = receiveGreeting(trans)
 
   /**
    * Dispatch a request, satisfying Promise `p` with the response;

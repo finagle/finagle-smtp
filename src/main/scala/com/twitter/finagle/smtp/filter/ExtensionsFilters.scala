@@ -4,7 +4,7 @@ import com.twitter.finagle.smtp._
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp.reply._
 import org.jboss.netty.util.CharsetUtil
-import com.twitter.util.{Future, Base64StringEncoder}
+import com.twitter.util.Future
 import com.twitter.finagle.smtp.SmtpExtensions
 
 object GetExtensionFilter {
