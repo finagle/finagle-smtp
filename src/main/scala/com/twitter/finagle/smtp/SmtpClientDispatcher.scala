@@ -8,43 +8,48 @@ import com.twitter.finagle.transport.Transport
 import com.twitter.logging.Logger
 import org.jboss.netty.util.CharsetUtil
 
-object SmtpClientDispatcher {
-  private def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
+trait SmtpDispatcherOps[Rep, Out] { self: GenSerialClientDispatcher[Request, Rep, Request, Out] =>
+  def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
    p.updateIfEmpty(Try(value))
    Future.Done
+  }
+
+  def receiveGreeting(trans: Transport[Request, UnspecifiedReply]) = {
+    trans.read flatMap { greet =>
+      Reply(greet) match {
+          case ServiceReady(_,_) => Future.Done
+          case other => Future.exception(InvalidReply(other.toString))
+      }
+    } onFailure {
+      case _ =>  close()
+    }
   }
 }
 
 class SmtpPipeliningDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends PipeliningDispatcher[Request, UnspecifiedReply](trans) {
-  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] =
-    super.dispatch(req, p)
+extends PipeliningDispatcher[Request, UnspecifiedReply](trans)
+with SmtpDispatcherOps[UnspecifiedReply, UnspecifiedReply]{
+  /*Connection phase: should receive greeting from the server*/
+  private val connPhase: Future[Unit] = receiveGreeting(trans)
+
+  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] = {
+    connPhase flatMap { _ =>
+      super.dispatch(req, p)
+    } onFailure {
+      case _ => close()
+    }
+  }
+
 }
 
 class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
+extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans)
+with SmtpDispatcherOps[Reply, UnspecifiedReply] {
   import GenSerialClientDispatcher.wrapWriteException
-  import ReplyCode._
+  val log = Logger(getClass)
 
-  /** Logs client requests and server replies. */
-  val log = Logger(getClass.getName)
-
-  /**
-   * Performs the connection phase. This is done once
-   * before any client-server exchange. Upon the connection
-   * the server should send greeting. If the greeting is
-   * malformed, the service is closed.
-   */
-  private[this] val connPhase: Future[Unit] = {
-    trans.read() flatMap { greet =>
-      val p = new Promise[Reply]
-      decodeReply(greet, p)
-      p flatMap {
-        case ServiceReady(_,_) => Future.Done
-        case other => Future.exception(InvalidReply(other.toString))
-      }
-    }
-  }
+  /*Connection phase: should receive greeting from the server*/
+  private val connPhase: Future[Unit] = receiveGreeting(trans)
 
   /**
    * Reads a reply or a sequence of replies (parts of a multiline reply).
@@ -129,7 +134,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
     }
     else log.trace("server: %d %s", rep.code, rep.info)
 
-    SmtpClientDispatcher.makeUnit(p, Reply(rep))
+    makeUnit(p, Reply(rep))
   }
 
 }
