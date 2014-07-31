@@ -78,7 +78,8 @@ case class EmailBuilder(payload: Payload) {
     val javaPath = java.nio.file.Paths.get(path)
     val filename = javaPath.getFileName.toString
 
-    addBodyPart(Mime.fromFile(path).setContentDisposition(ContentDisposition.attachment(filename)))
+    addBodyPart(MimePart(contents).setContentDisposition(ContentDisposition.attachment(filename))
+                                  .setContentType(ct))
   }
 
 

@@ -1,8 +1,4 @@
-package com.twitter.finagle.smtp
-
-import com.twitter.finagle.{Filter, SimpleFilter}
-import com.twitter.finagle.smtp.reply.Reply
-import com.twitter.finagle.smtp.filter._
+package com.twitter.finagle.smtp.extension
 
 case class SmtpExtensions (supported: Seq[Extension] = Seq.empty)
 

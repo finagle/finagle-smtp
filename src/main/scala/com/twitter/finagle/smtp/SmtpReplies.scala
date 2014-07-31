@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.reply
+package com.twitter.finagle.smtp
 
 import ReplyCode._
 

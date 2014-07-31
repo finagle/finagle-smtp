@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.reply
+package com.twitter.finagle.smtp
 
 /**
  * Basic trait for all SMTP replies. Describes a reply
@@ -61,7 +61,7 @@ object ReplyCode {
   val INVALID_REPLY_CODE          = -1
   val GROUPED_REPLY               = 111
 }
-import ReplyCode._
+import com.twitter.finagle.smtp.ReplyCode._
 import com.twitter.util.Future
 
 trait Reply extends UnspecifiedReply

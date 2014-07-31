@@ -1,5 +1,6 @@
 package com.twitter.finagle.smtp
 
+import com.twitter.finagle.smtp.util._
 import org.jboss.netty.util.CharsetUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -11,24 +12,10 @@ import java.util.Locale
 import com.twitter.finagle.smtp.filter.{HeadersFilter, MailFilter, DataFilter}
 import com.twitter.finagle.smtp.reply.Reply
 
-//a reply that holds request as it is sent to the service
-case class TestReply(req: Request) extends Reply {
-  val code = 0
-  val info = "test ok"
-}
-
-class TestError extends Error {
-  val code = -1
-  val info = "test error"
-}
 
 @RunWith(classOf[JUnitRunner])
 class DataFilterTest extends FunSuite {
-
-  val TestService = new Service[Request, Reply] {
-    def apply(req: Request): Future[Reply] = Future { TestReply(req)}
-  }
-  val dataFilterService = DataFilter andThen TestService
+  val dataFilterService = DataFilter andThen SimpleTestService
 
   test("makes text data end with <CRLF>.<CRLF>") {
     val data = Seq("line1", "line2.")

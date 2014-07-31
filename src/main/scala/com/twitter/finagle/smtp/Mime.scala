@@ -49,14 +49,20 @@ object Mime {
   private def textContent(text: String, subtype: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
     ContentType("text", subtype, Map("charset" -> enc.displayName()))
   }
-  
-  def plainText(text: String, enc: Charset): MimePart = textContent(text, "plain", enc)
 
-  def plainText(text: String, encName: String): MimePart = plainText(text, Charset.forName(encName))
+  def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
+                                                  ContentType("text", "plain", Map("charset" -> enc.displayName()))
+                                              } setContentTransferEncoding {
+                                                  if (enc != Charset.forName("US-ASCII")) TransferEncoding.EightBit
+                                                  else TransferEncoding.SevenBit
+                                              }
 
-  def plainText(text: String): MimePart = plainText(text, Charset.forName("US-ASCII"))
-
-  def html(text: String, enc: Charset): MimePart = textContent(text, "html", enc)
+  def plainText(text: String, encName: String) = MimePart(text.getBytes(Charset.forName(encName))) setContentType {
+                                                  ContentType("text", "plain", Map("charset" -> encName))
+                                              }  setContentTransferEncoding {
+                                                   if (encName.toUpperCase != "US-ASCII") TransferEncoding.EightBit
+                                                   else TransferEncoding.SevenBit
+                                              }
 
   def html(text: String, encName: String): MimePart = html(text, Charset.forName(encName))
 

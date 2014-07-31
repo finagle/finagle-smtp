@@ -1,5 +1,6 @@
 package com.twitter.finagle
 
+import com.twitter.finagle.smtp.extension._
 import com.twitter.logging.Logger
 import com.twitter.util.{Await, Time, Future}
 import com.twitter.finagle.client.{DefaultClient, Bridge}
@@ -8,13 +9,8 @@ import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.smtp.filter._
 import com.twitter.finagle.smtp.transport.SmtpTransporter
 import com.twitter.finagle.smtp.reply.Extensions
-import com.twitter.finagle.smtp.SmtpExtensions
 
-/* A client used to connect firstly and receive all supported extensions. */
-private object TestEsmtp extends Client[Request, Reply] {
-  override def newClient(dest: Name, label: String) =
-    TestHelloFilter andThen OkToExtFilter andThen Clients.defaultClient.newClient(dest, label)
-}
+
 
 private object Clients {
   val defaultClient = DefaultClient[Request, Reply] (
@@ -83,30 +79,7 @@ object Smtp extends Client[Request, Reply] with SmtpRichClient {
   def newSimpleClient(dest: Name, label: String) = SmtpSimple.newClient(dest, label)
 }
 
-//adds extensions to SMTP clients
-case class Esmtp(extensions: SmtpExtensions) {
-  // filters for supported SMTP extensions
-  lazy val supportedExtFilters = for {
-    extension <- extensions.supported
-    if GetExtensionFilter.forSupported.isDefinedAt(extension)
-  } yield GetExtensionFilter forSupported extension
 
-  // filters applied when some SMTP extensions are not supported
-  lazy val unsupportedExtFilters = for {
-    (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
-    if !(extensions.supported.map(_.keyword) contains extension)
-  } yield filter
-
-  lazy val extFilters = (supportedExtFilters ++ unsupportedExtFilters)
-                         .reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
-
-  def extend(client: ServiceFactory[Request, Reply]): ServiceFactory[Request, Reply] = {
-    DataFilter andThen
-    OkToExtFilter andThen
-    extFilters andThen
-    client
-  }
-}
 
 /* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
 case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
