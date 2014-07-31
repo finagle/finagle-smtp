@@ -84,7 +84,7 @@ case class EmailBuilder(payload: Payload) {
     val filename = javaPath.getFileName.toString
 
     addBodyPart(MimePart(contents).setContentDisposition(ContentDisposition.attachment(filename))
-                               .setContentType(ct))
+                                  .setContentType(ct))
   }
 
 

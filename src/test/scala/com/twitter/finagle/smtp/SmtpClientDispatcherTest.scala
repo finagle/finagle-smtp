@@ -58,6 +58,13 @@ class SmtpClientDispatcherTest extends FunSuite {
     assert(Await.result(rep).isInstanceOf[OK])
   }
 
+  test("errors are exceptions") {
+    val (server, dispatcher) = newTestSetWithGreeting
+    val rep = dispatcher(Request.Noop)
+    server.offer(SyntaxError("error"))
+    assert(rep.isThrow)
+  }
+
   test("wraps unknown replies") {
     val (server, dispatcher) = newTestSetWithGreeting
     val unknownRep = new UnspecifiedReply {
@@ -66,6 +73,11 @@ class SmtpClientDispatcherTest extends FunSuite {
     }
     val rep = dispatcher(Request.Noop)
     server.offer(unknownRep)
-    assert(Await.result(rep).isInstanceOf[UnknownReplyCodeError])
+    rep onSuccess { _ =>
+      fail("should fail")
+    } onFailure {
+      case _: UnknownReplyCodeError =>
+      case _ => fail("should be UnknownReplyCodeError")
+    }
   }
 }

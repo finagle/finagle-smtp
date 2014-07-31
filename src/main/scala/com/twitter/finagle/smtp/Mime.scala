@@ -45,10 +45,16 @@ object Mime {
   
   def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
                                                   ContentType("text", "plain", Map("charset" -> enc.displayName()))
+                                              } setContentTransferEncoding {
+                                                  if (enc != Charset.forName("US-ASCII")) TransferEncoding.EightBit
+                                                  else TransferEncoding.SevenBit
                                               }
 
   def plainText(text: String, encName: String) = MimePart(text.getBytes(Charset.forName(encName))) setContentType {
                                                   ContentType("text", "plain", Map("charset" -> encName))
+                                              }  setContentTransferEncoding {
+                                                   if (encName.toUpperCase != "US-ASCII") TransferEncoding.EightBit
+                                                   else TransferEncoding.SevenBit
                                               }
 
   def plainText(text: String) = MimePart(text.getBytes(Charset.forName("US-ASCII"))) setContentType ContentType("text", "plain")

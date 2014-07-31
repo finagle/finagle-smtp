@@ -8,11 +8,6 @@ import com.twitter.logging.Logger
 import org.jboss.netty.util.CharsetUtil
 
 trait SmtpDispatcherOps[Rep, Out] { self: GenSerialClientDispatcher[Request, Rep, Request, Out] =>
-  def makeUnit[T](p: Promise[T], value: => T): Future[Unit] = {
-   p.updateIfEmpty(Try(value))
-   Future.Done
-  }
-
   def receiveGreeting(trans: Transport[Request, UnspecifiedReply]) = {
     trans.read flatMap { greet =>
       Reply(greet) match {
@@ -62,7 +57,6 @@ with SmtpDispatcherOps[Reply, UnspecifiedReply] {
         case ext: ExtendedRequest => ext.toChannelBuffer.toString(CharsetUtil.US_ASCII)
         case txt: TextRequest => txt.cmd
         case ent: MimeRequest => ent.mime.getMimeHeaders.mkString("","\r\n","\r\n") + ent.mime.message
-        case _ => "<Unknown request type>" //grouped request are not supposed to be dispatched here
       }
       log.info("client: %s", msg)
 
@@ -92,7 +86,12 @@ with SmtpDispatcherOps[Reply, UnspecifiedReply] {
       log.info("%s%s%s", start, middle, end)
     }
     else log.info("server: %d %s", rep.code, rep.info)
-    makeUnit(p, Reply(rep))
+
+    Reply(rep) match {
+      case err: Error => p.setException(err)
+      case r@_ => p.setValue(r)
+    }
+    Future.Done
   }
 
 }
