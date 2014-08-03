@@ -1,7 +1,6 @@
 package com.twitter.finagle.smtp.extension
 
 import com.twitter.finagle.smtp._
-import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 

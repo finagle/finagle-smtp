@@ -1,10 +1,10 @@
 package com.twitter.finagle.smtp.transport
 
-import org.jboss.netty.channel.{Channels, MessageEvent, ChannelHandlerContext, SimpleChannelUpstreamHandler}
-import com.twitter.finagle.smtp.reply._
+import com.twitter.finagle.smtp.{InvalidReply, UnspecifiedReply}
+import org.jboss.netty.channel.{ChannelHandlerContext, Channels, MessageEvent, SimpleChannelUpstreamHandler}
 
 class SmtpDecoder extends SimpleChannelUpstreamHandler{
-  import CodecUtil._
+  import com.twitter.finagle.smtp.transport.CodecUtil._
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) = {
     val pipeline = ctx.getPipeline
     if (pipeline.get(aggregation) != null)

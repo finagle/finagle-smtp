@@ -1,10 +1,8 @@
 package com.twitter.finagle.smtp.filter
 
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp._
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
-import com.twitter.finagle.smtp.reply.Reply
-import scala.collection.immutable.IndexedSeq
 
 object DataFilter extends SimpleFilter[Request, Reply] {
    override def apply(req: Request, send: Service[Request, Reply]): Future[Reply] = req match {

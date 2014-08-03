@@ -1,9 +1,8 @@
 package com.twitter.finagle.smtp.filter
 
-import com.twitter.finagle.{Service, Filter}
 import com.twitter.finagle.smtp._
+import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
-import com.twitter.finagle.smtp.reply.Reply
 
 /*Filter for parsing email and sending corresponding commands, then aggregating results*/
 object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{

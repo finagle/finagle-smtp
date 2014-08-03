@@ -1,6 +1,6 @@
 package com.twitter.finagle.smtp
 
-import ReplyCode._
+import com.twitter.finagle.smtp.ReplyCode._
 
 /*Syntax errors*/
 case class SyntaxError(info: String) extends SyntaxErrorReply {

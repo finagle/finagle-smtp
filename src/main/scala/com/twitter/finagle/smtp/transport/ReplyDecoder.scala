@@ -1,13 +1,13 @@
 package com.twitter.finagle.smtp.transport
 
-import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
-import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import com.twitter.finagle.smtp.{InvalidReply, NonTerminalLine, UnspecifiedReply}
 import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
 import org.jboss.netty.util.CharsetUtil
-import com.twitter.finagle.smtp.reply._
 
 class ReplyDecoder extends LineBasedFrameDecoder(500) {
-  import CodecUtil._
+  import com.twitter.finagle.smtp.transport.CodecUtil._
   override def decode(ctx: ChannelHandlerContext, channel: Channel, msg: ChannelBuffer): UnspecifiedReply = {
     val buf = super.decode(ctx, channel, msg)
     if (buf == null) null

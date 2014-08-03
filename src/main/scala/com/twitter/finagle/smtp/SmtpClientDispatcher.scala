@@ -1,49 +1,29 @@
 package com.twitter.finagle.smtp
 
+import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispatcher}
 import com.twitter.finagle.transport.Transport
-import com.twitter.finagle.dispatch.{PipeliningDispatcher, GenSerialClientDispatcher}
-import com.twitter.util.{Future, Promise, Try}
-import com.twitter.finagle.smtp.reply._
 import com.twitter.logging.Logger
+import com.twitter.util.{Future, Promise}
 import org.jboss.netty.util.CharsetUtil
 
-trait SmtpDispatcherOps[Rep, Out] { self: GenSerialClientDispatcher[Request, Rep, Request, Out] =>
-  def receiveGreeting(trans: Transport[Request, UnspecifiedReply]) = {
+class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
+extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
+  import com.twitter.finagle.dispatch.GenSerialClientDispatcher.wrapWriteException
+  val log = Logger(getClass)
+
+  /*Connection phase: should receive greeting from the server*/
+  private val connPhase: Future[Unit] = {
     trans.read flatMap { greet =>
       Reply(greet) match {
-          case ServiceReady(_,_) => Future.Done
-          case other => Future.exception(InvalidReply(other.toString))
+        case ServiceReady(_,_) => Future.Done
+        case other => Future.exception(InvalidReply(other.toString))
       }
     } onFailure {
       case _ =>  close()
     }
   }
-}
 
-class SmtpPipeliningDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends PipeliningDispatcher[Request, UnspecifiedReply](trans)
-with SmtpDispatcherOps[UnspecifiedReply, UnspecifiedReply]{
-  /*Connection phase: should receive greeting from the server*/
-  private val connPhase: Future[Unit] = receiveGreeting(trans)
-
-  override protected def dispatch(req: Request, p: Promise[UnspecifiedReply]): Future[Unit] = {
-    connPhase flatMap { _ =>
-      super.dispatch(req, p)
-    } onFailure {
-      case _ => close()
-    }
-  }
-
-}
-
-class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans)
-with SmtpDispatcherOps[Reply, UnspecifiedReply] {
-  import GenSerialClientDispatcher.wrapWriteException
-  val log = Logger(getClass)
-
-  /*Connection phase: should receive greeting from the server*/
-  private val connPhase: Future[Unit] = receiveGreeting(trans)
+  private lazy val pipeliningDispatcher = new PipeliningDispatcher[Request, UnspecifiedReply](trans)
 
   /**
    * Dispatch a request, satisfying Promise `p` with the response;
@@ -60,18 +40,25 @@ with SmtpDispatcherOps[Reply, UnspecifiedReply] {
       }
       log.info("client: %s", msg)
 
-      trans.write(req) rescue {
-        wrapWriteException
-      } flatMap { unit =>
-        trans.read()
-      } flatMap { rp =>
-        val signal = decodeReply(rp, p)
-        p onFailure {
-          case UnknownReplyCodeError(_,_) => close()
-          case _ =>
-        }
-        signal
+      p onFailure {
+        case UnknownReplyCodeError(_,_) => close()
+        case _ =>
       }
+
+      req match {
+        case GroupPart(rq) => pipeliningDispatcher(rq) flatMap { rp =>
+          decodeReply(rp, p)
+        }
+        case _ =>
+          trans.write(req) rescue {
+            wrapWriteException
+          } flatMap { unit =>
+            trans.read()
+          } flatMap { rp =>
+            decodeReply(rp, p)
+          }
+      }
+
     } onFailure {
       _ => close()
     }

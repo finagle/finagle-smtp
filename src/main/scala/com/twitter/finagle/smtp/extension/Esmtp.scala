@@ -1,13 +1,8 @@
 package com.twitter.finagle.smtp.extension
 
-import com.twitter.finagle.smtp.Request
-import com.twitter.finagle.smtp.filter.DataFilter
-import com.twitter.finagle.smtp.reply.Reply
-import com.twitter.finagle.{Filter, ServiceFactory}
+import com.twitter.finagle.smtp.{Reply, Request}
+import com.twitter.finagle.{Filter, Service}
 
-/**
- * Created by lenovo on 31.07.2014.
- */
 //adds extensions to SMTP clients
 case class Esmtp(extensions: SmtpExtensions) {
   // filters for supported SMTP extensions
@@ -25,9 +20,7 @@ case class Esmtp(extensions: SmtpExtensions) {
   lazy val extFilters = (supportedExtFilters ++ unsupportedExtFilters)
                          .reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
 
-  def extend(client: ServiceFactory[Request, Reply]): ServiceFactory[Request, Reply] = {
-    DataFilter andThen
-    OkToExtFilter andThen
+  def extend(client: Service[Request, Reply]): Service[Request, Reply] = {
     extFilters andThen
     client
   }

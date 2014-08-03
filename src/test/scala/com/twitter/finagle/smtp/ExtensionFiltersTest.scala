@@ -4,7 +4,6 @@ import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.Service
 import com.twitter.finagle.smtp.Request.NewMailingSession
 import com.twitter.finagle.smtp.extension._
-import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.smtp.util._
 import com.twitter.finagle.transport.QueueTransport
 import com.twitter.util.{Await, Future}
@@ -216,7 +215,7 @@ class NoBinaryMimeTest extends FunSuite {
 class NoPipeliningTest extends FunSuite {
   test("rejects grouped requests with RequestNotAllowed") {
     val reqs = Seq(Request.Hello, Request.Quit)
-    val grouped = GroupedRequest(reqs)
+    val grouped = RequestGroup(reqs)
     val service = NoPipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onSuccess { rep =>
@@ -231,7 +230,7 @@ class NoPipeliningTest extends FunSuite {
 class PipeliningTest extends FunSuite {
   test("rejects group requests with the wrong order of commands with BadCommandSequence reply") {
     val reqs = Seq(Request.Hello, Request.NewMailingSession(MailingAddress.empty), Request.Noop)
-    val grouped = GroupedRequest(reqs)
+    val grouped = RequestGroup(reqs)
     val service = PipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onSuccess { rep =>
@@ -244,7 +243,7 @@ class PipeliningTest extends FunSuite {
 
   test("allows correct group requests") {
     val reqs = Seq(Request.NewMailingSession(MailingAddress.empty), Request.BeginData)
-    val grouped = GroupedRequest(reqs)
+    val grouped = RequestGroup(reqs)
     val service = PipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onFailure { _ => fail("should allow correct request") }

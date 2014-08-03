@@ -1,13 +1,12 @@
 package com.twitter.finagle.smtp
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import org.jboss.netty.channel._
-import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.util.CharsetUtil
 import com.twitter.finagle.smtp.transport.{CodecUtil, ReplyDecoder}
-import com.twitter.finagle.smtp.reply.{InvalidReply, NonTerminalLine, UnspecifiedReply}
+import org.jboss.netty.buffer.ChannelBuffers
+import org.jboss.netty.channel._
+import org.jboss.netty.util.CharsetUtil
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 import org.specs.mock.MockitoStubs
 
 @RunWith(classOf[JUnitRunner])

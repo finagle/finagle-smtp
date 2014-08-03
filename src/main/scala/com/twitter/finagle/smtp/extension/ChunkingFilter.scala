@@ -1,9 +1,7 @@
 package com.twitter.finagle.smtp.extension
 
-import com.twitter.finagle.smtp.Request
-import com.twitter.finagle.smtp.reply.Reply
+import com.twitter.finagle.smtp.{Reply, Request}
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.util.Await
 
 /**
  * Filter that is applied when CHUNKING extension is supported.

@@ -1,10 +1,11 @@
 package com.twitter.finagle.smtp.filter
 
-import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.util.Future
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.twitter.finagle.smtp.{MailingAddress, EmailBuilder, EmailMessage}
+
+import com.twitter.finagle.smtp.{EmailBuilder, EmailMessage, MailingAddress}
+import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.util.Future
 
 object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
    def apply(msg: EmailMessage, send: Service[EmailMessage, Unit]): Future[Unit] = {

@@ -1,7 +1,6 @@
 package com.twitter.finagle.smtp.extension
 
-import com.twitter.finagle.smtp.reply.Reply
-import com.twitter.finagle.smtp.{Mime, Request, TransferEncoding}
+import com.twitter.finagle.smtp.{Mime, Reply, Request, TransferEncoding}
 import com.twitter.finagle.{Service, SimpleFilter}
 import org.jboss.netty.util.CharsetUtil
 

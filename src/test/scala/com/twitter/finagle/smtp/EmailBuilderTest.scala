@@ -1,11 +1,10 @@
 package com.twitter.finagle.smtp
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import com.twitter.util.Try
-import com.twitter.io.TempFile
 import java.io.{File, FileOutputStream}
+
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class EmailBuilderTest extends FunSuite {

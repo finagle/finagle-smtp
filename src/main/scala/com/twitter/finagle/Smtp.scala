@@ -1,44 +1,21 @@
 package com.twitter.finagle
 
-import com.twitter.finagle.smtp.extension._
-import com.twitter.logging.Logger
-import com.twitter.util.{Await, Time, Future}
-import com.twitter.finagle.client.{DefaultClient, Bridge}
+import com.twitter.finagle.client.{Bridge, DefaultClient}
 import com.twitter.finagle.smtp._
-import com.twitter.finagle.smtp.reply._
+import com.twitter.finagle.smtp.extension._
 import com.twitter.finagle.smtp.filter._
 import com.twitter.finagle.smtp.transport.SmtpTransporter
-import com.twitter.finagle.smtp.reply.Extensions
-
-
-
-private object Clients {
-  val defaultClient = DefaultClient[Request, Reply] (
-    name = "smtp",
-    endpointer = {
-      val bridge = Bridge[Request, UnspecifiedReply, Request, Reply](
-        SmtpTransporter, new SmtpClientDispatcher(_)
-      )
-      (addr, stats) => bridge(addr, stats)
-    })
-
-  val pipeliningClient = DefaultClient[Request, UnspecifiedReply] (
-    name = "smtp",
-    endpointer = {
-      val bridge = Bridge[Request, UnspecifiedReply, Request, UnspecifiedReply](
-        SmtpTransporter, new SmtpPipeliningDispatcher(_)
-      )
-      (addr, stats) => bridge(addr, stats)
-    })
-}
+import com.twitter.util.{Future, Time}
 
 trait SmtpRichClient { self: Client[Request, Reply] =>
+
   /**
-   * Constructs a new SMTP client that can pipeline requests.
-   * If pipelining is not allowed (no PIPELINING extension),
-   * an ordinary SMTP client is constructed.
+   * Constructs an SMTP client which can support
+   * given extensions, if they are supported by server.
+   *
+   * @param extensionNames Names of extensions to support; they should be made uppercase.
    */
-  def newPipeliningClient(dest: Name, label: String): ServiceFactory[Request, Reply]
+  def withSupportFor(extensionNames: Seq[String]): Client[Request, Reply]
 
   /**
    * Constructs a new client that can send emails.
@@ -47,14 +24,42 @@ trait SmtpRichClient { self: Client[Request, Reply] =>
 }
 
 object Smtp extends Client[Request, Reply] with SmtpRichClient {
-  private def getExtensions(dest: Name, label: String): SmtpExtensions = {
-    val extService = TestEsmtp.newService(dest, label)
-    val extensions = extService(Request.Hello) flatMap {
+
+  override def newClient(dest: Name, label: String) = SmtpClient().newClient(dest, label)
+
+  def withSupportFor(extensionNames: Seq[String]) = SmtpClient(extensionNames.map(_.toUpperCase))
+
+  def newSimpleClient(dest: Name, label: String) = SmtpSimple.newClient(dest, label)
+}
+
+/**
+ * Implements an SMTP client with given extensions
+ * that sends EHLO upon connection and QUIT before
+ * closing connection. */
+case class SmtpClient(supporting: Seq[String] = Seq.empty) extends Client[Request, Reply] {
+  private val defaultClient = DefaultClient[Request, Reply] (
+    name = "smtp",
+    endpointer = {
+      val bridge = Bridge[Request, UnspecifiedReply, Request, Reply](
+        SmtpTransporter, new SmtpClientDispatcher(_)
+      )
+      (addr, stats) => bridge(addr, stats)
+    })
+
+  /**
+   * Sends an EHLO request and processes its reply
+   *
+   * @param service The service used to send requests and receive replies
+   * @return Future containing extensions supported by server
+   */
+  private def getExtensions(service: Service[Request, Reply]): Future[SmtpExtensions] = {
+    val extService = OkToExtFilter andThen service
+    extService(Request.Hello) flatMap {
       //if everything is all right, add available extensions
       case ext: Extensions => {
-        extService(Request.Quit)
         val supported = for {
           line <- ext.lines.tail map { _.toUpperCase split " " }
+          if supporting contains line.head
         } yield Extension(line.head, line.tail)
         Future.value(SmtpExtensions(supported))
       }
@@ -62,80 +67,38 @@ object Smtp extends Client[Request, Reply] with SmtpRichClient {
     } rescue {
       case _ => Future.value(SmtpExtensions())
     }
-
-    Await.result(extensions)
   }
 
   override def newClient(dest: Name, label: String) = {
-    val esmtp = getExtensions(dest, label)
-    SmtpClient(esmtp).newClient(dest, label)
-  }
-
-  def newPipeliningClient(dest: Name, label: String) = {
-    val esmtp = getExtensions(dest, label)
-    SmtpPipelining(esmtp).newClient(dest, label)
-  }
-
-  def newSimpleClient(dest: Name, label: String) = SmtpSimple.newClient(dest, label)
-}
-
-
-
-/* Implements an SMTP client with given extensions that sends QUIT before closing connection. */
-case class SmtpClient(extensions: SmtpExtensions) extends Client[Request, Reply] {
-
-  override def newClient(dest: Name, label: String) = {
-    val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](Clients.defaultClient.newClient(dest, label)){
+    new ServiceFactoryProxy[Request, Reply](defaultClient.newClient(dest, label)){
       override def apply(conn: ClientConnection) = {
         self.apply(conn) flatMap { service =>
-          val quitOnClose = new ServiceProxy[Request, Reply](service) {
-
-            override def close(deadline: Time) = {
-
-              if (service.isAvailable)
-                service(Request.Quit)
-              service.close(deadline)
+          // Send EHLO and get extensions supported by server
+          getExtensions(service) flatMap { extensions =>
+            // Send QUIT upon closing, if not sent manually
+            val quitOnClose = new ServiceProxy[Request, Reply](service) {
+              override def close(deadline: Time) = {
+                if (service.isAvailable)
+                  service(Request.Quit)
+                service.close(deadline)
+              }
             }
-          }
-          Future.value(quitOnClose)
-        }
-      }
-    }
 
-    Esmtp(extensions) extend quitOnCloseClient
+            Future.value {
+              // Shield message body
+              DataFilter andThen
+              // Transform OK replies to Extensions replies
+              OkToExtFilter andThen
+              // Make behaviour changes according to supported extensions
+              Esmtp(extensions).extend(quitOnClose)
+            }
+          }}}}
   }
 }
 
 /* A client that sends an email message as a request. */
 object SmtpSimple extends Client[EmailMessage, Unit] {
   override def newClient(dest: Name, label: String) = {
-    //send EHLO in the beginning of the session
-    val startHelloClient = new ServiceFactoryProxy[Request, Reply](Smtp.newClient(dest, label)) {
-      override def apply(conn: ClientConnection) = {
-        self.apply(conn) flatMap { service =>
-          service(Request.Hello)
-          Future.value(service)
-        }
-      }
-    }
-    HeadersFilter andThen MailFilter andThen startHelloClient
-  }
-}
-
-/**
- * An SMTP client that can pipeline requests,
- * if there is pipelining support.
- */
-private case class SmtpPipelining(extensions: SmtpExtensions) extends Client[Request, Reply] {
-  override def newClient(dest: Name, label: String) = {
-    val client = extensions.supported find {
-      case Extension(SmtpExtensions.PIPELINING, _) => true
-      case _ => false
-    } match {
-      case Some(_) => PipeliningFilter andThen SpecifyingFilter andThen Clients.pipeliningClient.newClient(dest, label)
-      case None => Smtp.newClient(dest, label)
-    }
-
-    Esmtp(extensions) extend client
+    HeadersFilter andThen MailFilter andThen Smtp.newClient(dest, label)
   }
 }

@@ -1,18 +1,15 @@
 package com.twitter.finagle.smtp.extension
 
 import com.twitter.finagle.SimpleFilter
-import com.twitter.finagle.smtp.reply.Reply
-import com.twitter.finagle.smtp.Request
+import com.twitter.finagle.smtp.{Reply, Request}
 
-/**
- * Created by lenovo on 31.07.2014.
- */
 object GetExtensionFilter {
-  import SmtpExtensions._
+  import com.twitter.finagle.smtp.extension.SmtpExtensions._
   val forSupported: PartialFunction[Extension, SimpleFilter[Request, Reply]] = {
     case Extension(EIGHTBITMIME, _) => EightBitMimeFilter
     case Extension(SIZE, size::_) => new SizeDeclarationFilter(size.toInt)
     case Extension(CHUNKING, _) => ChunkingFilter
+    case Extension(PIPELINING, _) => PipeliningFilter
   }
 
   // filters applied in case there are no extensions with such names

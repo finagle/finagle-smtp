@@ -1,9 +1,10 @@
 package com.twitter.finagle.smtp
 
-import java.util.{Calendar, Date}
-import java.nio.charset.Charset
-import com.twitter.io.Files
 import java.io.File
+import java.nio.charset.Charset
+import java.util.{Calendar, Date}
+
+import com.twitter.io.Files
 
 case class Payload(from: Seq[MailingAddress],
                    sender: MailingAddress,
