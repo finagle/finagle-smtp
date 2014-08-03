@@ -1,11 +1,10 @@
 package com.twitter.finagle.smtp
 
-import java.io.{FileOutputStream, File}
+import java.nio.charset.Charset
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
-import java.nio.charset.Charset
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class MimeTest extends FunSuite{

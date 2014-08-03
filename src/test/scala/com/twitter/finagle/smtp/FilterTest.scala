@@ -1,16 +1,16 @@
 package com.twitter.finagle.smtp
 
-import com.twitter.finagle.smtp.util._
-import org.jboss.netty.util.CharsetUtil
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
-import com.twitter.finagle.Service
-import com.twitter.util.{Try, Await, Future}
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.twitter.finagle.smtp.filter.{HeadersFilter, MailFilter, DataFilter}
-import com.twitter.finagle.smtp.reply.Reply
+
+import com.twitter.finagle.Service
+import com.twitter.finagle.smtp.filter.{DataFilter, HeadersFilter, MailFilter}
+import com.twitter.finagle.smtp.util._
+import com.twitter.util.{Await, Future}
+import org.jboss.netty.util.CharsetUtil
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])

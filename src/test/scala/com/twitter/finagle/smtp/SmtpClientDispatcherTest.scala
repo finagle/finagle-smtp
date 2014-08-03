@@ -1,15 +1,11 @@
 package com.twitter.finagle.smtp
 
+import com.twitter.concurrent.AsyncQueue
+import com.twitter.finagle.transport.QueueTransport
+import com.twitter.util.Await
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
-import com.twitter.concurrent.AsyncQueue
-import com.twitter.finagle.smtp.reply._
-import com.twitter.finagle.smtp.reply.InvalidReply
-import com.twitter.finagle.smtp.reply.OK
-import com.twitter.finagle.smtp.reply.ServiceReady
-import com.twitter.finagle.transport.QueueTransport
-import com.twitter.util.Await
 
 @RunWith(classOf[JUnitRunner])
 class SmtpClientDispatcherTest extends FunSuite {

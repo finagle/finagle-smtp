@@ -2,7 +2,8 @@ package com.twitter.finagle.smtp
 
 import java.net.InetAddress
 import java.nio.charset.Charset
-import org.jboss.netty.buffer.{ChannelBuffers, ChannelBuffer}
+
+import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.util.CharsetUtil
 
 trait Request {
@@ -31,10 +32,14 @@ class MimeRequest(val mime: MimePart) extends Request {
   }
 }
 
-case class GroupedRequest(val reqs: Seq[Request]) extends Request {
+case class RequestGroup(reqs: Seq[Request]) extends Request {
   // The contents (subrequests) of this request are supposed to be sent
   // separately, so the request itself cannot be sent
   def toChannelBuffer = ChannelBuffers.wrappedBuffer(Array[Byte]())
+}
+
+private[smtp] case class GroupPart(req: Request) extends Request {
+  def toChannelBuffer = req.toChannelBuffer
 }
 
 sealed trait BodyEncoding

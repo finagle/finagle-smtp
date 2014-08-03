@@ -3,10 +3,6 @@ package com.twitter.finagle.smtp.transport
 import com.twitter.finagle.smtp.Request
 import com.twitter.util.NonFatal
 import org.jboss.netty.channel._
-import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.util.CharsetUtil
-import com.twitter.util.NonFatal
-import com.twitter.finagle.smtp.{ExtendedRequest, TextRequest, Request}
 
 /**
  * Encodes a Request into a ChannelBuffer.
