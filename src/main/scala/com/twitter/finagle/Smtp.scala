@@ -5,6 +5,7 @@ import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.extension._
 import com.twitter.finagle.smtp.filter._
 import com.twitter.finagle.smtp.transport.SmtpTransporter
+import com.twitter.logging.Logger
 import com.twitter.util.{Future, Time}
 
 trait SmtpRichClient { self: Client[Request, Reply] =>
@@ -100,5 +101,20 @@ case class SmtpClient(supporting: Seq[String] = Seq.empty) extends Client[Reques
 object SmtpSimple extends Client[EmailMessage, Unit] {
   override def newClient(dest: Name, label: String) = {
     HeadersFilter andThen MailFilter andThen Smtp.newClient(dest, label)
+  }
+
+  /**
+   * Provides SMTP client that sends emails
+   * and logs the session.
+   *
+   * @param log The logger to use
+   */
+  def withLogging(log: Logger) = new Client[EmailMessage, Unit] {
+    def newClient(dest: Name, label: String) = {
+      HeadersFilter andThen
+      MailFilter andThen
+      new SmtpLoggingFilter(log) andThen
+      Smtp.newClient(dest, label)
+    }
   }
 }

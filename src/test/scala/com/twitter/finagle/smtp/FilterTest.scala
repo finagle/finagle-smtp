@@ -1,11 +1,13 @@
 package com.twitter.finagle.smtp
 
+import java.net.InetAddress
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.smtp.filter.{DataFilter, HeadersFilter, MailFilter}
+import com.twitter.finagle.smtp.filter.{SmtpLoggingFilter, DataFilter, HeadersFilter, MailFilter}
 import com.twitter.finagle.smtp.util._
+import com.twitter.logging.{BareFormatter, StringHandler, Logger}
 import com.twitter.util.{Await, Future}
 import org.jboss.netty.util.CharsetUtil
 import org.junit.runner.RunWith
@@ -165,11 +167,52 @@ class HeaderFilterTest extends FunSuite {
         checkHeader(lines, "From: ", msg.getFrom.mkString(","))
         checkHeader(lines, "To: ", msg.getTo.mkString(","))
         checkHeader(lines, "Subject: ", msg.getSubject)
-        checkHeader(lines, "Date: ", new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ", Locale.forLanguageTag("eng")).format(msg.getDate))
+        checkHeader(lines, "Date: ", new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ").format(msg.getDate))
       }
     }
 
     val headerFilterService = HeadersFilter andThen headerTestService
     val test = headerFilterService(multipleAddressMsg)
+  }
+}
+
+@RunWith(classOf[JUnitRunner])
+class SmtpLoggingFilterTest extends FunSuite {
+  test("logs successful answers") {
+    val successfulService = new Service[Request, Reply] {
+      def apply(req: Request): Future[Reply] = Future.value(OK("ok"))
+    }
+
+    val log = Logger.get("test")
+    log.setLevel(Logger.INFO)
+    val stringHandler = new StringHandler(BareFormatter, Some(Logger.INFO))
+    log.addHandler(stringHandler)
+    log.setUseParentHandlers(false)
+
+    val loggingService = new SmtpLoggingFilter(log) andThen successfulService
+
+    Await result loggingService(Request.Hello)
+
+    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 250 ok\n".format(InetAddress.getLocalHost.getHostName))
+  }
+
+  test("logs errors") {
+    val unsuccessfulService = new Service[Request, Reply] {
+      def apply(req: Request): Future[Reply] = Future.exception(SyntaxError("err"))
+    }
+
+    val log = Logger.get("test")
+    log.setLevel(Logger.INFO)
+    val stringHandler = new StringHandler(BareFormatter, Some(Logger.INFO))
+    log.addHandler(stringHandler)
+    log.setUseParentHandlers(false)
+
+    val loggingService = new SmtpLoggingFilter(log) andThen unsuccessfulService
+
+    loggingService(Request.Hello) rescue {
+      case _ => Future.Done
+    }
+
+    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 500 err\n".format(InetAddress.getLocalHost.getHostName))
   }
 }

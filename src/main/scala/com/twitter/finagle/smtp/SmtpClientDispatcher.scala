@@ -9,7 +9,6 @@ import org.jboss.netty.util.CharsetUtil
 class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
   import com.twitter.finagle.dispatch.GenSerialClientDispatcher.wrapWriteException
-  val log = Logger(getClass)
 
   /*Connection phase: should receive greeting from the server*/
   private val connPhase: Future[Unit] = {
@@ -72,14 +71,6 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
    */
   protected def dispatch(req: Request, p: Promise[Reply]): Future[Unit] = {
     connPhase flatMap { _ =>
-      //logging
-      val msg = req match {
-        case ext: ExtendedRequest => ext.toChannelBuffer.toString(CharsetUtil.US_ASCII)
-        case txt: TextRequest => txt.cmd
-        case ent: MimeRequest => ent.mime.getMimeHeaders.mkString("","\r\n","\r\n") + ent.mime.message
-      }
-      log.info("client: %s", msg)
-
       p onFailure {
         case UnknownReplyCodeError(_,_) => close()
         case _ =>
@@ -105,17 +96,8 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
   }
 
   private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Future[Unit] = {
-    if (rep.isMultiline) {
-      val start = "server:\r\n" + rep.code + "-"
-      val middle = rep.lines.dropRight(1).mkString("\r\n" + rep.code + "-")
-      val end = "\r\n" + rep.code + " " + rep.lines.last
-
-      log.trace("%s%s%s", start, middle, end)
-    }
-    else log.info("server: %d %s", rep.code, rep.info)
-
     Reply(rep) match {
-      case err: Error => p.setException(err)
+      case err: SmtpError => p.setException(err)
       case r@_ => p.setValue(r)
     }
     Future.Done

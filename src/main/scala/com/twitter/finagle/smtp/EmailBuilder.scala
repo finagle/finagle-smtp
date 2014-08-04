@@ -76,10 +76,13 @@ case class EmailBuilder(payload: Payload) {
 
   /*Attach a file*/
   def attach(path: String): EmailBuilder = {
-    val javaPath = java.nio.file.Paths.get(path)
-    val filename = javaPath.getFileName.toString
+    val file = new File(path)
+    val contents = Files.readBytes(file)
+    val probe = new javax.activation.MimetypesFileTypeMap().getContentType(file)//java.nio.file.Files.probeContentType(javaPath)
+    val ct = if (probe == null) ContentType.default
+             else ContentType parse probe
 
-    addBodyPart(MimePart(contents).setContentDisposition(ContentDisposition.attachment(filename))
+    addBodyPart(MimePart(contents).setContentDisposition(ContentDisposition.attachment(file.getName))
                                   .setContentType(ct))
   }
 

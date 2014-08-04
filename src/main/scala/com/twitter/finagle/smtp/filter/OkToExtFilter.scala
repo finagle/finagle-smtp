@@ -13,7 +13,7 @@ object OkToExtFilter extends SimpleFilter[Request, Reply]{
           override val lines = ok.lines
         }
         Future.value(ext)
-      case other => Future.exception(InvalidReply("Invalid reply to an EHLO command: %s" format other))
+      case other => Future.exception(InvalidReply(other.toString))
     }
 
     case _ => service(request)
