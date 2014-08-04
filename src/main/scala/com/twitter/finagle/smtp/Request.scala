@@ -34,7 +34,7 @@ class MimeRequest(val mime: MimePart) extends Request {
 
 case class RequestGroup(reqs: Seq[Request]) extends Request {
   // The contents (subrequests) of this request are supposed to be sent
-  // separately, so the request itself cannot be sent
+  // separately, so the group itself cannot be sent
   def toChannelBuffer = ChannelBuffers.wrappedBuffer(Array[Byte]())
 }
 

@@ -3,8 +3,8 @@ package com.twitter.finagle.smtp
 /*Differentiating by success*/
 trait PositiveCompletionReply extends Reply
 trait PositiveIntermediateReply extends Reply
-trait TransientNegativeCompletionReply extends Error
-trait PermanentNegativeCompletionReply extends Error
+trait TransientNegativeCompletionReply extends SmtpError
+trait PermanentNegativeCompletionReply extends SmtpError
 
 /*Differentiating by context*/
 trait SyntaxReply extends Reply

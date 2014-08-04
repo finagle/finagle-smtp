@@ -10,7 +10,7 @@ import com.twitter.util.Future
 object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
    def apply(msg: EmailMessage, send: Service[EmailMessage, Unit]): Future[Unit] = {
      val fields = Map[String, String](
-         "Date"     -> new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ", Locale.forLanguageTag("eng")).format(msg.getDate),
+         "Date"     -> new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ").format(msg.getDate),
          "From"     -> MailingAddress.mailboxList(msg.getFrom),
          "To"       -> MailingAddress.mailboxList(msg.getTo),
          "Cc"       -> MailingAddress.mailboxList(msg.getCc),
