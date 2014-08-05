@@ -1,6 +1,7 @@
 package com.twitter.finagle.smtp
 
 import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispatcher}
+import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
 import com.twitter.logging.Logger
 import com.twitter.util.{Future, Promise}

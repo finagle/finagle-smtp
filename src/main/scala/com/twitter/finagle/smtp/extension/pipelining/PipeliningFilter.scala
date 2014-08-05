@@ -1,6 +1,7 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.pipelining
 
 import com.twitter.finagle.smtp._
+import com.twitter.finagle.smtp.extension.auth.AuthRequest
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
@@ -21,6 +22,7 @@ object PipeliningFilter extends SimpleFilter[Request, Reply] {
         case Request.ExpandMailingList(_) => true
         case Request.Quit => true
         case Request.Noop => true
+        case AuthRequest(_, _) => true
         case _ => false
       } match {
         case Some(_) => Future.exception(BadCommandSequence("Bad command sequence in a request group"))

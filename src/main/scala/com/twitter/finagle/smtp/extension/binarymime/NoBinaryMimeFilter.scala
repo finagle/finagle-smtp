@@ -1,5 +1,6 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.binarymime
 
+import com.twitter.finagle.smtp.extension.ExtendedMailingSession
 import com.twitter.finagle.smtp.{Reply, Request, RequestNotAllowed, TransferEncoding}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
@@ -11,10 +12,10 @@ import com.twitter.util.Future
  */
 object NoBinaryMimeFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
-    case Request.NewMailingSession(sender, ext) => {
+    case ExtendedMailingSession(sender, ext) => {
       ext.get("BODY") match {
-        case Some("BINARYMIME") => service(Request.NewMailingSession(sender, ext - "BODY"))
-        case _ => service(Request.NewMailingSession(sender, ext))
+        case Some("BINARYMIME") => service(ExtendedMailingSession(sender, ext - "BODY"))
+        case _ => service(ExtendedMailingSession(sender, ext))
       }
     }
 

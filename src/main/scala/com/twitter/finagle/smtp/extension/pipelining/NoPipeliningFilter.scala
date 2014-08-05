@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.pipelining
 
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.{Service, SimpleFilter}

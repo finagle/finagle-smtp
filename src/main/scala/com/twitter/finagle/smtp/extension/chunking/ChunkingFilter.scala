@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.chunking
 
 import com.twitter.finagle.smtp.{Reply, Request}
 import com.twitter.finagle.{Service, SimpleFilter}
@@ -9,12 +9,12 @@ import com.twitter.finagle.{Service, SimpleFilter}
  * */
 object ChunkingFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
-    case Request.BeginDataChunk(_) => {
+    case ChunkingReq.BeginDataChunk(_) => {
       service(request) onFailure {
         case _ => service(Request.Reset)
       }
     }
-    case Request.BeginLastDataChunk(_) => {
+    case ChunkingReq.BeginLastDataChunk(_) => {
       service(request) onFailure {
         case _ => service(Request.Reset)
       }
