@@ -2,8 +2,13 @@ package com.twitter.finagle.smtp
 
 import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.Service
-import com.twitter.finagle.smtp.Request.NewMailingSession
 import com.twitter.finagle.smtp.extension._
+import com.twitter.finagle.smtp.extension.auth.{AuthFilter, ServerChallenge, ChallengeResponse, NoAuthFilter}
+import com.twitter.finagle.smtp.extension.binarymime.NoBinaryMimeFilter
+import com.twitter.finagle.smtp.extension.chunking.{ChunkingReq, NoChunkingFilter, ChunkingFilter}
+import com.twitter.finagle.smtp.extension.eightbitmime.{NoEightBitMimeFilter, EightBitMimeFilter}
+import com.twitter.finagle.smtp.extension.pipelining.{RequestGroup, PipeliningFilter, NoPipeliningFilter}
+import com.twitter.finagle.smtp.extension.size.{SizeDeclarationFilter, NoSizeDeclarationFilter}
 import com.twitter.finagle.smtp.util._
 import com.twitter.finagle.transport.QueueTransport
 import com.twitter.util.{Await, Future}
@@ -16,21 +21,21 @@ import org.scalatest.junit.JUnitRunner
 class NoEightBitMimeTest extends FunSuite {
   test("removes BODY=8BITMIME extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = Request.NewMailingSession(sender).bodyEncoding(BodyEncoding.EightBit)
+    val exreq = ExtendedMailingSession(sender).bodyEncoding(BodyEncoding.EightBit)
 
     val service = NoEightBitMimeFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
-    val req = rep.req.asInstanceOf[NewMailingSession]
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(!req.ext.contains("BODY"))
   }
 
   test("does not remove BODY!=8BITMIME extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = Request.NewMailingSession(sender).bodyEncoding(BodyEncoding.SevenBit)
+    val exreq = ExtendedMailingSession(sender).bodyEncoding(BodyEncoding.SevenBit)
 
     val service = NoEightBitMimeFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
-    val req = rep.req.asInstanceOf[NewMailingSession]
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(req.ext.contains("BODY"))
   }
 
@@ -38,11 +43,11 @@ class NoEightBitMimeTest extends FunSuite {
     val text = Request.TextData(Seq("test"), CharsetUtil.UTF_8)
     val service = NoEightBitMimeFilter andThen SimpleTestService
 
-    val textrep = service(text) onSuccess { rep =>
-      fail("should not have accepted 8-bit MIME data")
-    } onFailure {
+    val textrep = service(text) onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
+    } onSuccess { rep =>
+      fail("should not have accepted 8-bit MIME data")
     }
   }
 
@@ -50,11 +55,11 @@ class NoEightBitMimeTest extends FunSuite {
     val mime = Request.MimeData(Mime.plainText("test", CharsetUtil.UTF_8))
     val service = NoEightBitMimeFilter andThen SimpleTestService
 
-    val mimerep = service(mime) onSuccess { rep =>
-      fail("should not have accepted 8-bit MIME data")
-    } onFailure {
+    val mimerep = service(mime) onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
+    } onSuccess { rep =>
+      fail("should not have accepted 8-bit MIME data")
     }
   }
 }
@@ -75,12 +80,12 @@ class EightBitMimeTest extends FunSuite {
 class NoSizeDeclarationTest extends FunSuite {
   test("removes SIZE extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = Request.NewMailingSession(sender).messageSize(4)
+    val exreq = ExtendedMailingSession(sender).messageSize(4)
 
     val service = NoSizeDeclarationFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
-    assert(rep.req.isInstanceOf[NewMailingSession])
-    val req = rep.req.asInstanceOf[NewMailingSession]
+    assert(rep.req.isInstanceOf[ExtendedMailingSession])
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(!req.ext.contains("SIZE"))
   }
 }
@@ -88,20 +93,20 @@ class NoSizeDeclarationTest extends FunSuite {
 class SizeDeclarationTest extends FunSuite {
   test("rejects requests to transmit oversized messages with InsufficientStorageError") {
     val sender = MailingAddress("test@t.com")
-    val req = Request.NewMailingSession(sender).messageSize(10)
+    val req = ExtendedMailingSession(sender).messageSize(10)
     val service = new SizeDeclarationFilter(5) andThen SimpleTestService
 
-    val mimerep = service(req) onSuccess { rep =>
-      fail("should not accept oversized message")
-    } onFailure {
+    val mimerep = service(req) onFailure {
       case _: InsufficientStorageError =>
       case _ => fail("should be InsufficientStorageError")
+    } onSuccess { rep =>
+      fail("should not accept oversized message")
     }
   }
 
   test("ignores size constraints when SIZE=0") {
     val sender = MailingAddress("test@t.com")
-    val req = Request.NewMailingSession(sender).messageSize(10)
+    val req = ExtendedMailingSession(sender).messageSize(10)
     val service = new SizeDeclarationFilter(0) andThen SimpleTestService
 
     val mimerep = service(req) onFailure { _ => fail("should pass the request") }
@@ -111,21 +116,21 @@ class SizeDeclarationTest extends FunSuite {
 class NoChunkingTest extends FunSuite {
   test("rejects BeginDataChunk with RequestNotAllowed") {
     val service = NoChunkingFilter andThen SimpleTestService
-    val chunkrep = service(Request.BeginDataChunk(5)) onSuccess { rep =>
-      fail("should not accept chunking")
-    } onFailure {
+    val chunkrep = service(ChunkingReq.BeginDataChunk(5)) onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
+    } onSuccess { rep =>
+      fail("should not accept chunking")
     }
   }
 
   test("rejects BeginLastDataChunk with RequestNotAllowed") {
     val service = NoChunkingFilter andThen SimpleTestService
-    val chunkrep = service(Request.BeginLastDataChunk(5)) onSuccess { rep =>
-      fail("should not accept chunking")
-    } onFailure {
+    val chunkrep = service(ChunkingReq.BeginLastDataChunk(5)) onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
+    } onSuccess { rep =>
+      fail("should not accept chunking")
     }
   }
 }
@@ -136,8 +141,8 @@ class ChunkingTest extends FunSuite {
 
     val testService = new Service[Request, Reply] {
       def apply(request: Request) = request match {
-        case Request.BeginDataChunk(_) => Future.exception(ProcessingError("chunk"))
-        case Request.BeginLastDataChunk(_) => Future.exception(ProcessingError("last"))
+        case ChunkingReq.BeginDataChunk(_) => Future.exception(ProcessingError("chunk"))
+        case ChunkingReq.BeginLastDataChunk(_) => Future.exception(ProcessingError("last"))
         case Request.BeginData => Future.exception(BadCommandSequence("data"))
         case Request.Reset => {
           resets.offer(OK("reset"))
@@ -148,15 +153,15 @@ class ChunkingTest extends FunSuite {
     }
     val service = ChunkingFilter andThen testService
 
-    service(Request.BeginDataChunk(5))
+    service(ChunkingReq.BeginDataChunk(5))
     assert(resets.size === 1)
-    service(Request.BeginLastDataChunk(5))
+    service(ChunkingReq.BeginLastDataChunk(5))
     assert(resets.size === 2)
     service(Request.BeginData)
     assert(resets.size === 3)
   }
 
-  test("reply to RSET is read") {
+  test("reply to RSET is read before the next request") {
     val client = new AsyncQueue[Request]
     val server = new AsyncQueue[UnspecifiedReply]
     val transport = new QueueTransport[Request, UnspecifiedReply](client, server)
@@ -180,21 +185,21 @@ class ChunkingTest extends FunSuite {
 class NoBinaryMimeTest extends FunSuite {
   test("removes BODY=BINARYMIME extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = Request.NewMailingSession(sender).bodyEncoding(BodyEncoding.Binary)
+    val exreq = ExtendedMailingSession(sender).bodyEncoding(BodyEncoding.Binary)
 
     val service = NoBinaryMimeFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
-    val req = rep.req.asInstanceOf[NewMailingSession]
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(!req.ext.contains("BODY"))
   }
 
   test("does not remove BODY!=BINARYMIME extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = Request.NewMailingSession(sender).bodyEncoding(BodyEncoding.EightBit)
+    val exreq = ExtendedMailingSession(sender).bodyEncoding(BodyEncoding.EightBit)
 
     val service = NoBinaryMimeFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
-    val req = rep.req.asInstanceOf[NewMailingSession]
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(req.ext.contains("BODY"))
   }
 
@@ -229,23 +234,64 @@ class NoPipeliningTest extends FunSuite {
 
 class PipeliningTest extends FunSuite {
   test("rejects group requests with the wrong order of commands with BadCommandSequence reply") {
-    val reqs = Seq(Request.Hello, Request.NewMailingSession(MailingAddress.empty), Request.Noop)
+    val reqs = Seq(Request.Hello, ExtendedMailingSession(MailingAddress.empty), Request.Noop)
     val grouped = RequestGroup(reqs)
     val service = PipeliningFilter andThen SimpleTestService
 
-    val rep = service(grouped) onSuccess { rep =>
-      fail("should not have accepted wrong-ordered grouped request")
-    } onFailure {
+    val rep = service(grouped) onFailure {
       case BadCommandSequence(_) =>
       case _ => fail("should be BadCommandSequence")
+    } onSuccess { rep =>
+      fail("should not have accepted wrong-ordered grouped request")
     }
   }
 
   test("allows correct group requests") {
-    val reqs = Seq(Request.NewMailingSession(MailingAddress.empty), Request.BeginData)
+    val reqs = Seq(ExtendedMailingSession(MailingAddress.empty), Request.BeginData)
     val grouped = RequestGroup(reqs)
     val service = PipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onFailure { _ => fail("should allow correct request") }
+  }
+}
+
+class NoAuthTest extends FunSuite {
+  test("removes AUTH extension from MAIL FROM") {
+    val sender = MailingAddress("test@t.com")
+    val exreq = ExtendedMailingSession(sender).authenticatedSender(sender)
+
+    val service = NoAuthFilter andThen SimpleTestService
+    val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
+    val req = rep.req.asInstanceOf[ExtendedMailingSession]
+    assert(!req.ext.contains("AUTH"))
+  }
+}
+
+class AuthTest extends FunSuite {
+  val improperChallenge = "¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹"
+
+  // This service sends improperly encoded challenge
+  // in all cases except auth cancellation
+  val challengeService = new Service[Request, Reply] {
+    def apply(req: Request) = req match {
+      case ChallengeResponse.cancelAuth => Future.value(OK("cancel"))
+      case _ => Future.value(ServerChallenge(improperChallenge))
+    }
+  }
+
+  val authService = AuthFilter andThen challengeService
+
+  test("rejects improperly encoded challenges") {
+    val rep = Await result authService(ChallengeResponse("resp"))
+    assert(rep.isInstanceOf[OK])
+  }
+
+  test("converts unexpected challenges to InvalidReply") {
+    val rep = authService(Request.Hello) onFailure {
+      case InvalidReply(_) =>
+      case _ => fail("should be InvalidReply")
+    } onSuccess { _ =>
+    fail("should fail")
+    }
   }
 }

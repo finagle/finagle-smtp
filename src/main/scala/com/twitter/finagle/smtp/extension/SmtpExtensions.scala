@@ -4,10 +4,11 @@ case class SmtpExtensions (supported: Seq[Extension] = Seq.empty)
 
 object SmtpExtensions {
   val EIGHTBITMIME = "8BITMIME"
-  val SIZE = "SIZE"
-  val CHUNKING = "CHUNKING"
-  val BINARYMIME = "BINARYMIME"
-  val PIPELINING = "PIPELINING"
+  val SIZE         = "SIZE"
+  val CHUNKING     = "CHUNKING"
+  val BINARYMIME   = "BINARYMIME"
+  val PIPELINING   = "PIPELINING"
+  val AUTH         = "AUTH"
 }
 
 case class Extension(keyword: String, params: Seq[String])

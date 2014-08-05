@@ -1,5 +1,6 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.eightbitmime
 
+import com.twitter.finagle.smtp.extension.ExtendedMailingSession
 import com.twitter.finagle.smtp.{Reply, Request, RequestNotAllowed}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
@@ -12,10 +13,10 @@ import org.jboss.netty.util.CharsetUtil
 */
 object NoEightBitMimeFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
-    case Request.NewMailingSession(sender, ext) => {
+    case ExtendedMailingSession(sender, ext) => {
       ext.get("BODY") match {
-        case Some("8BITMIME") => service(Request.NewMailingSession(sender, ext - "BODY"))
-        case _ => service(Request.NewMailingSession(sender, ext))
+        case Some("8BITMIME") => service(ExtendedMailingSession(sender, ext - "BODY"))
+        case _ => service(ExtendedMailingSession(sender, ext))
       }
     }
 

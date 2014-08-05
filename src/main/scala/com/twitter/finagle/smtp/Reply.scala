@@ -1,9 +1,8 @@
 package com.twitter.finagle.smtp
 
-/**
- * Basic trait for all SMTP replies. Describes a reply
- * whose type is not yet specified by decoding.
- */
+import com.twitter.finagle.smtp.extension.auth.{AuthSuccessful, AuthRejected, ServerChallenge}
+import com.twitter.util.Future
+
 trait UnspecifiedReply {
   val code: Int
   val info: String
@@ -59,10 +58,11 @@ object ReplyCode {
   val ADDRESS_NOT_RECOGNIZED      = 555
 
   val INVALID_REPLY_CODE          = -1
-  val GROUPED_REPLY               = 111
+  val GROUPED_REPLY               = 000
 }
+
 import com.twitter.finagle.smtp.ReplyCode._
-import com.twitter.util.Future
+import com.twitter.finagle.smtp.extension.auth.AuthReplyCode._
 
 trait Reply extends UnspecifiedReply
 
@@ -174,6 +174,21 @@ object Reply {
           override val lines = rep.lines
         }
 
+        // Authentication
+        case SERVER_CHALLENGE           => new ServerChallenge(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case AUTH_REJECTED              => new AuthRejected(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+        case AUTH_SUCCESSFUL            => new AuthSuccessful(rep.info)  {
+          override val isMultiline = rep.isMultiline
+          override val lines = rep.lines
+        }
+
+        // Unknown replies
         case _                          => new UnknownReplyCodeError(rep.code, rep.info)  {
           override val isMultiline = rep.isMultiline
           override val lines = rep.lines

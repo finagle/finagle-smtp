@@ -1,5 +1,6 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.size
 
+import com.twitter.finagle.smtp.extension.ExtendedMailingSession
 import com.twitter.finagle.smtp.{Reply, Request}
 import com.twitter.finagle.{Service, SimpleFilter}
 
@@ -9,7 +10,7 @@ import com.twitter.finagle.{Service, SimpleFilter}
 * */
 object NoSizeDeclarationFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
-    case Request.NewMailingSession(sender, ext) => service(Request.NewMailingSession(sender, ext - "SIZE"))
+    case ExtendedMailingSession(sender, ext) => service(ExtendedMailingSession(sender, ext - "SIZE"))
 
     case _ => service(request)
   }

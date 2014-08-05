@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.extension
+package com.twitter.finagle.smtp.extension.eightbitmime
 
 import com.twitter.finagle.smtp.{Mime, Reply, Request, TransferEncoding}
 import com.twitter.finagle.{Service, SimpleFilter}

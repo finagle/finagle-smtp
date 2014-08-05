@@ -1,6 +1,7 @@
 package com.twitter.finagle.smtp.filter
 
 import com.twitter.finagle.smtp._
+import com.twitter.finagle.smtp.extension.{ExtendedMailingSession, BodyEncoding}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
 
@@ -16,7 +17,7 @@ object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
       case _        => BodyEncoding.SevenBit
     }
     val envelope: Seq[Request] =
-      Seq(Request.NewMailingSession(msg.getSender)
+      Seq(ExtendedMailingSession(msg.getSender)
                  .messageSize(body.size)
                  .bodyEncoding(bodyEnc)) ++
         msg.getTo.map(Request.AddRecipient(_))  ++
