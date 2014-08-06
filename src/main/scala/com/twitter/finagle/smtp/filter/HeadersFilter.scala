@@ -14,12 +14,12 @@ import scala.collection.immutable.Iterable
 object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
    def apply(msg: EmailMessage, send: Service[EmailMessage, Unit]): Future[Unit] = {
      val fields = msg.headers groupBy { case (k, v) => k } map {
-       case (key, values) => "%s: %s".format(key, values.map(_._2).mkString(","))
+       case (key, values) => key -> values.map(_._2).mkString(",")
      }
 
      val richmsg = EmailBuilder(msg)
-                   .setBodyLines(fields.toSeq ++ msg.body)
-                   .build
+                     .setBody(msg.body.addHeaders(fields))
+                     .build
 
      send(richmsg)
    }

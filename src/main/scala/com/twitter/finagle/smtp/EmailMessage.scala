@@ -72,10 +72,10 @@ trait EmailMessage {
 
   def subject: String = headers collectFirst { case ("Subject", subj) => subj } getOrElse ""
 
-  def body: Seq[String]
+  def body: Mime
 }
 
 object EmailMessage {
-  val DateFormat = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ", Locale.forLanguageTag("eng"))
+  val DateFormat = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss ZZ")
   def currentTime = DateFormat format Calendar.getInstance().getTime
 }

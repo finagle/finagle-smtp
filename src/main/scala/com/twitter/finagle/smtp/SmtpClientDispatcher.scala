@@ -43,7 +43,13 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
    */
   protected def dispatch(req: Request, p: Promise[Reply]): Future[Unit] = {
     connPhase flatMap { _ =>
-      log.info("client: %s", req.cmd)
+      //logging
+      val msg = req match {
+        case txt: TextRequest => txt.cmd
+        case ent: MimeRequest => ent.mime.message
+      }
+      log.info("client: %s", msg)
+
       trans.write(req) rescue {
         wrapWriteException
       } flatMap { unit =>

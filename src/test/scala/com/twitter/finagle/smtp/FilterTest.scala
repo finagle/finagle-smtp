@@ -31,16 +31,16 @@ class DataFilterTest extends FunSuite {
 
   test("makes data end with <CRLF>.<CRLF>") {
     val data = Seq("line1", "line2.")
-    val request = Request.Data(data)
+    val request = Request.TextData(data)
     val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
-    assert(response.req.cmd === "line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
+    assert(response.req.asInstanceOf[Request.TextData].cmd === "line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
   }
 
   test("duplicates leading dot") {
     val data = Seq(".", ".line1", "line2.")
-    val request = Request.Data(data)
+    val request = Request.TextData(data)
     val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
-    assert(response.req.cmd === "..\r\n..line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
+    assert(response.req.asInstanceOf[Request.TextData].cmd === "..\r\n..line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
   }
 
   test("ignores non-Data commands") {
@@ -63,7 +63,7 @@ class MailFilterTest extends FunSuite {
       Request.AddSender(msg.sender)) ++
       msg.to.map(Request.AddRecipient(_)) ++ Seq(
       Request.BeginData,
-      Request.Data(msg.body),
+      Request.TextData(Seq("MIME-Version: 1.0", "Content-Type: text/plain","body")),
       Request.Quit
     )
 
@@ -81,7 +81,7 @@ class MailFilterTest extends FunSuite {
               .from("from@test.com")
               .to("to@test.com")
               .subject("test")
-              .addBodyLines("body")
+              .text("body")
               .build
     val mailFilterService = MailFilter andThen MailTestService(msg)
     val test = mailFilterService(msg)
@@ -90,7 +90,7 @@ class MailFilterTest extends FunSuite {
 
 @RunWith(classOf[JUnitRunner])
 class HeaderFilterTest extends FunSuite {
-  def hasOneHeader(body: Seq[String], header: String): Boolean = body.count(_.startsWith(header)) == 1
+  def hasOneHeader(lines: Seq[String], header: String): Boolean = lines.count(_.startsWith(header)) == 1
   def checkHeader(body: Seq[String], header: String, expected: String) = {
     val line = body.find(_.startsWith(header))
     line match {
@@ -106,21 +106,22 @@ class HeaderFilterTest extends FunSuite {
     .from("from@test.com")
     .to("to@test.com")
     .subject("test")
-    .addBodyLines("body")
+    .text("body")
     .build
   val multipleAddressMsg = EmailBuilder()
     .from("from1@test.com", "from2@test.com")
     .to("to1@test.com", "to2@test.com")
     .subject("test")
-    .addBodyLines("body")
+    .text("body")
     .build
 
   test("result message has all necessary headers") {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
         val body = msg.body
+        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
         val headers = Seq("From: ", "To: ", "Subject: ", "Date: ")
-        val hasHeaders = headers.map(hasOneHeader(body, _)).reduce(_ && _)
+        val hasHeaders = headers.map(hasOneHeader(lines, _)).reduce(_ && _)
         assert(hasHeaders)
       }
     }
@@ -133,9 +134,10 @@ class HeaderFilterTest extends FunSuite {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = {
         val body = msg.body
+        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
         if (msg.from.length > 1) Future  {
-          assert(hasOneHeader(body, "Sender: "))
-          checkHeader(body, "Sender: ", msg.sender.mailbox)
+          assert(hasOneHeader(lines, "Sender: "))
+          checkHeader(lines, "Sender: ", msg.sender.mailbox)
         }
         else Future.Done
       }
@@ -149,10 +151,11 @@ class HeaderFilterTest extends FunSuite {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
         val body = msg.body
-        checkHeader(body, "From: ", msg.from.map(_.mailbox).mkString(","))
-        checkHeader(body, "To: ", msg.to.map(_.mailbox).mkString(","))
-        checkHeader(body, "Subject: ", msg.subject)
-        checkHeader(body, "Date: ", EmailMessage.DateFormat.format(msg.date))
+        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
+        checkHeader(lines, "From: ", msg.from.map(_.mailbox).mkString(","))
+        checkHeader(lines, "To: ", msg.to.map(_.mailbox).mkString(","))
+        checkHeader(lines, "Subject: ", msg.subject)
+        checkHeader(lines, "Date: ", EmailMessage.DateFormat.format(msg.date))
       }
     }
 

@@ -1,6 +1,9 @@
 package com.twitter.finagle.smtp
 
 import java.util.{Calendar, Date}
+import java.nio.charset.Charset
+import com.twitter.io.Files
+import java.io.File
 
 /** The payload of an email. */
 case class Payload(from: Seq[String],
@@ -11,8 +14,7 @@ case class Payload(from: Seq[String],
                    reply_to: Seq[String],
                    date: String,
                    subject: String,
-                   body: Seq[String])
-
+                   body: Mime)
 
 /**
  * Composes an [[com.twitter.finagle.smtp.EmailMessage]]. */
@@ -115,19 +117,26 @@ case class EmailBuilder(payload: Payload) {
    */
   def subject(sbj: String): EmailBuilder = copy(payload.copy(subject = sbj))
 
-  /**
-   * Add lines to the message text.
-   *
-   * @param lines Lines to be added
-   */
-  def addBodyLines(lines: String*): EmailBuilder = setBodyLines(payload.body ++ lines)
+  /*Add part to the body*/
+  def addBodyPart(part: MimePart): EmailBuilder = payload.body match {
+    case multipart: MimeMultipart => setBody(multipart + part)
+    case singlepart: MimePart => setBody(MimeMultipart.wrap(singlepart) + part)
+  }
 
-  /**
-   * Add lines to the message text.
-   *
-   * @param lines Lines to be added
-   */
-  def setBodyLines(lines: Seq[String]): EmailBuilder = copy(payload.copy(body = lines))
+  /*Set body to bdy*/
+  def setBody(bdy: Mime): EmailBuilder = copy(payload.copy(body = bdy))
+
+  /*Set body to plain text*/
+  def text(t: String, encName: String): EmailBuilder = copy(payload.copy(body = Mime.plainText(t, Charset.forName(encName))))
+  def text(t: String, enc: Charset): EmailBuilder = copy(payload.copy(body = Mime.plainText(t, enc)))
+  def text(t: String): EmailBuilder = copy(payload.copy(body = Mime.plainText(t)))
+
+  /*Attach a file*/
+  def attach(path: String): EmailBuilder = {
+    val filename = path.split("\\").last
+
+    addBodyPart(Mime.fromFile(path).setContentDisposition(ContentDisposition.attachment(filename)))
+  }
 
   /**
    * Instantiate an [[com.twitter.finagle.smtp.EmailMessage]] from the payload.
@@ -171,7 +180,7 @@ object EmailBuilder {
                                        reply_to = Seq.empty,
                                        date = null,
                                        subject = "",
-                                       body = Seq.empty))
+                                       body = MimeMultipart.empty))
 
   /**
    * Creates an [[com.twitter.finagle.smtp.EmailBuilder]] with payload from given [[com.twitter.finagle.smtp.EmailMessage]].

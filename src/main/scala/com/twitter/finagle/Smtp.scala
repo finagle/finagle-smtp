@@ -31,7 +31,6 @@ object Smtp extends Client[Request, Reply]{
    * it also performs dot stuffing.
    */
   override def newClient(dest: Name, label: String) = {
-
     val quitOnCloseClient = new ServiceFactoryProxy[Request, Reply](defaultClient.newClient(dest, label)){
 
       override def apply(conn: ClientConnection) = {
