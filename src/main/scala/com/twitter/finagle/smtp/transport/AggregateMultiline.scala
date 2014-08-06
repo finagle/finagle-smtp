@@ -1,13 +1,13 @@
 package com.twitter.finagle.smtp.transport
 
-import org.jboss.netty.channel.{Channels, MessageEvent, ChannelHandlerContext, SimpleChannelUpstreamHandler}
-import com.twitter.finagle.smtp.reply._
+import com.twitter.finagle.smtp.{UnspecifiedReply, InvalidReply, NonTerminalLine}
+import org.jboss.netty.channel.{ChannelHandlerContext, Channels, MessageEvent, SimpleChannelUpstreamHandler}
 
 /**
  *  Aggregates multiline reply lines into one multiline reply.
  */
 case class AggregateMultiline(multiline_code: Int, lns: Seq[String]) extends SimpleChannelUpstreamHandler {
-  import CodecUtil._
+  import com.twitter.finagle.smtp.transport.CodecUtil._
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) = {
     e.getMessage match {
       case NonTerminalLine(code, next) =>

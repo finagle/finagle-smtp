@@ -1,9 +1,10 @@
 package com.twitter.finagle.smtp
 
-import java.util.{Calendar, Date}
-import java.nio.charset.Charset
-import com.twitter.io.Files
 import java.io.File
+import java.nio.charset.Charset
+import java.util.{Calendar, Date}
+
+import com.twitter.io.Files
 
 /** The payload of an email. */
 case class Payload(from: Seq[String],
@@ -133,7 +134,7 @@ case class EmailBuilder(payload: Payload) {
 
   /*Attach a file*/
   def attach(path: String): EmailBuilder = {
-    val filename = path.split("\\").last
+    val filename = path.split("/").last
 
     addBodyPart(Mime.fromFile(path).setContentDisposition(ContentDisposition.attachment(filename)))
   }

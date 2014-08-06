@@ -1,10 +1,10 @@
 package com.twitter.finagle.smtp.transport
 
-import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
-import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import com.twitter.finagle.smtp.{InvalidReply, NonTerminalLine, UnspecifiedReply}
 import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
 import org.jboss.netty.util.CharsetUtil
-import com.twitter.finagle.smtp.reply._
 
 /**
  * Decodes SMTP replies from lines ending with <CRLF>.

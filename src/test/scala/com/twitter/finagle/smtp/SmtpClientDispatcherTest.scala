@@ -1,15 +1,11 @@
 package com.twitter.finagle.smtp
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FunSuite
 import com.twitter.concurrent.AsyncQueue
-import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.transport.QueueTransport
 import com.twitter.util.Await
-import com.twitter.finagle.smtp.reply.ServiceReady
-import com.twitter.finagle.smtp.reply.OK
-import com.twitter.finagle.smtp.reply.InvalidReply
+import org.junit.runner.RunWith
+import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class SmtpClientDispatcherTest extends FunSuite {
@@ -73,6 +69,11 @@ class SmtpClientDispatcherTest extends FunSuite {
     }
     val rep = dispatcher(Request.Noop)
     server.offer(unknownRep)
-    assert(Await.result(rep).isInstanceOf[UnknownReplyCodeError])
+    rep onSuccess { _ =>
+      fail("should fail")
+    } onFailure {
+      case _: UnknownReplyCodeError =>
+      case _ => fail("should be UnknownReplyCodeError")
+    }
   }
 }

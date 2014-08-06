@@ -1,6 +1,6 @@
-package com.twitter.finagle.smtp.reply
+package com.twitter.finagle.smtp
 
-import ReplyCode._
+import com.twitter.finagle.smtp.ReplyCode._
 
 /* Syntax errors */
 
@@ -45,6 +45,11 @@ case class ServiceNotAvailable(info: String) extends NotAvailableReply {
 /* Mail system successes */
 
 case class OK(info: String) extends MailOkReply {
+  val code = OK_REPLY
+}
+
+//This reply is only sent to EHLO command
+case class Extensions(info: String) extends MailOkReply {
   val code = OK_REPLY
 }
 

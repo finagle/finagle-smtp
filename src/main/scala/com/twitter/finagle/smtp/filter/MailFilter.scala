@@ -1,22 +1,29 @@
 package com.twitter.finagle.smtp.filter
 
-import com.twitter.finagle.{Service, Filter}
 import com.twitter.finagle.smtp._
+import com.twitter.finagle.smtp.extension.{ExtendedMailingSession, BodyEncoding}
+import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
-import com.twitter.finagle.smtp.reply.Reply
 
 /**
  * Sends [[com.twitter.finagle.smtp.EmailMessage]], transforming it to a sequence of SMTP commands.
  */
 object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
   override def apply(msg: EmailMessage, send: Service[Request, Reply]): Future[Unit] = {
+    val body = msg.body
+    val bodyEnc = body.contentTransferEncoding match {
+      case "8bit"   => BodyEncoding.EightBit
+      case "binary" => BodyEncoding.Binary
+      case _        => BodyEncoding.SevenBit
+    }
     val envelope: Seq[Request] =
-      Seq(Request.AddSender(msg.sender))   ++
+      Seq(ExtendedMailingSession(msg.sender)
+                 .messageSize(body.size)
+                 .bodyEncoding(bodyEnc)) ++
         msg.to.map(Request.AddRecipient(_))  ++
         msg.cc.map(Request.AddRecipient(_))  ++
         msg.bcc.map(Request.AddRecipient(_))
 
-    val body = msg.body
     val data: Seq[Request] = body match {
       case mimepart: MimePart => Seq(Request.MimeData(mimepart))
       case multipart: MimeMultipart =>

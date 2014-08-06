@@ -18,8 +18,20 @@ sealed trait Mime{
   }.toSeq.sortWith((s1, s2) => s1 == ("MIME-Version: %s" format version))
 
 
-  /*Returns the body of the message that should be sent after headers*/
+  /**
+   * Returns the body of the message that should be sent after headers.
+   * Meant to be used mainly for test purposes.
+   */
   def message: String
+
+  /**
+   * The size of the whole message in bytes.
+   */
+  def size: Int = {
+    val headersSize = getMimeHeaders map { _.length } reduceLeft { _ + _ }
+    val contentSize = message.length
+    headersSize + contentSize
+  }
 
   def contentTransferEncoding: String = headers.getOrElse("Content-Transfer-Encoding", TransferEncoding.default.value)
   def contentDisposition: String = headers.getOrElse("Content-Disposition", ContentDisposition.default.value)
@@ -31,16 +43,12 @@ sealed trait Mime{
   def addHeaders(newHeaders: Seq[MimeHeader]): Mime
   }
 
-
-//TODO: various shortcuts for common media types
-
 object Mime {
   val empty = MimePart.empty
 
   private def textContent(text: String, subtype: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
     ContentType("text", subtype, Map("charset" -> enc.displayName()))
   }
-  
   def plainText(text: String, enc: Charset): MimePart = textContent(text, "plain", enc)
 
   def plainText(text: String, encName: String): MimePart = plainText(text, Charset.forName(encName))
@@ -67,7 +75,6 @@ object Mime {
 /*A simple MIME message with some content*/
 case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.empty) extends Mime {
   def message = new String(content, "US-ASCII")
-
   def addHeader(key: String, value: String) = copy(headers = this.headers.updated(key, value))
   def addHeader(header: MimeHeader) = copy(headers = this.headers.updated(header.name, header.value))
   def addHeaders(newHeaders: Seq[MimeHeader]) = copy(headers = this.headers ++ newHeaders.map(h => (h.name, h.value)))
@@ -75,7 +82,7 @@ case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.emp
 
   def setContentType(ct: ContentType) = addHeader(ct)
   def setCharset(charset: String) = {
-    val ct = ContentType parse contentType
+    val ct = ContentType parse this.contentType
 
     if (ct.mediatype == "text") setContentType(ct.copy(params = ct.params.updated("charset", charset)))
     else this
