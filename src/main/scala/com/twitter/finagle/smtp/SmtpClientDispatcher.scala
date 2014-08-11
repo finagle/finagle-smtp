@@ -3,9 +3,8 @@ package com.twitter.finagle.smtp
 import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispatcher}
 import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
-import com.twitter.logging.Logger
-import com.twitter.util.{Future, Promise}
-import org.jboss.netty.util.CharsetUtil
+import com.twitter.util.TimeConversions._
+import com.twitter.util.{Promise, Future}
 
 class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
@@ -13,7 +12,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
 
   /*Connection phase: should receive greeting from the server*/
   private val connPhase: Future[Unit] = {
-    trans.read flatMap { greet =>
+    trans.read.within(5.minutes) flatMap { greet =>
       Reply(greet) match {
         case ServiceReady(_,_) => Future.Done
         case other => Future.exception(InvalidReply(other.toString))
@@ -73,7 +72,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
   protected def dispatch(req: Request, p: Promise[Reply]): Future[Unit] = {
     connPhase flatMap { _ =>
       p onFailure {
-        case UnknownReplyCodeError(_,_) => close()
+        case UnknownReplyCodeError(_,_) => this.apply(Request.Reset).unit
         case _ =>
       }
 

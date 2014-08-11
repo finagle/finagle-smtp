@@ -9,6 +9,7 @@ object SmtpExtensions {
   val BINARYMIME   = "BINARYMIME"
   val PIPELINING   = "PIPELINING"
   val AUTH         = "AUTH"
+  val EXPN         = "EXPN"
 }
 
 case class Extension(keyword: String, params: Seq[String])
