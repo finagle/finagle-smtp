@@ -14,7 +14,7 @@ class TextRequest(val cmd: String) extends Request {
   def toChannelBuffer = ChannelBuffers.copiedBuffer(cmd + "\r\n", CharsetUtil.US_ASCII)
 }
 
-private[smtp] class HelloRequest(keyword: String) extends TextRequest("%s %s".format(keyword, InetAddress.getLocalHost.getHostName))
+private[smtp] class HelloRequest(keyword: String) extends TextRequest("%s %s".format(keyword, InetAddress.getLocalHost.getHostAddress))
 private[smtp] class BeginDataRequest(cmd: String) extends TextRequest(cmd)
 
 class MimeRequest(val mime: MimePart) extends Request {

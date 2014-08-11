@@ -62,6 +62,18 @@ case class SmtpClient(supporting: Seq[String] = Seq.empty) extends Client[Reques
           line <- ext.lines.tail map { _.toUpperCase split " " }
           if supporting contains line.head
         } yield Extension(line.head, line.tail)
+
+        // BINARYMIME can not be supported without CHUNKING
+        val binary = supported find {case Extension(SmtpExtensions.BINARYMIME, _) => true}
+        val chunking = supported find {case Extension(SmtpExtensions.CHUNKING, _) => true}
+
+        val allowed = if (binary.isDefined && chunking.isEmpty) {
+          supported filterNot {
+            case Extension(SmtpExtensions.BINARYMIME, _) => true
+            case _ => false
+          }
+        } else supported
+
         Future.value(SmtpExtensions(supported))
       }
       //else no extensions are supported

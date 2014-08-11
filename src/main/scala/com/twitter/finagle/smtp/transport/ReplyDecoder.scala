@@ -15,7 +15,7 @@ import org.jboss.netty.util.CharsetUtil
  * treats the line as a part of a multiline reply
  * and passes it to [[com.twitter.finagle.smtp.transport.AggregateMultiline]].
  */
-class ReplyDecoder extends LineBasedFrameDecoder(1000) {
+class ReplyDecoder extends LineBasedFrameDecoder(512) {
   import CodecUtil._
   override def decode(ctx: ChannelHandlerContext, channel: Channel, msg: ChannelBuffer): UnspecifiedReply = {
     val buf = super.decode(ctx, channel, msg)
