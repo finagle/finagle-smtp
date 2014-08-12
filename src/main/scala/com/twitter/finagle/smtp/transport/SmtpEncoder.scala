@@ -8,7 +8,7 @@ import org.jboss.netty.channel._
  * Encodes a Request into a ChannelBuffer.
  */
 class SmtpEncoder extends SimpleChannelDownstreamHandler {
-  override def writeRequested(ctx: ChannelHandlerContext, evt: MessageEvent) =
+  override def writeRequested(ctx: ChannelHandlerContext, evt: MessageEvent): Unit =
     evt.getMessage match {
       case req: Request =>
         try {

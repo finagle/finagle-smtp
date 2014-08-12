@@ -1,13 +1,8 @@
 package com.twitter.finagle.smtp.filter
 
-import java.text.SimpleDateFormat
-import java.util.Locale
-
-import com.twitter.finagle.smtp.{EmailBuilder, EmailMessage, MailingAddress}
 import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.finagle.smtp.{DefaultEmail, EmailMessage}
 import com.twitter.util.Future
-
-import scala.collection.immutable.Iterable
 
 /**
  * Adds email headers to message body.
@@ -18,10 +13,8 @@ object HeadersFilter extends SimpleFilter[EmailMessage, Unit] {
        case (key, values) => key -> values.map(_._2).mkString(",")
      }
 
-     val richmsg = EmailBuilder(msg)
-                     .setBody(msg.body.addHeaders(fields))
-                     .build
+     val richMsg = DefaultEmail(msg) setBody msg.body.addHeaders(fields)
 
-     send(richmsg)
+     send(richMsg)
    }
  }

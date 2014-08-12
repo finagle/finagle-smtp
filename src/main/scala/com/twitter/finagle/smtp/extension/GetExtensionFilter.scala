@@ -21,13 +21,13 @@ object GetExtensionFilter {
   }
 
   // filters applied in case there are no extensions with such names
-  val forUnsupportedExtensions = Map[String, SimpleFilter[Request, Reply]] {
-    EIGHTBITMIME -> NoEightBitMimeFilter
-    SIZE         -> NoSizeDeclarationFilter
-    CHUNKING     -> NoChunkingFilter
-    BINARYMIME   -> NoBinaryMimeFilter
-    PIPELINING   -> NoPipeliningFilter
-    AUTH         -> NoAuthFilter
+  val forUnsupportedExtensions = Map[String, SimpleFilter[Request, Reply]] (
+    EIGHTBITMIME -> NoEightBitMimeFilter,
+    SIZE         -> NoSizeDeclarationFilter,
+    CHUNKING     -> NoChunkingFilter,
+    BINARYMIME   -> NoBinaryMimeFilter,
+    PIPELINING   -> NoPipeliningFilter,
+    AUTH         -> NoAuthFilter,
     EXPN         -> NoExpnFilter
-  }
+  )
 }

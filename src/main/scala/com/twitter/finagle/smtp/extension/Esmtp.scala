@@ -11,6 +11,8 @@ case class Esmtp(extensions: SmtpExtensions) {
     if GetExtensionFilter.forSupported.isDefinedAt(extension)
   } yield GetExtensionFilter forSupported extension
 
+  GetExtensionFilter.forUnsupportedExtensions foreach println
+
   // filters applied when some SMTP extensions are not supported
   lazy val unsupportedExtFilters = for {
     (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions

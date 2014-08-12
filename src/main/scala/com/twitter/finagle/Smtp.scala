@@ -38,6 +38,7 @@ object Smtp extends Client[Request, Reply] with SmtpRichClient {
  * that sends EHLO upon connection and QUIT before
  * closing connection. */
 case class SmtpClient(supporting: Seq[String] = Seq.empty) extends Client[Request, Reply] {
+  // TODO: switch to StackClient
   private val defaultClient = DefaultClient[Request, Reply] (
     name = "smtp",
     endpointer = {
@@ -111,9 +112,8 @@ case class SmtpClient(supporting: Seq[String] = Seq.empty) extends Client[Reques
 
 /**
  * Implements an SMTP client that can send an [[com.twitter.finagle.smtp.EmailMessage]].
- * The application of this client's service doesn't return a
- * reply; instead, it returns [[com.twitter.util.Future.Done]] in case of success
- * or the first encountered error in case of a failure.
+ * The application of this client's service returns [[com.twitter.util.Future.Done]]
+ * in case of success or the first encountered error in case of a failure.
  */
 object SmtpSimple extends Client[EmailMessage, Unit] {
   /**

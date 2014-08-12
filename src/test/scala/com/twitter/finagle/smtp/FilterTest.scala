@@ -83,12 +83,12 @@ class MailFilterTest extends FunSuite {
     }
   }
 
-    val msg = EmailBuilder()
-              .from("from@test.com")
-              .to("to@test.com")
-              .subject("test")
+    val msg = DefaultEmail()
+              .from_("from@test.com")
+              .to_("to@test.com")
+              .subject_("test")
               .text("body")
-              .build
+
     val mailFilterService = MailFilter andThen MailTestService(msg)
     val test = mailFilterService(msg)
   }
@@ -108,18 +108,17 @@ class HeaderFilterTest extends FunSuite {
     }
   }
 
-  val simpleMsg = EmailBuilder()
-    .from("from@test.com")
-    .to("to@test.com")
-    .subject("test")
+  val simpleMsg = DefaultEmail()
+    .from_("from@test.com")
+    .to_("to@test.com")
+    .subject_("test")
     .text("body")
-    .build
-  val multipleAddressMsg = EmailBuilder()
-    .from("from1@test.com", "from2@test.com")
-    .to("to1@test.com", "to2@test.com")
-    .subject("test")
+
+  val multipleAddressMsg = DefaultEmail()
+    .from_("from1@test.com", "from2@test.com")
+    .to_("to1@test.com", "to2@test.com")
+    .subject_("test")
     .text("body")
-    .build
 
   test("result message has all necessary headers") {
     val headerTestService = new Service[EmailMessage, Unit] {

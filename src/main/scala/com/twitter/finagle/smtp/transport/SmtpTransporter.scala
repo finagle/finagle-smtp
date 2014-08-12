@@ -7,9 +7,7 @@ import org.jboss.netty.channel._
 object SmtpPipeline extends ChannelPipelineFactory {
   def getPipeline = {
     val pipeline = Channels.pipeline()
-    //pipeline.addLast("logger", new LoggingHandler(InternalLogLevel.INFO))
     pipeline.addLast("smtpEncode", new SmtpEncoder)
-    pipeline.addLast("replyDecode", new ReplyDecoder)
     pipeline.addLast("smtpDecode", new SmtpDecoder)
     pipeline
   }

@@ -3,13 +3,15 @@ package com.twitter.finagle.smtp.filter
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.extension.{ExtendedMailingSession, BodyEncoding}
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.util.Future
+import com.twitter.util.{JavaTimer, Future}
 import com.twitter.util.TimeConversions._
 
 /**
  * Sends [[com.twitter.finagle.smtp.EmailMessage]], transforming it to a sequence of SMTP commands.
  */
 object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
+  implicit val timer = new JavaTimer
+
   override def apply(msg: EmailMessage, send: Service[Request, Reply]): Future[Unit] = {
     val body = msg.body
     val bodyEnc = body.contentTransferEncoding match {
@@ -51,9 +53,8 @@ object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
     val dataInitResponse = send(Request.BeginData) within 2.minutes
     val dataResponse = data map { send(_) within 3.minutes }
 
-    Future.collect(freqs) flatMap { _ =>
-      Future.Done
-    }
 
-  }
-}
+     Future.join(freqs)
+
+   }
+ }

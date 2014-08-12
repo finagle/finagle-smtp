@@ -37,9 +37,9 @@ class MailAddressTest extends FunSuite {
 
   test("mailboxList") {
     val list = Seq(
-    MailingAddress("1@ex.com"),
-    MailingAddress.empty,
-    MailingAddress("2@ex.com")
+      MailingAddress("1@ex.com"),
+      MailingAddress.empty,
+      MailingAddress("2@ex.com")
     )
 
     val mailboxList = MailingAddress.mailboxList(list)
