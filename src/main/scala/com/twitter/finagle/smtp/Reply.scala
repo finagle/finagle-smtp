@@ -1,6 +1,6 @@
 package com.twitter.finagle.smtp
 
-import com.twitter.finagle.smtp.extension.auth.{AuthSuccessful, AuthRejected, ServerChallenge}
+import com.twitter.finagle.smtp.extension.auth.{AuthRejected, AuthSuccessful, ServerChallenge}
 import com.twitter.util.Future
 
 trait UnspecifiedReply {

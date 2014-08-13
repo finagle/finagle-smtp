@@ -1,10 +1,10 @@
 package com.twitter.finagle.smtp.filter
 
 import com.twitter.finagle.smtp._
-import com.twitter.finagle.smtp.extension.{ExtendedMailingSession, BodyEncoding}
+import com.twitter.finagle.smtp.extension.{BodyEncoding, ExtendedMailingSession}
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.util.Future
 import com.twitter.util.TimeConversions._
+import com.twitter.util.{Future, JavaTimer}
 
 /**
  * Sends [[com.twitter.finagle.smtp.EmailMessage]], transforming it to a sequence of SMTP commands.

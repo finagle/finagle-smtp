@@ -1,7 +1,7 @@
 package com.twitter.finagle.smtp.extension.expn
 
+import com.twitter.finagle.smtp.{Reply, Request, RequestNotAllowed}
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.smtp.{RequestNotAllowed, Reply, Request}
 import com.twitter.util.Future
 
 /**

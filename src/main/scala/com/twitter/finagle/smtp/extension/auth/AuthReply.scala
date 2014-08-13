@@ -1,6 +1,6 @@
 package com.twitter.finagle.smtp.extension.auth
 
-import com.twitter.finagle.smtp.{PositiveCompletionReply, PermanentNegativeCompletionReply, PositiveIntermediateReply, Reply}
+import com.twitter.finagle.smtp.{PermanentNegativeCompletionReply, PositiveCompletionReply, PositiveIntermediateReply, Reply}
 
 trait AuthReply extends Reply
 

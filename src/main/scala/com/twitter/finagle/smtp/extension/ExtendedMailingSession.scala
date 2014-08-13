@@ -1,6 +1,6 @@
 package com.twitter.finagle.smtp.extension
 
-import com.twitter.finagle.smtp.{TextRequest, MailingAddress}
+import com.twitter.finagle.smtp.{MailingAddress, TextRequest}
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.util.CharsetUtil
 

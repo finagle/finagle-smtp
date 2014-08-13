@@ -3,11 +3,11 @@ package com.twitter.finagle.smtp.extension
 import com.twitter.finagle.SimpleFilter
 import com.twitter.finagle.smtp.extension.auth.{AuthFilter, NoAuthFilter}
 import com.twitter.finagle.smtp.extension.binarymime.NoBinaryMimeFilter
-import com.twitter.finagle.smtp.extension.chunking.{NoChunkingFilter, ChunkingFilter}
-import com.twitter.finagle.smtp.extension.eightbitmime.{NoEightBitMimeFilter, EightBitMimeFilter}
+import com.twitter.finagle.smtp.extension.chunking.{ChunkingFilter, NoChunkingFilter}
+import com.twitter.finagle.smtp.extension.eightbitmime.{EightBitMimeFilter, NoEightBitMimeFilter}
 import com.twitter.finagle.smtp.extension.expn.NoExpnFilter
-import com.twitter.finagle.smtp.extension.pipelining.{PipeliningFilter, NoPipeliningFilter}
-import com.twitter.finagle.smtp.extension.size.{SizeDeclarationFilter, NoSizeDeclarationFilter}
+import com.twitter.finagle.smtp.extension.pipelining.{NoPipeliningFilter, PipeliningFilter}
+import com.twitter.finagle.smtp.extension.size.{NoSizeDeclarationFilter, SizeDeclarationFilter}
 import com.twitter.finagle.smtp.{Reply, Request}
 
 object GetExtensionFilter {

@@ -3,12 +3,12 @@ package com.twitter.finagle.smtp
 import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.Service
 import com.twitter.finagle.smtp.extension._
-import com.twitter.finagle.smtp.extension.auth.{AuthFilter, ServerChallenge, ChallengeResponse, NoAuthFilter}
+import com.twitter.finagle.smtp.extension.auth.{AuthFilter, ChallengeResponse, NoAuthFilter, ServerChallenge}
 import com.twitter.finagle.smtp.extension.binarymime.NoBinaryMimeFilter
-import com.twitter.finagle.smtp.extension.chunking.{ChunkingReq, NoChunkingFilter, ChunkingFilter}
-import com.twitter.finagle.smtp.extension.eightbitmime.{NoEightBitMimeFilter, EightBitMimeFilter}
-import com.twitter.finagle.smtp.extension.pipelining.{RequestGroup, PipeliningFilter, NoPipeliningFilter}
-import com.twitter.finagle.smtp.extension.size.{SizeDeclarationFilter, NoSizeDeclarationFilter}
+import com.twitter.finagle.smtp.extension.chunking.{ChunkingFilter, ChunkingReq, NoChunkingFilter}
+import com.twitter.finagle.smtp.extension.eightbitmime.{EightBitMimeFilter, NoEightBitMimeFilter}
+import com.twitter.finagle.smtp.extension.pipelining.{NoPipeliningFilter, PipeliningFilter, RequestGroup}
+import com.twitter.finagle.smtp.extension.size.{NoSizeDeclarationFilter, SizeDeclarationFilter}
 import com.twitter.finagle.smtp.util._
 import com.twitter.finagle.transport.QueueTransport
 import com.twitter.util.{Await, Future}

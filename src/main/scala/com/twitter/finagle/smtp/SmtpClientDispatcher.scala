@@ -4,7 +4,10 @@ import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispat
 import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
 import com.twitter.util.TimeConversions._
-import com.twitter.util.{Promise, Future}
+import com.twitter.util.{Future, JavaTimer, Promise}
+/**
+ * A ClientDispatcher that implements SMTP client/server protocol.
+ */
 
 class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
