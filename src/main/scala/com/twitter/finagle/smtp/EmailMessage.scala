@@ -1,9 +1,6 @@
 package com.twitter.finagle.smtp
 
-import java.text.SimpleDateFormat
-import java.util.{Calendar, Date}
-
-import com.twitter.util.{Try, TimeFormat, Time}
+import com.twitter.util.{Time, TimeFormat, Try}
 
 /** Defines email address */
 private[smtp] class MailingAddress(val local: String, val domain: String) {

@@ -1,7 +1,7 @@
 package com.twitter.finagle.smtp.filter
 
 import com.twitter.finagle.filter.{LogFormatter, LoggingFilter}
-import com.twitter.finagle.smtp.{InvalidReply, SmtpError, Reply, Request}
+import com.twitter.finagle.smtp.{InvalidReply, Reply, Request, SmtpError}
 import com.twitter.logging.Logger
 import com.twitter.util.Duration
 import org.jboss.netty.util.CharsetUtil

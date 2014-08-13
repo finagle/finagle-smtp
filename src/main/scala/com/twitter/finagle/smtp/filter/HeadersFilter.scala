@@ -1,7 +1,7 @@
 package com.twitter.finagle.smtp.filter
 
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp.{DefaultEmail, EmailMessage}
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
 /**

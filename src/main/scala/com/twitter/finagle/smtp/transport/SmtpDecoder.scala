@@ -1,9 +1,9 @@
 package com.twitter.finagle.smtp.transport
 
-import com.twitter.finagle.smtp.{NonTerminalLine, InvalidReply, UnspecifiedReply}
-import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
-import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import com.twitter.finagle.smtp.{InvalidReply, NonTerminalLine, UnspecifiedReply}
 import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
+import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
 import org.jboss.netty.util.CharsetUtil
 
 /**
@@ -15,7 +15,7 @@ import org.jboss.netty.util.CharsetUtil
  * treats the line as a part of a multiline reply.
  */
 class SmtpDecoder extends LineBasedFrameDecoder(512) {
-  import CodecUtil._
+  import com.twitter.finagle.smtp.transport.CodecUtil._
   override def decode(ctx: ChannelHandlerContext, channel: Channel, msg: ChannelBuffer): UnspecifiedReply = {
     Option(super.decode(ctx, channel, msg)) match {
       case None => null

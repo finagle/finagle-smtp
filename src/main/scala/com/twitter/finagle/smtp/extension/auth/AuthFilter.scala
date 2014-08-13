@@ -1,8 +1,7 @@
 package com.twitter.finagle.smtp.extension.auth
 
-import com.twitter.finagle.smtp.extension.ExtendedMailingSession
+import com.twitter.finagle.smtp.{InvalidReply, Reply, Request}
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.smtp.{InvalidReply, RequestNotAllowed, Reply, Request}
 import com.twitter.util.Future
 import org.apache.commons.codec.binary.Base64
 

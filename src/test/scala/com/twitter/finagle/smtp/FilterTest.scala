@@ -1,12 +1,12 @@
 package com.twitter.finagle.smtp
 
 import java.net.InetAddress
-import java.text.SimpleDateFormat
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.smtp.extension.ExtendedMailingSession
-import com.twitter.finagle.smtp.filter.{SmtpLoggingFilter, DataFilter, HeadersFilter, MailFilter}
+import com.twitter.finagle.smtp.filter.{DataFilter, HeadersFilter, MailFilter, SmtpLoggingFilter}
 import com.twitter.finagle.smtp.util._
-import com.twitter.logging.{BareFormatter, StringHandler, Logger}
+import com.twitter.logging.{BareFormatter, Logger, StringHandler}
 import com.twitter.util.{Await, Future}
 import org.jboss.netty.util.CharsetUtil
 import org.junit.runner.RunWith

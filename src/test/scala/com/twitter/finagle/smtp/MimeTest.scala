@@ -1,7 +1,8 @@
 package com.twitter.finagle.smtp
 
-import java.io.{FileOutputStream, File}
+import java.io.{File, FileOutputStream}
 import java.nio.charset.Charset
+
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
