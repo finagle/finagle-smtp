@@ -137,6 +137,7 @@ case class DefaultEmail(
 
   /*Add part to the body*/
   def addBodyPart(part: MimePart): DefaultEmail = body match {
+    case MimePart.empty => setBody(MimeMultipart.wrap(part))
     case multipart: MimeMultipart => setBody(multipart + part)
     case singlepart: MimePart => setBody(MimeMultipart.wrap(singlepart) + part)
   }
@@ -159,21 +160,21 @@ case class DefaultEmail(
    * is not specified, the first address in ''From:'' is used.
    */
   def headers: Seq[(String, String)] = {
-      from.map(ad => ("from", ad.mailbox)) ++ {
+      from.map(ad => ("From", ad.mailbox)) ++ {
         if (from.length > 1)
-          Seq("sender" -> {
+          Seq("Sender" -> {
             if (!sender.isEmpty) sender.mailbox
             else from.head.mailbox
           })
         else Seq.empty
       }++
-      to.map(ad => ("to", ad.mailbox)) ++
-      cc.map(ad => ("cc", ad.mailbox)) ++
-      bcc.map(ad => ("bcc", ad.mailbox)) ++
-      replyTo.map(ad => ("reply-to", ad.mailbox)) ++
+      to.map(ad => ("To", ad.mailbox)) ++
+      cc.map(ad => ("Cc", ad.mailbox)) ++
+      bcc.map(ad => ("Bcc", ad.mailbox)) ++
+      replyTo.map(ad => ("Reply-To", ad.mailbox)) ++
       Seq(
-        "date"     -> EmailMessage.DateFormat.format(date),
-        "subject"  -> subject
+        "Date"     -> EmailMessage.DateFormat.format(date),
+        "Subject"  -> subject
       )
   }
 

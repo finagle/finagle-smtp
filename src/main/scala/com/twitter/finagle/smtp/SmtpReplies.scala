@@ -49,7 +49,7 @@ case class OK(info: String) extends MailOkReply {
 }
 
 //This reply is only sent to EHLO command
-case class Extensions(info: String) extends MailOkReply {
+case class ExtensionsReply(info: String) extends MailOkReply {
   val code = OK_REPLY
 }
 

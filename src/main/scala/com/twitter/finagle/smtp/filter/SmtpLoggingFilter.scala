@@ -9,7 +9,7 @@ import org.jboss.netty.util.CharsetUtil
 object SmtpLogFormatter extends LogFormatter[Request, Reply] {
   def format(request: Request, reply: Reply, replyTime: Duration): String = {
     val req = "Client: %s".format(request.toChannelBuffer.toString(CharsetUtil.US_ASCII))
-    val rep = "Server: %d %s".format(reply.code, reply.lines.mkString("\r\n"))
+    val rep = "Server: %d %s".format(reply.code, reply.info)
 
     req + rep
   }
@@ -18,7 +18,7 @@ object SmtpLogFormatter extends LogFormatter[Request, Reply] {
     val req = "Client: %s".format(request.toChannelBuffer.toString(CharsetUtil.US_ASCII))
     val rep = throwable match {
       case InvalidReply(content) => "Server: invalid reply - %s\r\n" format content
-      case err: SmtpError => "Server: %d %s".format(err.code, err.lines.mkString("\r\n"))
+      case err: SmtpError => "Server: %d %s".format(err.code, err.info)
       case other => other.getStackTraceString
     }
 

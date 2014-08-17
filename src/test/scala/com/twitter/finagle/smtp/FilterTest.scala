@@ -96,7 +96,8 @@ class MailFilterTest extends FunSuite {
 
 @RunWith(classOf[JUnitRunner])
 class HeaderFilterTest extends FunSuite {
-  def hasOneHeader(lines: Seq[String], header: String): Boolean = lines.count(_.startsWith(header)) == 1
+  def hasOneHeader(lines: Seq[String], header: String): Boolean =
+    lines.count(_.startsWith(header)) == 1
   def checkHeader(body: Seq[String], header: String, expected: String) = {
     val line = body.find(_.startsWith(header))
     line match {
@@ -187,7 +188,7 @@ class SmtpLoggingFilterTest extends FunSuite {
 
     Await result loggingService(Request.Hello)
 
-    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 250 ok\n".format(InetAddress.getLocalHost.getHostName))
+    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 250 ok\n".format(InetAddress.getLocalHost.getHostAddress))
   }
 
   test("logs errors") {
@@ -207,6 +208,6 @@ class SmtpLoggingFilterTest extends FunSuite {
       case _ => Future.Done
     }
 
-    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 500 err\n".format(InetAddress.getLocalHost.getHostName))
+    assert(stringHandler.get === "Client: EHLO %s\r\nServer: 500 err\n".format(InetAddress.getLocalHost.getHostAddress))
   }
 }

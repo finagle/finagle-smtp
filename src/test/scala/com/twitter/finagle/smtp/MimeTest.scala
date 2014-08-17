@@ -12,8 +12,8 @@ class MimeTest extends FunSuite{
   def hasOneHeader(msg: Mime, header: String) = msg.getMimeHeaders.count(_ == header) == 1
 
   test("simple headers") {
-    val mime = Mime.plainText("test")
-    assert(mime.getMimeHeaders contains "Content-Type: text/plain")
+    val mime = Mime.empty.addHeader("x-header", "value")
+    assert(mime.getMimeHeaders contains "x-header: value")
   }
 
   test("headers with parameters") {
