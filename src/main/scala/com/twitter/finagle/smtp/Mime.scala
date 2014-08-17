@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 import com.twitter.io.Files
+import org.jboss.netty.util.CharsetUtil
 
 /*A trait for general MIME messages*/
 sealed trait Mime{
@@ -46,8 +47,17 @@ sealed trait Mime{
 object Mime {
   val empty = MimePart.empty
 
-  private def textContent(text: String, subtype: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
-    ContentType("text", subtype, Map("charset" -> enc.displayName()))
+  private def textContent(text: String, subtype: String, enc: Charset) ={
+    val basic = MimePart(text.getBytes(enc))
+    val withHeaders =
+      if (enc != CharsetUtil.US_ASCII) {
+        basic
+          .setContentType(ContentType("text", subtype, Map("charset" -> enc.displayName())))
+          .setContentTransferEncoding(TransferEncoding.EightBit)
+      }
+      else basic.setContentType(ContentType("text", subtype))
+
+    withHeaders
   }
 
   def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {

@@ -8,10 +8,7 @@ object OkToExtFilter extends SimpleFilter[Request, Reply]{
   def apply(request: Request, service: Service[Request, Reply]) = request match {
     case Request.Hello => service(request) flatMap {
       case ok: OK =>
-        val ext = new Extensions(ok.info) {
-          override val isMultiline = ok.isMultiline
-          override val lines = ok.lines
-        }
+        val ext = new ExtensionsReply(ok.info)
         Future.value(ext)
       case other => Future.exception(InvalidReply(other.toString))
     }

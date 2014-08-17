@@ -3,8 +3,7 @@ package com.twitter.finagle.smtp.filter
 import com.twitter.finagle.smtp._
 import com.twitter.finagle.smtp.extension.{BodyEncoding, ExtendedMailingSession}
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.util.TimeConversions._
-import com.twitter.util.{Future, JavaTimer}
+import com.twitter.util.{Future}
 
 /**
  * Sends [[com.twitter.finagle.smtp.EmailMessage]], transforming it to a sequence of SMTP commands.
@@ -46,14 +45,7 @@ object MailFilter extends Filter[EmailMessage, Unit, Request, Reply]{
 
     val freqs = for (req <- reqs) yield send(req)
 
-    val resetResponse = send(Request.Reset)
-    val envelopeResponse = envelope map { send(_) within 5.minutes }
-    val dataInitResponse = send(Request.BeginData) within 2.minutes
-    val dataResponse = data map { send(_) within 3.minutes }
+     Future.join(freqs)
 
-    Future.collect(freqs) flatMap { _ =>
-      Future.Done
-    }
-
-  }
-}
+   }
+ }

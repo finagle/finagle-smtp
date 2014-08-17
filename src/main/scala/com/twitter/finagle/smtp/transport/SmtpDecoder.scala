@@ -16,37 +16,56 @@ import org.jboss.netty.util.CharsetUtil
  */
 class SmtpDecoder extends LineBasedFrameDecoder(512) {
   import com.twitter.finagle.smtp.transport.CodecUtil._
+
+  private def getCode(first: Char, second: Char, third: Char): Int =
+    "%c%c%c".format(first, second, third).toInt
+
+  private def getInfo(info: Array[Char]) = new String(info)
+
+  private def mkReply(first: Char, second: Char, third: Char, delim: Option[Char], inf: Array[Char])
+    : Option[UnspecifiedReply] = {
+    if (first.isDigit && second.isDigit && third.isDigit)
+      delim match {
+        case Some(' ') => Some(
+          new UnspecifiedReply {
+            val code = getCode(first, second, third)
+            val info = getInfo(inf)
+          })
+
+        case Some('-') => Some(NonTerminalLine(getCode(first, second, third), getInfo(inf)))
+
+        case None => Some(
+          new UnspecifiedReply {
+            val code = getCode(first, second, third)
+            val info = ""
+          }
+        )
+
+        case _ => None
+      }
+
+    else None
+  }
+
   override def decode(ctx: ChannelHandlerContext, channel: Channel, msg: ChannelBuffer): UnspecifiedReply = {
     Option(super.decode(ctx, channel, msg)) match {
       case None => null
       case Some(buf: ChannelBuffer) =>
-        val rep = buf.toString(CharsetUtil.US_ASCII)
-        if (rep.length < 4)
-          InvalidReply(rep)
-        else {
-          val first::second::third::delim::info = rep.toList
+        val repString = buf.toString(CharsetUtil.US_ASCII)
+        val repOption: Option[UnspecifiedReply] = repString.toList match {
+          // in case there is only code with no delimiter
+          case List(first, second, third) => mkReply(first, second, third, None, Array.empty)
 
-          // Standard reply: three-digit-code SP info
-          if (first.isDigit && second.isDigit && third.isDigit)
-            delim match {
-              case ' ' =>
-                new UnspecifiedReply {
-                  val code = getCode(rep)
-                  val info = getInfo(rep)
-                }
+          case first::second::third::delim::info => mkReply(first, second, third, Some(delim), info.toArray)
 
-              case '-' =>
-                val pipeline = ctx.getPipeline
-                val code = getCode(rep)
-                NonTerminalLine(code, getInfo(rep))
-
-
-              case _ => InvalidReply(rep)
-            }
-
-          else
-            InvalidReply(rep)
+          case _ => None
         }
+
+        repOption match {
+          case Some(reply) => reply
+          case None => InvalidReply(repString)
+        }
+
     }
   }
 }

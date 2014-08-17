@@ -1,6 +1,10 @@
 package com.twitter.finagle.smtp.extension
 
-case class SmtpExtensions (supported: Seq[Extension] = Seq.empty)
+case class SmtpExtensions(supported: Extension*) {
+  def lines(): Seq[String] = for {
+      Extension(keyword, params) <- supported
+    } yield "%s %s".format(keyword, params mkString " ")
+}
 
 object SmtpExtensions {
   val EIGHTBITMIME = "8BITMIME"
@@ -12,4 +16,4 @@ object SmtpExtensions {
   val EXPN         = "EXPN"
 }
 
-case class Extension(keyword: String, params: Seq[String])
+case class Extension(keyword: String, params: Seq[String] = Seq.empty)

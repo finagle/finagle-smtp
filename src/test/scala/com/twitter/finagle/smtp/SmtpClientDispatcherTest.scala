@@ -2,7 +2,7 @@ package com.twitter.finagle.smtp
 
 import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.transport.QueueTransport
-import com.twitter.util.Await
+import com.twitter.util.{Duration, Await}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -28,7 +28,21 @@ class SmtpClientDispatcherTest extends FunSuite {
     assert(dispatcher.isAvailable)
   }
 
-  test("closes on incorrect greeting") {
+  test("sends QUIT on close") {
+    val (client, server, transport) = newTestSet
+    server.offer(ServiceReady("testdomain","testgreet"))
+    val dispatcher = new SmtpClientDispatcher(transport)
+    dispatcher.close()
+    assert(Await.result(client.poll()) match {
+      case Request.Quit => true
+      case _ => false
+    })
+    assert(dispatcher.isAvailable, "should wait for QUIT response")
+    server.offer(ClosingTransmission("QUIT"))
+    assert(!dispatcher.isAvailable)
+  }
+
+  test("closes on malformed greeting") {
     val (client, server, transport) = newTestSet
     server.offer(InvalidReply("wronggreet"))
     val dispatcher = new SmtpClientDispatcher(transport)
@@ -50,7 +64,7 @@ class SmtpClientDispatcherTest extends FunSuite {
     assert(rep.isMultiline)
     assert(rep.code === 250)
     assert(rep.lines === Seq("nonterminal", "terminal"))
-    assert(rep.info === "nonterminal")
+    assert(rep.info === "nonterminal\r\nterminal")
   }
 
   test("returns specified replies") {

@@ -1,20 +1,14 @@
 package com.twitter.finagle.smtp
 
-import com.twitter.finagle.smtp.extension.auth.{AuthRejected, AuthSuccessful, ServerChallenge}
+import com.twitter.finagle.smtp.extension.auth.{AuthRequired, AuthRejected, AuthSuccessful, ServerChallenge}
 import com.twitter.util.Future
 
 trait UnspecifiedReply {
   val code: Int
   val info: String
 
-  def isMultiline: Boolean = false
-
-  /**
-   * @return Sequence containing reply lines
-   *         (or just the informational line
-   *         in case of a single-line reply)
-   */
-  def lines: Seq[String] = Seq(info)
+  def isMultiline: Boolean = lines.length > 1
+  def lines: Seq[String] = info.split("\r\n")
 }
 
 /**
@@ -66,7 +60,7 @@ import com.twitter.finagle.smtp.extension.auth.AuthReplyCode._
 
 trait Reply extends UnspecifiedReply
 
-case class GroupedReply(val reps: Seq[Future[Reply]]) extends Reply {
+case class GroupedReply(reps: Seq[Future[Reply]]) extends Reply {
   val code = GROUPED_REPLY
   val info = ""
 }
@@ -76,123 +70,41 @@ object Reply {
     case specified: Reply => specified
     case _: UnspecifiedReply => {
       rep.code match {
-        case SYSTEM_STATUS              => new SystemStatus(rep.info) {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case HELP                       => new Help(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case SERVICE_READY              => val (domain, info) = rep.info span {_ != ' '}
-          new ServiceReady(domain, info)  {
-            override val isMultiline = rep.isMultiline
-            override val lines = rep.lines
-          }
-        case CLOSING_TRANSMISSION       => new ClosingTransmission(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case OK_REPLY                   => new OK(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case TEMP_USER_NOT_LOCAL        => new TempUserNotLocal(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case TEMP_USER_NOT_VERIFIED     => new TempUserNotVerified(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case START_INPUT                => new StartInput(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case SERVICE_NOT_AVAILABLE      => new ServiceNotAvailable(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case TEMP_MAILBOX_UNAVAILABLE   => new TempMailboxUnavailable(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case PROCESSING_ERROR           => new ProcessingError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case TEMP_INSUFFICIENT_STORAGE  => new TempInsufficientStorage(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case PARAMS_ACCOMODATION_ERROR  => new ParamsAccommodationError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case SYNTAX_ERROR               => new SyntaxError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case ARGUMENT_SYNTAX_ERROR      => new ArgumentSyntaxError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case COMMAND_NOT_IMPLEMENTED    => new CommandNotImplemented(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case BAD_COMMAND_SEQUENCE       => new BadCommandSequence(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case PARAMETER_NOT_IMPLEMENTED  => new ParameterNotImplemented(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case MAILBOX_UNAVAILABLE_ERROR  => new MailboxUnavailableError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case USER_NOT_LOCAL_ERROR       => new UserNotLocalError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case INSUFFICIENT_STORAGE_ERROR => new InsufficientStorageError(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case INVALID_MAILBOX_NAME       => new InvalidMailboxName(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case TRANSACTION_FAILED         => new TransactionFailed(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case ADDRESS_NOT_RECOGNIZED     => new AddressNotRecognized(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
+        case SYSTEM_STATUS              => new SystemStatus(rep.info)
+        case HELP                       => new Help(rep.info)
+        case SERVICE_READY              =>
+          val (domain, info) = rep.info span {_ != ' '}
+          new ServiceReady(domain, info)
+        case CLOSING_TRANSMISSION       => new ClosingTransmission(rep.info)
+        case OK_REPLY                   => new OK(rep.info)
+        case TEMP_USER_NOT_LOCAL        => new TempUserNotLocal(rep.info)
+        case TEMP_USER_NOT_VERIFIED     => new TempUserNotVerified(rep.info)
+        case START_INPUT                => new StartInput(rep.info)
+        case SERVICE_NOT_AVAILABLE      => new ServiceNotAvailable(rep.info)
+        case TEMP_MAILBOX_UNAVAILABLE   => new TempMailboxUnavailable(rep.info)
+        case PROCESSING_ERROR           => new ProcessingError(rep.info)
+        case TEMP_INSUFFICIENT_STORAGE  => new TempInsufficientStorage(rep.info)
+        case PARAMS_ACCOMODATION_ERROR  => new ParamsAccommodationError(rep.info)
+        case SYNTAX_ERROR               => new SyntaxError(rep.info)
+        case ARGUMENT_SYNTAX_ERROR      => new ArgumentSyntaxError(rep.info)
+        case COMMAND_NOT_IMPLEMENTED    => new CommandNotImplemented(rep.info)
+        case BAD_COMMAND_SEQUENCE       => new BadCommandSequence(rep.info)
+        case PARAMETER_NOT_IMPLEMENTED  => new ParameterNotImplemented(rep.info)
+        case MAILBOX_UNAVAILABLE_ERROR  => new MailboxUnavailableError(rep.info)
+        case USER_NOT_LOCAL_ERROR       => new UserNotLocalError(rep.info)
+        case INSUFFICIENT_STORAGE_ERROR => new InsufficientStorageError(rep.info)
+        case INVALID_MAILBOX_NAME       => new InvalidMailboxName(rep.info)
+        case TRANSACTION_FAILED         => new TransactionFailed(rep.info)
+        case ADDRESS_NOT_RECOGNIZED     => new AddressNotRecognized(rep.info)
 
         // Authentication
-        case SERVER_CHALLENGE           => new ServerChallenge(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case AUTH_REJECTED              => new AuthRejected(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
-        case AUTH_SUCCESSFUL            => new AuthSuccessful(rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
+        case SERVER_CHALLENGE           => new ServerChallenge(rep.info)
+        case AUTH_REJECTED              => new AuthRejected(rep.info)
+        case AUTH_REQUIRED              => new AuthRequired(rep.info)
+        case AUTH_SUCCESSFUL            => new AuthSuccessful(rep.info)
 
         // Unknown replies
-        case _                          => new UnknownReplyCodeError(rep.code, rep.info)  {
-          override val isMultiline = rep.isMultiline
-          override val lines = rep.lines
-        }
+        case _                          => new UnknownReplyCodeError(rep.code, rep.info)
       }
     }
   }

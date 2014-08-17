@@ -5,3 +5,11 @@ case class AuthMechanism (
   reply: ServerChallenge => ChallengeResponse,
   hasInitialResponse: Boolean
   )
+
+object AuthMechanism {
+  def plain(login: String, password: String) = AuthMechanism(
+    "PLAIN",
+    ch => ChallengeResponse(login + '\0' + password),
+    true
+  )
+}

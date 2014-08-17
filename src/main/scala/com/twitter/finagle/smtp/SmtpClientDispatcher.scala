@@ -4,7 +4,7 @@ import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispat
 import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
 import com.twitter.util.TimeConversions._
-import com.twitter.util.{Future, JavaTimer, Promise}
+import com.twitter.util.{Time, Future, JavaTimer, Promise}
 /**
  * A ClientDispatcher that implements SMTP client/server protocol.
  */
@@ -20,8 +20,6 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
         case ServiceReady(_,_) => Future.Done
         case other => Future.exception(InvalidReply(other.toString))
       }
-    } onFailure {
-      case _ =>  close()
     }
   }
 
@@ -55,15 +53,11 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
     if (valid)
       new UnspecifiedReply{
         val code = replies.head.code
-        val info = lns.head
-        override val isMultiline = true
-        override val lines = lns
+        val info = lns.mkString("\r\n")
       }
     else
-      new InvalidReply(lns.head) {
+      new InvalidReply(lns.mkString("\r\n")) {
         override val code = replies.last.code
-        override val isMultiline = true
-        override val lines = lns
       }
   }
 
@@ -98,7 +92,18 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
     }
   }
 
-  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Future[Unit] = {
+  override def close(deadline: Time) = connPhase flatMap { _ =>
+    apply(Request.Quit).unit within 2.minutes
+  } ensure super.close(deadline)
+
+  /**
+   * Satisfies given promise with the specified version of a given reply
+   * and logs it.
+   *
+   * @param rep The reply to specify
+   * @param p   The satisfied promise
+   */
+  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Unit = {
     Reply(rep) match {
       case err: SmtpError => p.setException(err)
       case r@_ => p.setValue(r)

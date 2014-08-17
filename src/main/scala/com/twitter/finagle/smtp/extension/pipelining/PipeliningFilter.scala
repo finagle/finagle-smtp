@@ -12,7 +12,7 @@ import com.twitter.util.Future
  */
 object PipeliningFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, pipeliningService: Service[Request, Reply]) = request match {
-    case RequestGroup(reqs) =>  {
+    case RequestGroup(reqs:Seq[Request]) =>  {
       // Check command order
       val withoutLast = reqs dropRight 1
       withoutLast find {

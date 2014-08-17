@@ -7,6 +7,7 @@ trait AuthReply extends Reply
 object AuthReplyCode {
   val SERVER_CHALLENGE = 334
   val AUTH_REJECTED    = 535
+  val AUTH_REQUIRED = 530
   val AUTH_SUCCESSFUL  = 235
 }
 
@@ -19,6 +20,11 @@ case class ServerChallenge(challenge: String)
 case class AuthRejected(info: String)
     extends PermanentNegativeCompletionReply with AuthReply {
   val code = AuthReplyCode.AUTH_REJECTED
+}
+
+case class AuthRequired(info: String)
+  extends PermanentNegativeCompletionReply with AuthReply {
+  val code = AuthReplyCode.AUTH_REQUIRED
 }
 
 case class AuthSuccessful(info: String)

@@ -3,7 +3,7 @@ package com.twitter.finagle.smtp
 import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.Service
 import com.twitter.finagle.smtp.extension._
-import com.twitter.finagle.smtp.extension.auth.{AuthFilter, ChallengeResponse, NoAuthFilter, ServerChallenge}
+import com.twitter.finagle.smtp.extension.auth._
 import com.twitter.finagle.smtp.extension.binarymime.NoBinaryMimeFilter
 import com.twitter.finagle.smtp.extension.chunking.{ChunkingFilter, ChunkingReq, NoChunkingFilter}
 import com.twitter.finagle.smtp.extension.eightbitmime.{EightBitMimeFilter, NoEightBitMimeFilter}
@@ -43,11 +43,11 @@ class NoEightBitMimeTest extends FunSuite {
     val text = Request.TextData(Seq("test"), CharsetUtil.UTF_8)
     val service = NoEightBitMimeFilter andThen SimpleTestService
 
-    val textrep = service(text) onFailure {
+    val textrep = service(text) onSuccess { rep =>
+      fail("should not have accepted 8-bit MIME data")
+    } onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
-    } onSuccess { rep =>
-      fail("should not have accepted 8-bit MIME data")
     }
   }
 
@@ -55,11 +55,11 @@ class NoEightBitMimeTest extends FunSuite {
     val mime = Request.MimeData(Mime.plainText("test", CharsetUtil.UTF_8))
     val service = NoEightBitMimeFilter andThen SimpleTestService
 
-    val mimerep = service(mime) onFailure {
+    val mimerep = service(mime) onSuccess { rep =>
+      fail("should not have accepted 8-bit MIME data")
+    } onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
-    } onSuccess { rep =>
-      fail("should not have accepted 8-bit MIME data")
     }
   }
 }
@@ -96,11 +96,11 @@ class SizeDeclarationTest extends FunSuite {
     val req = ExtendedMailingSession(sender).messageSize(10)
     val service = new SizeDeclarationFilter(5) andThen SimpleTestService
 
-    val mimerep = service(req) onFailure {
+    val mimerep = service(req) onSuccess { rep =>
+      fail("should not accept oversized message")
+    } onFailure {
       case _: InsufficientStorageError =>
       case _ => fail("should be InsufficientStorageError")
-    } onSuccess { rep =>
-      fail("should not accept oversized message")
     }
   }
 
@@ -116,21 +116,21 @@ class SizeDeclarationTest extends FunSuite {
 class NoChunkingTest extends FunSuite {
   test("rejects BeginDataChunk with RequestNotAllowed") {
     val service = NoChunkingFilter andThen SimpleTestService
-    val chunkrep = service(ChunkingReq.BeginDataChunk(5)) onFailure {
+    val chunkrep = service(ChunkingReq.BeginDataChunk(5)) onSuccess { rep =>
+      fail("should not accept chunking")
+    } onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
-    } onSuccess { rep =>
-      fail("should not accept chunking")
     }
   }
 
   test("rejects BeginLastDataChunk with RequestNotAllowed") {
     val service = NoChunkingFilter andThen SimpleTestService
-    val chunkrep = service(ChunkingReq.BeginLastDataChunk(5)) onFailure {
+    val chunkrep = service(ChunkingReq.BeginLastDataChunk(5)) onSuccess { rep =>
+      fail("should not accept chunking")
+    } onFailure {
       case _: RequestNotAllowed =>
       case _ => fail("should be RequestNotAllowed")
-    } onSuccess { rep =>
-      fail("should not accept chunking")
     }
   }
 }
@@ -219,8 +219,7 @@ class NoBinaryMimeTest extends FunSuite {
 
 class NoPipeliningTest extends FunSuite {
   test("rejects grouped requests with RequestNotAllowed") {
-    val reqs = Seq(Request.Hello, Request.Quit)
-    val grouped = RequestGroup(reqs)
+    val grouped = RequestGroup(Request.Hello, Request.Quit)
     val service = NoPipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onSuccess { rep =>
@@ -234,21 +233,19 @@ class NoPipeliningTest extends FunSuite {
 
 class PipeliningTest extends FunSuite {
   test("rejects group requests with the wrong order of commands with BadCommandSequence reply") {
-    val reqs = Seq(Request.Hello, ExtendedMailingSession(MailingAddress.empty), Request.Noop)
-    val grouped = RequestGroup(reqs)
+    val grouped = RequestGroup(Request.Hello, ExtendedMailingSession(MailingAddress.empty), Request.Noop)
     val service = PipeliningFilter andThen SimpleTestService
 
-    val rep = service(grouped) onFailure {
+    val rep = service(grouped) onSuccess { rep =>
+      fail("should not have accepted wrong-ordered grouped request")
+    } onFailure {
       case BadCommandSequence(_) =>
       case _ => fail("should be BadCommandSequence")
-    } onSuccess { rep =>
-      fail("should not have accepted wrong-ordered grouped request")
     }
   }
 
   test("allows correct group requests") {
-    val reqs = Seq(ExtendedMailingSession(MailingAddress.empty), Request.BeginData)
-    val grouped = RequestGroup(reqs)
+    val grouped = RequestGroup(ExtendedMailingSession(MailingAddress.empty), Request.BeginData)
     val service = PipeliningFilter andThen SimpleTestService
 
     val rep = service(grouped) onFailure { _ => fail("should allow correct request") }
@@ -264,6 +261,14 @@ class NoAuthTest extends FunSuite {
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]
     val req = rep.req.asInstanceOf[ExtendedMailingSession]
     assert(!req.ext.contains("AUTH"))
+  }
+
+  test("rejects AUTH request") {
+    val service = NoAuthFilter andThen SimpleTestService
+    service(AuthRequest(AuthMechanism.plain("login", "password"))) onSuccess { _ =>
+      fail("should not have accepted auth request")
+    }
+
   }
 }
 
@@ -287,11 +292,11 @@ class AuthTest extends FunSuite {
   }
 
   test("converts unexpected challenges to InvalidReply") {
-    val rep = authService(Request.Hello) onFailure {
+    val rep = authService(Request.Hello) onSuccess { _ =>
+      fail("should fail")
+    } onFailure {
       case InvalidReply(_) =>
       case _ => fail("should be InvalidReply")
-    } onSuccess { _ =>
-    fail("should fail")
     }
   }
 }
