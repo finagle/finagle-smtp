@@ -1,10 +1,12 @@
 package com.twitter.finagle.smtp
 
 import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispatcher}
+import com.twitter.finagle.smtp.ReplyCode.Reply
 import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
 import com.twitter.util.TimeConversions._
-import com.twitter.util.{Time, Future, JavaTimer, Promise}
+import com.twitter.util.{Future, JavaTimer, Promise, Time}
+
 /**
  * A ClientDispatcher that implements SMTP client/server protocol.
  */
@@ -13,7 +15,15 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
   import com.twitter.finagle.dispatch.GenSerialClientDispatcher.wrapWriteException
 
-  /*Connection phase: should receive greeting from the server*/
+  implicit val timer = new JavaTimer
+
+  /**
+   * Performs the connection phase. This is done once
+   * before any client-server exchange. Upon the connection
+   * the server should send greeting. If the greeting is
+   * malformed, the service is closed when trying to dispatch
+   * a request.
+   */
   private val connPhase: Future[Unit] = {
     trans.read.within(5.minutes) flatMap { greet =>
       Reply(greet) match {
@@ -23,6 +33,10 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
     }
   }
 
+  /**
+   * The dispatcher used for pipelining commands when ''PIPELINING''
+   * extension is supported.
+   */
   private lazy val pipeliningDispatcher = new PipeliningDispatcher[Request, UnspecifiedReply](trans)
 
   /**
@@ -49,7 +63,6 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
       replies.map(_.code).distinct.length == 1 &&
       replies.collectFirst { case InvalidReply(_) => true } .isEmpty
 
-    // Since we changed code in invalidReply, it will be cast correctly
     if (valid)
       new UnspecifiedReply{
         val code = replies.head.code

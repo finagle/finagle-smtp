@@ -6,11 +6,10 @@ import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
 /**
-* Filter that is applied when SIZE extension is supported.
-* If declared message size is more than the value set by extension,
-* completes the future with InsufficientStorageError
-* and doesn't send anything.
-* */
+ * Filter that is applied when ''SIZE'' extension is supported.
+ * If declared message size is more than the value set by extension,
+ * completes the future with InsufficientStorageError.
+ */
 class SizeDeclarationFilter(maxSize: Int) extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
     case ExtendedMailingSession(sender, ext) =>

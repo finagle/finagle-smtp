@@ -2,8 +2,8 @@ package com.twitter.finagle.smtp.filter
 
 import java.text.SimpleDateFormat
 
-import com.twitter.finagle.smtp.{EmailBuilder, MailingAddress, DefaultEmail, EmailMessage}
 import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.finagle.smtp.{EmailBuilder, MailingAddress, DefaultEmail, EmailMessage}
 import com.twitter.util.Future
 
 /**

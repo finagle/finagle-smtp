@@ -12,7 +12,7 @@ class SmtpEncoder extends SimpleChannelDownstreamHandler {
     evt.getMessage match {
       case req: Request =>
         try {
-          Channels.write(ctx, evt.getFuture, req.toChannelBuffer, evt.getRemoteAddress)
+          Channels.write(ctx, evt.getFuture, req.toChannelBuffer(), evt.getRemoteAddress)
         } catch {
           case NonFatal(e) =>
             evt.getFuture.setFailure(new ChannelException(e.getMessage))

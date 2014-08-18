@@ -6,7 +6,6 @@ import com.twitter.finagle.smtp.extension._
 import com.twitter.finagle.smtp.filter._
 import com.twitter.finagle.smtp.transport.SmtpTransporter
 import com.twitter.logging.Logger
-import com.twitter.util.{Future, Time}
 
 trait SmtpRichClient { self: Client[Request, Reply] =>
 
@@ -24,6 +23,9 @@ trait SmtpRichClient { self: Client[Request, Reply] =>
   def newSimpleService(dest: String): Service[EmailMessage, Unit]
 }
 
+/**
+ * Creates different types of clients
+ */
 object Smtp extends Client[Request, Reply] with SmtpRichClient {
 
   override def newClient(dest: Name, label: String) = SmtpClient().newClient(dest, label)
@@ -35,8 +37,8 @@ object Smtp extends Client[Request, Reply] with SmtpRichClient {
 
 /**
  * Implements an SMTP client with given extensions
- * that sends EHLO upon connection and QUIT before
- * closing connection. */
+ * that greets server upon connection.
+ */
 case class SmtpClient(canSupport: Seq[String] = Seq.empty) extends Client[Request, Reply] {
   // TODO: switch to StackClient
   private val defaultClient = DefaultClient[Request, Reply] (

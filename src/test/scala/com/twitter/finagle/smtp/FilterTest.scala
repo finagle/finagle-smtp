@@ -1,6 +1,7 @@
 package com.twitter.finagle.smtp
 
 import java.net.InetAddress
+import java.text.SimpleDateFormat
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.smtp.extension.ExtendedMailingSession
@@ -127,9 +128,8 @@ class HeaderFilterTest extends FunSuite {
   test("result message has all necessary headers") {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
-
-        val body = msg.getBody
-        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
+        val body = msg.body
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
         val headers = Seq("From: ", "To: ", "Subject: ", "Date: ")
         val hasHeaders = headers.map(hasOneHeader(lines, _)).reduce(_ && _)
         assert(hasHeaders)
@@ -143,10 +143,9 @@ class HeaderFilterTest extends FunSuite {
   test("message has Sender header in case of multiple From") {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = {
-
-        val body = msg.getBody
-        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
-        if (msg.getFrom.length > 1) Future {
+        val body = msg.body
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
+        if (msg.from.length > 1) Future  {
           assert(hasOneHeader(lines, "Sender: "))
           checkHeader(lines, "Sender: ", msg.getSender.toString)
         }
@@ -161,6 +160,8 @@ class HeaderFilterTest extends FunSuite {
   test("necessary headers correspond to the right values") {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
+        val body = msg.body
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
 
         val body = msg.getBody
         val lines = body.getMimeHeaders ++ body.message.split("\r\n")

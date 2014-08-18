@@ -2,7 +2,9 @@ package com.twitter.finagle.smtp
 
 import com.twitter.util.{Time, TimeFormat, Try}
 
-/** Defines email address */
+/**
+ * Defines email address
+ */
 private[smtp] class MailingAddress(val local: String, val domain: String) {
   val mailbox: String = {
     if (isEmpty) ""
@@ -12,12 +14,16 @@ private[smtp] class MailingAddress(val local: String, val domain: String) {
   val nonEmpty: Boolean = !isEmpty
 }
 
-/** Factory for mailing addresses. */
+/**
+ * Factory for mailing addresses.
+ */
 object MailingAddress {
 
   /**
    * Checks if address is syntactically correct according to
    * [[http://tools.ietf.org/search/rfc5321#section-4.1.2]] (for example, user@domain.org)
+   *
+   * @param address The address to check
    */
   def correct(address: String): Boolean = Try {
     val Array(local, domain) = address split "@"
@@ -25,6 +31,12 @@ object MailingAddress {
     require(domain.nonEmpty)
   }.isReturn
 
+  /**
+   * Checks if all the addresses in ''addrs'' are syntactically correct according to
+   * [[http://tools.ietf.org/search/rfc5321#section-4.1.2]] (for example, user@domain.org)
+   *
+   * @param addrs The addresses to check
+   */
   def correct(addrs: Seq[String]): Boolean = addrs.map(MailingAddress.correct(_)).contains(false)
 
   /**
@@ -43,7 +55,9 @@ object MailingAddress {
     else throw new IllegalArgumentException("Incorrect mailbox syntax: %s" format address)
   }
 
-  /** An empty mailing address */
+  /**
+   * An empty mailing address
+   */
   val empty: MailingAddress = new MailingAddress("","")
 
   /**
@@ -63,7 +77,7 @@ object MailingAddress {
 
 /**
  * Defines fields and body of an email message.
- * */
+ */
 trait EmailMessage {
   def getFrom: Seq[MailingAddress]
   def getSender: MailingAddress
@@ -77,5 +91,8 @@ trait EmailMessage {
 }
 
 object EmailMessage {
+  /**
+   * The time and date format used in SMTP
+   */
   val DateFormat: TimeFormat = new TimeFormat("EE, dd MMM yyyy HH:mm:ss ZZ")
 }

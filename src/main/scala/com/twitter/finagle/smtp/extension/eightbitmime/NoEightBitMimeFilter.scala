@@ -1,16 +1,16 @@
 package com.twitter.finagle.smtp.extension.eightbitmime
 
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp.extension.ExtendedMailingSession
 import com.twitter.finagle.smtp.{Reply, Request, RequestNotAllowed}
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 import org.jboss.netty.util.CharsetUtil
 
 /**
-* Filter that is applied when 8BITMIME extension is not supported.
-* Removes BODY=8BITMIME extension from MAIL FROM command.
-* Rejects requests with 8-bit data with RequestNotAllowed error
-*/
+ * Filter that is applied when 8BITMIME extension is not supported.
+ * Removes BODY=8BITMIME extension from MAIL FROM command.
+ * Rejects requests with 8-bit data with [[com.twitter.finagle.smtp.RequestNotAllowed]].
+ */
 object NoEightBitMimeFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {
     case ExtendedMailingSession(sender, ext) => {

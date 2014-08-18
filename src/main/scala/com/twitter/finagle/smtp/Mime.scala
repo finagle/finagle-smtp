@@ -1,17 +1,30 @@
 package com.twitter.finagle.smtp
 
+import com.twitter.io.Files
 import java.io.File
 import java.nio.charset.Charset
-
-import com.twitter.io.Files
 import org.jboss.netty.util.CharsetUtil
 
-/*A trait for general MIME messages*/
+/**
+ * A trait for general MIME messages.
+ */
 sealed trait Mime{
   val version = "1.0"
-  val headers: Map[String, String] //headers not including MIME-Version
+  /**
+   * Headers not including MIME-Version.
+   */
+  val headers: Map[String, String]
 
-  def allHeaders = headers.updated("MIME-Version", version)
+  /**
+   * Gets all MIME headers of the message (including MIME-Version)
+   * in the form of a Map.
+   */
+  def allHeaders: Map[String, String] = headers.updated("MIME-Version", version)
+
+  /**
+   * Gets string representations of all MIME headers of the message,
+   * including MIME-Version, ensuring that the latter is the first header.
+   */
   def getMimeHeaders: Seq[String] = {
     allHeaders map {
       case (k, v) => "%s: %s".format(k, v)
@@ -20,27 +33,63 @@ sealed trait Mime{
 
 
   /**
-   * Returns the body of the message that should be sent after headers.
-   * Meant to be used mainly for test purposes.
+   * Returns the body of the message that should be sent after headers
+   * as a String. Meant to be used mainly for test purposes.
    */
-  def message: String
+  def message(): String
 
   /**
    * The size of the whole message in bytes.
    */
   def size: Int = {
     val headersSize = getMimeHeaders map { _.length } reduceLeft { _ + _ }
-    val contentSize = message.length
+    val contentSize = message().length
     headersSize + contentSize
   }
 
+  /**
+   * Gets content transfer encoding of the message.
+   */
   def contentTransferEncoding: String = headers.getOrElse("Content-Transfer-Encoding", TransferEncoding.default.value)
+
+  /**
+   * Gets content disposition of the message.
+   */
   def contentDisposition: String = headers.getOrElse("Content-Disposition", ContentDisposition.default.value)
+
+  /**
+   * Gets content type of the message.
+   */
   def contentType: String = headers.getOrElse("Content-Type", ContentType.default.value)
 
+
+  /**
+   * Adds a header to the message.
+   *
+   * @param key Header name
+   * @param value Header value
+   */
   def addHeader(key: String, value: String): Mime
+
+  /**
+   * Adds a header to the message.
+   *
+   * @param header [[com.twitter.finagle.smtp.MimeHeader]] representing the header.
+   */
   def addHeader(header: MimeHeader): Mime
+
+  /**
+   * Adds several headers to the message.
+   *
+   * @param newHeaders Map from header name to header value
+   */
   def addHeaders(newHeaders: Map[String, String]): Mime
+
+  /**
+   * Adds several headers to the message.
+   *
+   * @param newHeaders Sequence of [[com]]
+   */
   def addHeaders(newHeaders: Seq[MimeHeader]): Mime
   }
 
@@ -59,29 +108,62 @@ object Mime {
 
     withHeaders
   }
+  
+  /**
+   * Creates a plain text [[com.twitter.finagle.smtp.MimePart]] encoded in a given charset.
+   * 
+   * @param text The text of the part
+   * @param enc The charset in which the text should be encoded
+   */
+  def plainText(text: String, enc: Charset): MimePart = textContent(text, "plain", enc)
 
-  def plainText(text: String, enc: Charset) = MimePart(text.getBytes(enc)) setContentType {
-                                                  ContentType("text", "plain", Map("charset" -> enc.displayName()))
-                                              } setContentTransferEncoding {
-                                                  if (enc != Charset.forName("US-ASCII")) TransferEncoding.EightBit
-                                                  else TransferEncoding.SevenBit
-                                              }
+  /**
+   * Creates a plain text [[com.twitter.finagle.smtp.MimePart]] encoded in a given charset.
+   *
+   * @param text The text of the part
+   * @param encName The name of the charset in which the text should be encoded
+   */
+  def plainText(text: String, encName: String): MimePart = plainText(text, Charset.forName(encName))
 
-  def plainText(text: String, encName: String) = MimePart(text.getBytes(Charset.forName(encName))) setContentType {
-                                                  ContentType("text", "plain", Map("charset" -> encName))
-                                              }  setContentTransferEncoding {
-                                                   if (encName.toUpperCase != "US-ASCII") TransferEncoding.EightBit
-                                                   else TransferEncoding.SevenBit
-                                              }
+  /**
+   * Creates a plain text [[com.twitter.finagle.smtp.MimePart]] encoded in US-ASCII charset.
+   *
+   * @param text The text of the part
+   */
+  def plainText(text: String): MimePart = plainText(text, Charset.forName("US-ASCII"))
 
+  /**
+   * Creates an HTML [[com.twitter.finagle.smtp.MimePart]] encoded in given charset
+   *
+   * @param text The HTML text
+   * @param enc The charset in which the text should be encoded
+   */
+  def html(text: String, enc: Charset): MimePart = textContent(text, "html", enc)
+
+  /**
+   * Creates an HTML [[com.twitter.finagle.smtp.MimePart]] encoded in given charset
+   *
+   * @param text The HTML text
+   * @param encName The name of the charset in which the text should be encoded
+   */
   def html(text: String, encName: String): MimePart = html(text, Charset.forName(encName))
 
+  /**
+   * Creates an HTML [[com.twitter.finagle.smtp.MimePart]] encoded in given charset
+   *
+   * @param text The HTML text
+   */
   def html(text: String): MimePart = html(text, Charset.forName("US-ASCII"))
 
-  def fromFile(path: String) = {
-    val contents = Files.readBytes(new File(path))
-    val javaPath = java.nio.file.Paths.get(path)
-    val probe = java.nio.file.Files.probeContentType(javaPath)
+  /**
+   * Creates a [[com.twitter.finagle.smtp.MimePart]] with contents from given file.
+   * 
+   * @param path The path to the file
+   */
+  def fromFile(path: String): MimePart = {
+    val file = new File(path)
+    val contents = Files.readBytes(file)
+    val probe = new javax.activation.MimetypesFileTypeMap().getContentType(file)//java.nio.file.Files.probeContentType(javaPath)
     val ct = if (probe == null) ContentType.default
              else ContentType parse probe
 
@@ -89,60 +171,134 @@ object Mime {
   }
 }
 
-/*A simple MIME message with some content*/
+/**
+ * A simple MIME message with some content.
+ */
 case class MimePart(content: Array[Byte], headers: Map[String, String] = Map.empty) extends Mime {
-  def message = new String(content, "UTF-8")
+  def message(): String = new String(content, "US-ASCII")
 
-  def addHeader(key: String, value: String) = copy(headers = this.headers.updated(key, value))
-  def addHeader(header: MimeHeader) = copy(headers = this.headers.updated(header.name, header.value))
-  def addHeaders(newHeaders: Seq[MimeHeader]) = copy(headers = this.headers ++ newHeaders.map(h => (h.name, h.value)))
-  def addHeaders(newHeaders: Map[String, String]) = copy(headers = this.headers ++ newHeaders)
+  def addHeader(key: String, value: String): MimePart =
+    copy(headers = this.headers.updated(key, value))
 
-  def setContentType(ct: ContentType) = addHeader(ct)
-  def setCharset(charset: String) = {
+  def addHeader(header: MimeHeader): MimePart =
+    copy(headers = this.headers.updated(header.name, header.value))
+
+  def addHeaders(newHeaders: Seq[MimeHeader]): MimePart =
+    copy(headers = this.headers ++ newHeaders.map(h => (h.name, h.value)))
+
+  def addHeaders(newHeaders: Map[String, String]): MimePart =
+    copy(headers = this.headers ++ newHeaders)
+
+  /**
+   * Sets the ''Content-Type'' header of the message.
+   */
+  def setContentType(ct: ContentType): MimePart = addHeader(ct)
+
+  /**
+   * Sets the charset of the message if its content type is text.
+   */
+  def setCharset(charset: String): MimePart = {
     val ct = ContentType parse this.contentType
 
-    if (ct.mediatype == "text") setContentType(ct.copy(params = ct.params.updated("charset", charset)))
+    if (ct.mediatype == "text")
+      setContentType(ct.copy(params = ct.params.updated("charset", charset)))
     else this
   }
-  def setContentTransferEncoding(te: TransferEncoding) = addHeader(te)
-  def setContentDisposition(cd: ContentDisposition) = addHeader(cd)
+
+  /**
+   * Sets the ''Content-Transfer-Encoding'' header of the message.
+   */
+  def setContentTransferEncoding(te: TransferEncoding): MimePart = addHeader(te)
+
+  /**
+   * Sets the ''Content-Disposition'' header of the message.
+   */
+  def setContentDisposition(cd: ContentDisposition): MimePart = addHeader(cd)
 }
 
 object MimePart {
-  val empty = MimePart(Array.empty)
+
+  /**
+   * An empty [[com.twitter.finagle.smtp.MimePart]].
+   */
+  val empty: MimePart = MimePart(Array.empty)
 }
 
-/*A multipart MIME message*/
+/**
+ * A multipart MIME message.
+ *
+ * @param parts The parts of the message
+ * @param headers The headers of this whole multipart message
+ * @param boundary The boundary that will be used to separate the parts and
+ *                 indicate the end of the message.
+ */
+case class MimeMultipart(parts: Seq[MimePart], headers: Map[String, String] = Map.empty)
+  (implicit val boundary: String = "d5f6s8asdkfh3") extends Mime {
 
-case class MimeMultipart(parts: Seq[MimePart], headers: Map[String, String] = Map.empty)(implicit val boundary: String = "d5f6s8asdkfh3")
-  extends Mime {
+  // The content type of the whole multipart message
   private val multiContentType = ContentType("multipart", "mixed", Map("boundary" -> boundary))
-  val delimiter = "--%s" format boundary
-  val closingDelimiter = "--%s--" format boundary
 
-  override def allHeaders = super.allHeaders.updated("Content-Type", multiContentType.value)
+  /**
+   * The delimiter used to separate the parts
+   */
+  def delimiter: String = "--%s" format boundary
 
-  def addHeader(key: String, value: String) = copy(headers = this.headers.updated(key, value))
-  def addHeader(header: MimeHeader) = copy(headers = this.headers.updated(header.name, header.value))
-  def addHeaders(newHeaders: Seq[MimeHeader]) = copy(headers = this.headers ++ newHeaders.map(h => (h.name, h.value)))
-  def addHeaders(newHeaders: Map[String, String]) = copy(headers = this.headers ++ newHeaders)
+  /**
+   * The delimiter used to indicate the end of the message
+   */
+  def closingDelimiter: String = "--%s--" format boundary
+
+  override def allHeaders: Map[String, String] = super.allHeaders.updated("Content-Type", multiContentType.value)
+
+  def addHeader(key: String, value: String): MimeMultipart =
+    copy(headers = this.headers.updated(key, value))
+
+  def addHeader(header: MimeHeader): MimeMultipart =
+    copy(headers = this.headers.updated(header.name, header.value))
+
+  def addHeaders(newHeaders: Seq[MimeHeader]): MimeMultipart =
+    copy(headers = this.headers ++ newHeaders.map(h => (h.name, h.value)))
+
+  def addHeaders(newHeaders: Map[String, String]): MimeMultipart =
+    copy(headers = this.headers ++ newHeaders)
   
-  def message: String = {
+  def message(): String = {
     val partHeaders = parts map {_.getMimeHeaders.filter(!_.startsWith("MIME-Version")) mkString "\r\n" }
-    val partMessages = parts map { _.message }
+    val partMessages = parts map { _.message() }
     val partStrings = (partHeaders zip partMessages) map { case (h, m) => "\r\n%s\r\n\r\n%s\r\n".format(h, m)}
     partStrings.mkString(delimiter, delimiter, closingDelimiter)
   }
 
+  /**
+   * Adds given [[com.twitter.finagle.smtp.MimePart]] to the message.
+   */
   def addPart(part: MimePart) = copy(parts = this.parts :+ part)
+
+  /**
+   * Adds given sequence of [[com.twitter.finagle.smtp.MimePart]] to the message.
+   */
   def addParts(newparts: Seq[MimePart]) = copy(parts = this.parts ++ newparts)
+
+  /**
+   * Syntactic sugar for [[com.twitter.finagle.smtp.MimeMultipart.addPart()]]
+   */
   def + (part: MimePart) = addPart(part)
 
+  /**
+   * Sets the boundary of the message.
+   */
   def setBoundary(bnd: String) = copy()(bnd)
 }
 
 object MimeMultipart {
-  val empty = MimeMultipart(Seq.empty)
+  /**
+   * An empty [[com.twitter.finagle.smtp.MimeMultipart]].
+   */
+  val empty: MimeMultipart = MimeMultipart(Seq.empty)
+
+  /**
+   * Creates a [[com.twitter.finagle.smtp.MimeMultipart]] containing
+   * only given [[com.twitter.finagle.smtp.MimePart]].
+   */
   def wrap(part: MimePart): MimeMultipart = MimeMultipart(Seq(part))
 }
