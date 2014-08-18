@@ -1,12 +1,16 @@
 package com.twitter.finagle.smtp.filter
 
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp.extension.ExtendedMailingSession
 import com.twitter.finagle.smtp.extension.chunking.ChunkingReq
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.smtp.{Reply, Request}
-import com.twitter.util.{JavaTimer, Duration, Future}
+import com.twitter.util.{Duration, Future, JavaTimer}
 import com.twitter.util.TimeConversions._
 
+/**
+ * Applies standard hard SMTP timeouts for requests
+ * (see [http://tools.ietf.org/search/rfc5321#section-4.5.3.2]])
+ */
 object DefaultTimeoutsFilter extends SimpleFilter[Request, Reply]{
   implicit val timer = new JavaTimer
 

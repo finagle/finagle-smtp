@@ -2,23 +2,37 @@ package com.twitter.finagle.smtp
 
 import java.net.InetAddress
 import java.nio.charset.Charset
-
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.util.CharsetUtil
 
+/**
+ * Represents SMTP request.
+ */
 trait Request {
-  def toChannelBuffer: ChannelBuffer
+  /**
+   * Encodes the request into a ChannelBuffer
+   */
+  def toChannelBuffer(): ChannelBuffer
 }
 
+/**
+ * A simple text request
+ *
+ * @param cmd The command that will be sent to server
+ */
 class TextRequest(val cmd: String) extends Request {
-  def toChannelBuffer = ChannelBuffers.copiedBuffer(cmd + "\r\n", CharsetUtil.US_ASCII)
+  def toChannelBuffer: ChannelBuffer =
+    ChannelBuffers.copiedBuffer(cmd + "\r\n", CharsetUtil.US_ASCII)
 }
 
 private[smtp] class HelloRequest(keyword: String) extends TextRequest("%s %s".format(keyword, InetAddress.getLocalHost.getHostAddress))
 private[smtp] class BeginDataRequest(cmd: String) extends TextRequest(cmd)
 
+/**
+ * The request containing a MIME message
+ */
 class MimeRequest(val mime: MimePart) extends Request {
-  def toChannelBuffer = {
+  def toChannelBuffer(): ChannelBuffer = {
     val headerBytes = mime.getMimeHeaders.mkString("", "\r\n", "\r\n").getBytes(CharsetUtil.US_ASCII)
     ChannelBuffers.copiedBuffer(headerBytes, mime.content)
   }

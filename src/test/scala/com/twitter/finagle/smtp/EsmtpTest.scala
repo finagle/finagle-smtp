@@ -13,7 +13,7 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class EsmtpTest extends FunSuite  {
-  import SmtpExtensions._
+  import com.twitter.finagle.smtp.extension.SmtpExtensions._
 
   val domain = "domain"
   def extensionsService(extensionString: String) = new Service[Request, Reply] {

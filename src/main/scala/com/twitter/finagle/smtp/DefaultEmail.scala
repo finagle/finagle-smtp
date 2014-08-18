@@ -5,7 +5,7 @@ import java.nio.charset.Charset
 import com.twitter.util.Time
 
 /**
- * Constructs an [[com.twitter.finagle.smtp.EmailMessage]].
+ * Constructs a default [[com.twitter.finagle.smtp.EmailMessage]].
  */
 case class DefaultEmail(
   override val from: Seq[MailingAddress] = Seq.empty,
@@ -29,7 +29,7 @@ case class DefaultEmail(
   def from_(addrs: String*): DefaultEmail = setFrom(from ++ addrs.map(MailingAddress(_)))
 
   /**
-   * Set the ''From:'' field to contain given originator addresses.
+   * Sets the ''From:'' field to contain given originator addresses.
    *
    * @param addrs Addresses to be set
    */
@@ -67,7 +67,7 @@ case class DefaultEmail(
   def to_(addrs: String*): DefaultEmail = setTo(to ++ addrs.map(MailingAddress(_)))
 
   /**
-   * Set the ''To:'' field to contain given recipient addresses.
+   * Sets the ''To:'' field to contain given recipient addresses.
    *
    * @param addrs Addresses to be set
    */
@@ -83,7 +83,7 @@ case class DefaultEmail(
   def cc_(addrs: String*): DefaultEmail = setCc(cc ++ addrs.map(MailingAddress(_)))
 
   /**
-   * Set the ''Cc:'' field to contain given carbon copy addresses.
+   * Sets the ''Cc:'' field to contain given carbon copy addresses.
    *
    * @param addrs Addresses to be set
    */
@@ -99,7 +99,7 @@ case class DefaultEmail(
   def bcc_(addrs: String*): DefaultEmail = setBcc(bcc ++ addrs.map(MailingAddress(_)))
 
   /**
-   * Set the ''Bcc:'' field to contain given blind carbon copy addresses.
+   * Sets the ''Bcc:'' field to contain given blind carbon copy addresses.
    *
    * @param addrs Addresses to be set
    */
@@ -115,48 +115,81 @@ case class DefaultEmail(
   def replyTo_(addrs: String*): DefaultEmail = setReplyTo(replyTo ++ addrs.map(MailingAddress(_)))
 
   /**
-   * Set the ''Reply-To:'' field to contain given addresses to reply to.
+   * Sets the ''Reply-To:'' field to contain given addresses to reply to.
    *
    * @param addrs Addresses to be set
    */
   def setReplyTo(addrs: Seq[MailingAddress]): DefaultEmail = copy(replyTo = addrs)
 
   /**
-   * Set the date of sending the message.
+   * Sets the date of sending the message.
    *
-   * @param dt Date to be set
+   * @param dt The date to be set
    */
   def date_(dt: Time): DefaultEmail = copy(date = dt)
 
   /**
-   * Set the subject of the message.
+   * Sets the subject of the message.
    *
-   * @param sbj Subject to be set
+   * @param sbj The subject to be set
    */
   def subject_(sbj: String): DefaultEmail = copy(subject = sbj)
 
-  /*Add part to the body*/
+  /**
+   * Adds given MIME part to the body of the message.
+   *
+   * @param part The part to be added.
+   */
   def addBodyPart(part: MimePart): DefaultEmail = body match {
     case MimePart.empty => setBody(MimeMultipart.wrap(part))
     case multipart: MimeMultipart => setBody(multipart + part)
     case singlepart: MimePart => setBody(MimeMultipart.wrap(singlepart) + part)
   }
-  /*Set body to bdy*/
+
+  /**
+   * Sets the body of the message.
+   *
+   * @param bdy The body to be set.
+   */
   def setBody(bdy: Mime): DefaultEmail = copy(body = bdy)
-  /*Set body to plain text*/
+
+  /**
+   * Sets the body of the message to plain text with given encoding.
+   *
+   * @param t The text of the message
+   * @param encName The name of text encoding
+   */
   def text(t: String, encName: String): DefaultEmail = copy(body = Mime.plainText(t, Charset.forName(encName)))
+
+  /**
+   * Sets the body of the message to plain text with given encoding.
+   *
+   * @param t The text of the message
+   * @param enc Text encoding
+   */
   def text(t: String, enc: Charset): DefaultEmail = copy(body = Mime.plainText(t, enc))
+
+  /**
+   * Sets the body of the message to plain text with US-ASCII encoding.
+   *
+   * @param t The text of the message
+   */
   def text(t: String): DefaultEmail = copy(body = Mime.plainText(t))
-  /*Attach a file*/
+
+  /**
+   * Attaches a file to the message.
+   *
+   * @param path The path to the file
+   */
   def attach(path: String): DefaultEmail = {
     val filename = path.split("/").last
     addBodyPart(Mime.fromFile(path).setContentDisposition(ContentDisposition.attachment(filename)))
   }
 
   /**
-   * Instantiate an [[com.twitter.finagle.smtp.EmailMessage]] from the payload.
+   * Instantiates an [[com.twitter.finagle.smtp.EmailMessage]] from the payload.
    * If the date of sending the message is not set,
-   * current date is used. If sender of the message
+   * current date is used. If the sender of the message
    * is not specified, the first address in ''From:'' is used.
    */
   def headers: Seq[(String, String)] = {

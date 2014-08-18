@@ -5,8 +5,8 @@ import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 
 /**
- * Filter that is applied when PIPELINING extension is not supported.
- * Rejects grouped requests with RequestNotAllowed error.
+ * Filter that is applied when ''PIPELINING'' extension is not supported.
+ * Rejects grouped requests with [[com.twitter.finagle.smtp.RequestNotAllowed]].
  */
 object NoPipeliningFilter extends SimpleFilter[Request, Reply] {
   def apply(request: Request, service: Service[Request, Reply]) = request match {

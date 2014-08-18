@@ -2,7 +2,7 @@ package com.twitter.finagle.smtp
 
 import com.twitter.concurrent.AsyncQueue
 import com.twitter.finagle.transport.QueueTransport
-import com.twitter.util.{Duration, Await}
+import com.twitter.util.Await
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner

@@ -255,7 +255,7 @@ class PipeliningTest extends FunSuite {
 class NoAuthTest extends FunSuite {
   test("removes AUTH extension from MAIL FROM") {
     val sender = MailingAddress("test@t.com")
-    val exreq = ExtendedMailingSession(sender).authenticatedSender(sender)
+    val exreq = ExtendedMailingSession(sender).authorize(sender)
 
     val service = NoAuthFilter andThen SimpleTestService
     val rep = Await.result(service(exreq)).asInstanceOf[TestReply]

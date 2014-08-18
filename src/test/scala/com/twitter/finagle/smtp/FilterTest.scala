@@ -125,7 +125,7 @@ class HeaderFilterTest extends FunSuite {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
         val body = msg.body
-        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
         val headers = Seq("From: ", "To: ", "Subject: ", "Date: ")
         val hasHeaders = headers.map(hasOneHeader(lines, _)).reduce(_ && _)
         assert(hasHeaders)
@@ -140,7 +140,7 @@ class HeaderFilterTest extends FunSuite {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = {
         val body = msg.body
-        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
         if (msg.from.length > 1) Future  {
           assert(hasOneHeader(lines, "Sender: "))
           checkHeader(lines, "Sender: ", msg.sender.mailbox)
@@ -157,7 +157,7 @@ class HeaderFilterTest extends FunSuite {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
         val body = msg.body
-        val lines = body.getMimeHeaders ++ body.message.split("\r\n")
+        val lines = body.getMimeHeaders ++ body.message().split("\r\n")
 
         checkHeader(lines, "From: ", msg.from.map(_.mailbox).mkString(","))
         checkHeader(lines, "To: ", msg.to.map(_.mailbox).mkString(","))

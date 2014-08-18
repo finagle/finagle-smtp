@@ -15,15 +15,14 @@ import org.jboss.netty.util.CharsetUtil
  * treats the line as a part of a multiline reply.
  */
 class SmtpDecoder extends LineBasedFrameDecoder(512) {
-  import com.twitter.finagle.smtp.transport.CodecUtil._
 
   private def getCode(first: Char, second: Char, third: Char): Int =
     "%c%c%c".format(first, second, third).toInt
 
   private def getInfo(info: Array[Char]) = new String(info)
 
-  private def mkReply(first: Char, second: Char, third: Char, delim: Option[Char], inf: Array[Char])
-    : Option[UnspecifiedReply] = {
+  private def mkReply(first: Char, second: Char, third: Char, delim: Option[Char],
+    inf: Array[Char]): Option[UnspecifiedReply] = {
     if (first.isDigit && second.isDigit && third.isDigit)
       delim match {
         case Some(' ') => Some(
@@ -47,8 +46,9 @@ class SmtpDecoder extends LineBasedFrameDecoder(512) {
     else None
   }
 
-  override def decode(ctx: ChannelHandlerContext, channel: Channel, msg: ChannelBuffer): UnspecifiedReply = {
-    Option(super.decode(ctx, channel, msg)) match {
+  override def decode(ctx: ChannelHandlerContext, channel: Channel,
+    msg: ChannelBuffer): UnspecifiedReply = {
+      Option(super.decode(ctx, channel, msg)) match {
       case None => null
       case Some(buf: ChannelBuffer) =>
         val repString = buf.toString(CharsetUtil.US_ASCII)
@@ -66,6 +66,6 @@ class SmtpDecoder extends LineBasedFrameDecoder(512) {
           case None => InvalidReply(repString)
         }
 
-    }
+      }
   }
 }

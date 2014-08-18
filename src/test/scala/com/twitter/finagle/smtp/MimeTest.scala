@@ -95,7 +95,7 @@ class MimeTest extends FunSuite{
     "--bnd--"
     ) mkString "\r\n"
 
-    assert(multipart.message === expectedMessage)
+    assert(multipart.message() === expectedMessage)
   }
 
   test("MimePart from file") {
