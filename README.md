@@ -18,7 +18,7 @@ For services created with `SmtpSimple` the request type is `EmailMessage`, descr
 You can create an email using `DefaultEmail` class described in [`DefaultEmail.scala`][DefaultEmail]:
 
 ```scala
-    val email = EmailBuilder()
+    val email = DefaultEmail()
       .from_("from@from.com")
       .to_("first@to.com", "second@to.com")
       .subject_("test")
