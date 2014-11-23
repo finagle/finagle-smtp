@@ -8,22 +8,25 @@ import com.twitter.util.Future
 /**
  * Decorates SMTP client with extension-related behavior.
  */
-case class Esmtp(extensions: SmtpExtensions) {
+case class Esmtp(extensions: Extensions) {
   // Filters for supported SMTP extensions
   lazy val supportedExtFilters = for {
-    extension <- extensions.supported
+    extension <- extensions.list
     if GetExtensionFilter.forSupported.isDefinedAt(extension)
   } yield GetExtensionFilter forSupported extension
 
   // Filters ensuring unsupported extensions are not used
-  lazy val unsupportedExtFilters = for {
-    (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
-    if !(extensions.supported.map(_.keyword) contains extension)
-  } yield filter
+  lazy val unsupportedExtFilters = {
+    val supportedKeywords = extensions.list.map(_.keyword)
+    for {
+      (extension, filter) <- GetExtensionFilter.forUnsupportedExtensions
+      if !(supportedKeywords contains extension.keyword)
+    } yield filter
+  }
 
   // Filters above combined into one
   lazy val extFilters = (supportedExtFilters ++ unsupportedExtFilters)
-                         .reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _}
+                         .reduceRight[Filter[Request, Reply, Request, Reply]] { _ andThen _ }
 
   /**
    * Decorates given service with behavior according to supported ''extensions''.
@@ -45,40 +48,41 @@ object Esmtp {
    * a HELO request (indicating that extensions should not be supported) is sent.
    *
    * @param service The service used to send requests and receive replies
-   * @param clientSupported The sequence of extension names that can be supported by client
+   * @param clientExtensions The sequence of extensios that can be supported by client
    * @return Future containing extensions supported by server
    */
   def greet(
     service: Service[Request, Reply],
-    clientSupported: Seq[String]): Future[SmtpExtensions] = clientSupported match {
+    clientExtensions: Extensions): Future[Extensions] = clientExtensions.list match {
     // If no extensions are supported by client, just send HELO
-    case Seq() => service(Request.SimpleHello) map { _ => SmtpExtensions()}
+    case Seq() => service(Request.SimpleHello) map { _ => Extensions()}
     case _ =>
       val extService = OkToExtFilter andThen service
       extService(Request.Hello) map {
 
         // If everything is all right, add available extensions
         case ext: ExtensionsReply => {
-          val lines = ext.lines
+          val lines = ext.lines()
+          val clientSupportedKeywords = clientExtensions.list map { _.keyword }
           val supported = for {
             line <- lines.tail map { _.toUpperCase split " " }
-            if clientSupported contains line.head
+            if clientSupportedKeywords contains line.head
           } yield Extension(line.head, line.tail)
 
           // BINARYMIME can not be supported without CHUNKING
-          val binary = supported exists { _.keyword == SmtpExtensions.BINARYMIME }
-          val chunking = supported exists { _.keyword == SmtpExtensions.CHUNKING }
+          val binary = supported contains Extensions.BinaryMime
+          val chunking = supported contains Extensions.Chunking
 
           val bothSupport = supported filterNot {
-            _.keyword == SmtpExtensions.BINARYMIME && binary && !chunking
+            _.keyword == ExtensionKeywords.BINARYMIME && binary && !chunking
           }
 
-          SmtpExtensions(bothSupport:_*)
+          Extensions(bothSupport:_*)
         }
 
         // Else no extensions are supported and HELO is sent
       } rescue {
-        case _ => service(Request.SimpleHello) map { _ => SmtpExtensions() }
+        case _ => service(Request.SimpleHello) map { _ => Extensions() }
       }
   }
 }

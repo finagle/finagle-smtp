@@ -15,30 +15,30 @@ import com.twitter.finagle.smtp.{Reply, Request}
  * depending on whether given extension is supported or not.
  */
 object GetExtensionFilter {
-  import com.twitter.finagle.smtp.extension.SmtpExtensions._
+  import com.twitter.finagle.smtp.extension.Extensions._
   /**
    * Associates given [[com.twitter.finagle.smtp.extension.Extension]]
    * with its corresponding filter given that it is supported by server.
    */
   val forSupported: PartialFunction[Extension, SimpleFilter[Request, Reply]] = {
-    case Extension(EIGHTBITMIME, _) => EightBitMimeFilter
-    case Extension(SIZE, size::_) => new SizeDeclarationFilter(size.toInt)
-    case Extension(CHUNKING, _) => ChunkingFilter
-    case Extension(PIPELINING, _) => PipeliningFilter
-    case Extension(AUTH, _) => AuthFilter
+    case EightBitMime => EightBitMimeFilter
+    case Size(size) => new SizeDeclarationFilter(size)
+    case Chunking => ChunkingFilter
+    case Pipelining => PipeliningFilter
+    case Auth => AuthFilter
   }
 
   /**
    * Associates given extension name with corresponding to this extension
    * filter, given that this extension is not supported by server.
    */
-  val forUnsupportedExtensions: Map[String, SimpleFilter[Request, Reply]] = Map(
-    EIGHTBITMIME -> NoEightBitMimeFilter,
-    SIZE         -> NoSizeDeclarationFilter,
-    CHUNKING     -> NoChunkingFilter,
-    BINARYMIME   -> NoBinaryMimeFilter,
-    PIPELINING   -> NoPipeliningFilter,
-    AUTH         -> NoAuthFilter,
-    EXPN         -> NoExpnFilter
+  val forUnsupportedExtensions: Map[Extension, SimpleFilter[Request, Reply]] = Map(
+    EightBitMime -> NoEightBitMimeFilter,
+    Size() -> NoSizeDeclarationFilter,
+    Chunking -> NoChunkingFilter,
+    BinaryMime -> NoBinaryMimeFilter,
+    Pipelining -> NoPipeliningFilter,
+    Auth -> NoAuthFilter,
+    Expn -> NoExpnFilter
   )
 }

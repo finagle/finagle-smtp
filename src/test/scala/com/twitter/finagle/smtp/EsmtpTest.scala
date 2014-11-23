@@ -13,7 +13,8 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class EsmtpTest extends FunSuite  {
-  import com.twitter.finagle.smtp.extension.SmtpExtensions._
+  import com.twitter.finagle.smtp.extension.ExtensionKeywords._
+  import Extensions._
 
   val domain = "domain"
   def extensionsService(extensionString: String) = new Service[Request, Reply] {
@@ -21,35 +22,27 @@ class EsmtpTest extends FunSuite  {
   }
 
   test("allows only extensions that both client and server support") {
-    val clientExtensionNames = Seq(EIGHTBITMIME, SIZE)
-
-    val serverExtensions = SmtpExtensions (
-      Extension(EIGHTBITMIME),
-      Extension(CHUNKING)
-    )
+    val clientExtensions = Extensions (EightBitMime, Size())
+    val serverExtensions = Extensions (EightBitMime, Chunking)
 
     val testService = extensionsService(serverExtensions.lines().mkString("\r\n"))
 
-    val bothExtensions = Await result Esmtp.greet(testService, clientExtensionNames)
+    val bothExtensions = Await result Esmtp.greet(testService, clientExtensions)
 
-    assert(bothExtensions.asInstanceOf[SmtpExtensions].supported.map(_.keyword).toSeq
+    assert(bothExtensions.asInstanceOf[Extensions].list.map(_.keyword).toSeq
       === Seq(EIGHTBITMIME))
   }
 
   test("domain is not treated as extension") {
-    val withFakeExtension = Seq(EIGHTBITMIME, domain)
-
-    val serverExtensions = SmtpExtensions (
-      Extension(EIGHTBITMIME),
-      Extension(CHUNKING)
-    )
+    val withFakeExtension = Extensions (EightBitMime, Extension(domain))
+    val serverExtensions = Extensions (EightBitMime, Chunking)
 
     val testService = extensionsService(serverExtensions.lines().mkString("\r\n"))
 
     val bothExtensions = Await result Esmtp.greet(testService, withFakeExtension)
 
-    assert(!bothExtensions.asInstanceOf[SmtpExtensions]
-      .supported.map(_.keyword.toLowerCase()).contains(domain))
+    assert(!bothExtensions.asInstanceOf[Extensions]
+      .list.map(_.keyword.toLowerCase).contains(domain))
   }
 
   test("sends HELO in case of failed EHLO") {
@@ -65,7 +58,7 @@ class EsmtpTest extends FunSuite  {
       }
     }
 
-    val extensions = Await result Esmtp.greet(testService, Seq.empty)
+    val extensions = Await result Esmtp.greet(testService, Extensions())
 
     assert(heloSent)
   }
@@ -79,23 +72,23 @@ class EsmtpTest extends FunSuite  {
       }
     }
 
-    val extensions = Await result Esmtp.greet(testService, Seq(EIGHTBITMIME))
+    val extensions = Await result Esmtp.greet(testService, Extensions(EightBitMime))
 
-    assert(extensions.supported.isEmpty)
+    assert(extensions.list.isEmpty)
   }
 
   test("BINARYMIME not supported without CHUNKING") {
-    val clientSupport = Seq(BINARYMIME)
+    val clientSupport = Extensions(EightBitMime)
 
     val testService = extensionsService("%s\r\n%s".format(BINARYMIME,CHUNKING))
 
     val extensions = Await result Esmtp.greet(testService, clientSupport)
 
-    assert(!extensions.supported.map(_.keyword).contains(BINARYMIME))
+    assert(!extensions.list.map(_.keyword).contains(BINARYMIME))
   }
 
   test("MAIL FROM parameters are omitted without server support") {
-    val clientSupport = Seq(EIGHTBITMIME, SIZE)
+    val clientSupport = Extensions(EightBitMime, Size())
 
     val greetService = extensionsService("")
     val extensions = Await result Esmtp.greet(greetService, clientSupport)
@@ -115,7 +108,7 @@ class EsmtpTest extends FunSuite  {
   }
 
   test("Extension commands are rejected without server support") {
-    val clientSupport = Seq(AUTH, CHUNKING, EXPN, PIPELINING)
+    val clientSupport = Extensions(Auth, Chunking, Expn, Pipelining)
 
     val greetService = extensionsService("")
     val extensions = Await result Esmtp.greet(greetService, clientSupport)

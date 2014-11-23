@@ -13,9 +13,9 @@ trait SmtpRichClient { self: Client[Request, Reply] =>
    * Constructs an SMTP client which can support
    * given extensions, if they are supported by server.
    *
-   * @param extensionNames Names of extensions to support
+   * @param extensions Extensions to support
    */
-  def withSupportFor(extensionNames: Seq[String]): Client[Request, Reply]
+  def withSupportFor(extensions: Extensions): Client[Request, Reply]
 
   /**
    * Constructs a new client that can send emails.
@@ -28,45 +28,50 @@ trait SmtpRichClient { self: Client[Request, Reply] =>
  */
 object Smtp extends Client[Request, Reply] with SmtpRichClient {
 
+
+  /**
+   * Implements an SMTP client with given extensions
+   * that greets server upon connection.
+   */
+  case class SmtpClient(canSupport: Extensions = Extensions()) extends Client[Request, Reply] {
+    // TODO: switch to StackClient
+    private val defaultClient = DefaultClient[Request, Reply] (
+      name = "smtp",
+      endpointer = {
+        val bridge = Bridge[Request, UnspecifiedReply, Request, Reply](
+          SmtpTransporter, new SmtpClientDispatcher(_)
+        )
+        (addr, stats) => bridge(addr, stats)
+      })
+
+    def newClient(dest: Name, label: String) = {
+      new ServiceFactoryProxy[Request, Reply](defaultClient.newClient(dest, label)){
+        override def apply(conn: ClientConnection) = {
+          self.apply(conn) flatMap { service =>
+            // Send EHLO and get extensions supported by server
+            Esmtp.greet(service, canSupport) map { extensions =>
+              // Shield message body
+              DataFilter andThen
+                // Transform OK replies to Extensions replies
+                OkToExtFilter andThen
+                // Make behaviour changes according to supported extensions
+                Esmtp(extensions).extend(service)
+            }}}}
+    }
+  }
+
   override def newClient(dest: Name, label: String) = SmtpClient().newClient(dest, label)
 
-  def withSupportFor(extensionNames: Seq[String]) = SmtpClient(extensionNames.map(_.toUpperCase))
+  def withSupportFor(extensions: Extensions) = SmtpClient(extensions)
 
   def newSimpleService(dest: String) = SmtpSimple.newService(dest)
 }
 
 /**
- * Implements an SMTP client with given extensions
- * that greets server upon connection.
+ * Implements an SMTP client that can send an [[com.twitter.finagle.smtp.EmailMessage]].
+ * The application of this client's service returns [[com.twitter.util.Future.Done]]
+ * in case of success or the first encountered error in case of a failure.
  */
-case class SmtpClient(canSupport: Seq[String] = Seq.empty) extends Client[Request, Reply] {
-  // TODO: switch to StackClient
-  private val defaultClient = DefaultClient[Request, Reply] (
-    name = "smtp",
-    endpointer = {
-      val bridge = Bridge[Request, UnspecifiedReply, Request, Reply](
-        SmtpTransporter, new SmtpClientDispatcher(_)
-      )
-      (addr, stats) => bridge(addr, stats)
-    })
-
-  def newClient(dest: Name, label: String) = {
-    new ServiceFactoryProxy[Request, Reply](defaultClient.newClient(dest, label)){
-      override def apply(conn: ClientConnection) = {
-        self.apply(conn) flatMap { service =>
-          // Send EHLO and get extensions supported by server
-          Esmtp.greet(service, canSupport) map { extensions =>
-              // Shield message body
-              DataFilter andThen
-              // Transform OK replies to Extensions replies
-              OkToExtFilter andThen
-              // Make behaviour changes according to supported extensions
-              Esmtp(extensions).extend(service)
-          }}}}
-  }
-}
-
-/* A client that sends an email message as a request. */
 object SmtpSimple extends Client[EmailMessage, Unit] {
   private def mkSimple(underlying: ServiceFactory[Request, Reply])
     :ServiceFactory[EmailMessage, Unit] = {
