@@ -19,7 +19,7 @@ class IntegrationTest extends FunSuite  {
   }
 
   test("unauthenticated email results in error") {
-    val service = Smtp.newSimpleService("smtp.gmail.com:25")
+    val service = Smtp.client.simple.newService("smtp.gmail.com:25")
     service(DefaultEmail().from_("example@example.org")) onSuccess { _ =>
       fail("expected to fail")
     } handle {

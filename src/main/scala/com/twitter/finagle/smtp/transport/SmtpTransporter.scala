@@ -1,5 +1,7 @@
 package com.twitter.finagle.smtp.transport
 
+import com.twitter.finagle.Stack
+import com.twitter.finagle.client.Transporter
 import com.twitter.finagle.netty3.Netty3Transporter
 import com.twitter.finagle.smtp.{Request, UnspecifiedReply}
 import org.jboss.netty.channel._
@@ -13,7 +15,8 @@ object SmtpPipeline extends ChannelPipelineFactory {
   }
 }
 
-object SmtpTransporter extends Netty3Transporter[Request, UnspecifiedReply](
-  name = "SmtpTransporter",
-  pipelineFactory = SmtpPipeline)
+object SmtpTransporter {
+  def apply(params: Stack.Params): Transporter[Request, UnspecifiedReply] =
+    Netty3Transporter(SmtpPipeline, params)
+}
 

@@ -10,9 +10,8 @@ import com.twitter.util.{Future, JavaTimer, Promise, Time}
 /**
  * A ClientDispatcher that implements SMTP client/server protocol.
  */
-
-class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
-extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
+class ClientDispatcher(trans: Transport[Request, UnspecifiedReply])
+  extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](trans) {
   import com.twitter.finagle.dispatch.GenSerialClientDispatcher.wrapWriteException
 
   implicit val timer = new JavaTimer
@@ -42,7 +41,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
   /**
    * Reads a reply or a sequence of replies (parts of a multiline reply).
    * Every line of a multiline reply is a
-   * [[com.twitter.finagle.smtp.reply.NonTerminalLine]]. Once
+   * [[com.twitter.finagle.smtp.NonTerminalLine]]. Once
    * anything else is received, the reply is counted as complete.
    */
   private def readLines: Future[Seq[UnspecifiedReply]] = {
@@ -54,7 +53,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
 
   /**
    * Constructs a multiline reply from given sequence of replies.
-   * If their codes are not matching, an [[com.twitter.finagle.smtp.reply.InvalidReply]]
+   * If their codes are not matching, an [[com.twitter.finagle.smtp.InvalidReply]]
    * is returned.
    */
   private def multilineReply(replies: Seq[UnspecifiedReply]): UnspecifiedReply = {
@@ -116,7 +115,7 @@ extends GenSerialClientDispatcher[Request, Reply, Request, UnspecifiedReply](tra
    * @param rep The reply to specify
    * @param p   The satisfied promise
    */
-  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Unit = {
+  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Future[Unit] = {
     Reply(rep) match {
       case err: SmtpError => p.setException(err)
       case r@_ => p.setValue(r)

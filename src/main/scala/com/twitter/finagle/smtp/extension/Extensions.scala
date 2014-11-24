@@ -1,13 +1,22 @@
 package com.twitter.finagle.smtp.extension
 
+import com.twitter.finagle.Stack
+
 /**
  * Incapsulates a set of SMTP extensions.
  */
-case class Extensions(list: Extension*) {
-  def lines(): Seq[String] = for {
+object Extensions {
+  case class ExtensionList(list: Extension*) {
+    def lines(): Seq[String] = for {
       ext <- list
     } yield "%s %s".format(ext.keyword, ext.params mkString " ")
+
+  }
+  implicit object ExtensionList extends Stack.Param[ExtensionList] {
+    val default = ExtensionList()
+  }
 }
+
 
 /**
  * Contains aliases for extension keywords
@@ -22,8 +31,27 @@ object ExtensionKeywords {
   val EXPN = "EXPN"
 }
 
-object Extensions {
-  import ExtensionKeywords._
+/**
+ * An SMTP extension.
+ */
+trait Extension {
+
+  /**
+   * The keyword which appears in a successful reply to
+   * [[com.twitter.finagle.smtp.Request.Hello]] if the
+   * extension is supported.
+   */
+  val keyword: String
+
+  /**
+   * The sequence of string representation of parameters
+   * sent with the keyword.
+   */
+  val params: Seq[String]
+}
+
+object Extension {
+  import com.twitter.finagle.smtp.extension.ExtensionKeywords._
 
   case object EightBitMime extends Extension {
     val keyword = EIGHTBITMIME
@@ -59,38 +87,15 @@ object Extensions {
     val keyword = EXPN
     val params = Seq.empty
   }
-}
-
-/**
- * An SMTP extension.
- */
-trait Extension {
-
-  /**
-   * The keyword which appears in a successful reply to
-   * [[com.twitter.finagle.smtp.Request.Hello]] if the
-   * extension is supported.
-   */
-  val keyword: String
-
-  /**
-   * The sequence of string representation of parameters
-   * sent with the keyword.
-   */
-  val params: Seq[String]
-}
-
-object Extension {
-  import ExtensionKeywords._
-
+  
   def apply(kwd: String, prms: Seq[String] = Seq.empty) = kwd match {
-    case EIGHTBITMIME => Extensions.EightBitMime
-    case SIZE => Extensions.Size(prms(0).toInt)
-    case CHUNKING => Extensions.Chunking
-    case BINARYMIME => Extensions.BinaryMime
-    case PIPELINING => Extensions.Pipelining
-    case AUTH => Extensions.Auth
-    case EXPN => Extensions.Expn
+    case EIGHTBITMIME => EightBitMime
+    case SIZE => Size(prms(0).toInt)
+    case CHUNKING => Chunking
+    case BINARYMIME => BinaryMime
+    case PIPELINING => Pipelining
+    case AUTH => Auth
+    case EXPN => Expn
 
     case _ => new Extension {
       val keyword = kwd

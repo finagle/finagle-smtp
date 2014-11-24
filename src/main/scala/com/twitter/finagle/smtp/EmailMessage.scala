@@ -1,7 +1,5 @@
 package com.twitter.finagle.smtp
-
 import com.twitter.util.{Time, TimeFormat, Try}
-
 /**
  * Defines email address
  */
@@ -13,12 +11,10 @@ private[smtp] class MailingAddress(val local: String, val domain: String) {
   val isEmpty: Boolean = local.isEmpty && domain.isEmpty
   val nonEmpty: Boolean = !isEmpty
 }
-
 /**
  * Factory for mailing addresses.
  */
 object MailingAddress {
-
   /**
    * Checks if address is syntactically correct according to
    * [[http://tools.ietf.org/search/rfc5321#section-4.1.2]] (for example, user@domain.org)
@@ -30,7 +26,6 @@ object MailingAddress {
     require(local.nonEmpty)
     require(domain.nonEmpty)
   }.isReturn
-
   /**
    * Checks if all the addresses in ''addrs'' are syntactically correct according to
    * [[http://tools.ietf.org/search/rfc5321#section-4.1.2]] (for example, user@domain.org)
@@ -38,7 +33,6 @@ object MailingAddress {
    * @param addrs The addresses to check
    */
   def correct(addrs: Seq[String]): Boolean = addrs.map(MailingAddress.correct(_)).contains(false)
-
   /**
    * Creates a [[com.twitter.finagle.smtp.MailingAddress]] from the given string.
    * The given string representation of a mailbox should be syntactically correct
@@ -54,18 +48,16 @@ object MailingAddress {
     }
     else throw new IllegalArgumentException("Incorrect mailbox syntax: %s" format address)
   }
-
   /**
    * An empty mailing address
    */
   val empty: MailingAddress = new MailingAddress("","")
-
   /**
    * Creates a string representation of given list of mailboxes.
    *
    * @param addrs The addresses in the list
    * @return String containing string representation of given
-   *         addresses divided with a comma.
+   * addresses divided with a comma.
    */
   def mailboxList(addrs: Seq[MailingAddress]): String = {
     val mailboxes = addrs collect {
@@ -74,20 +66,35 @@ object MailingAddress {
     mailboxes mkString ","
   }
 }
-
 /**
  * Defines fields and body of an email message.
  */
 trait EmailMessage {
-  def getFrom: Seq[MailingAddress]
-  def getSender: MailingAddress
-  def getTo: Seq[MailingAddress]
-  def getCc: Seq[MailingAddress]
-  def getBcc: Seq[MailingAddress]
-  def getReplyTo: Seq[MailingAddress]
-  def getDate: Date
-  def getSubject: String
-  def getBody: Mime
+  def headers: Seq[(String, String)]
+  private def getAddresses(header: String) = headers collect {
+    case (key, addr) if key.toLowerCase() == header.toLowerCase() => MailingAddress(addr)
+  }
+  def from: Seq[MailingAddress] = getAddresses("from")
+  def sender: MailingAddress = {
+    if (from.length > 1) {
+      getAddresses("sender").headOption getOrElse from.head
+    }
+    else if (from.length == 0) MailingAddress.empty
+    else from.head
+  }
+  def to: Seq[MailingAddress] = getAddresses("to")
+  def cc: Seq[MailingAddress] = getAddresses("cc")
+  def bcc: Seq[MailingAddress] = getAddresses("bcc")
+  def replyTo: Seq[MailingAddress] = getAddresses("reply-to")
+  def date: Time =
+    headers collectFirst {
+      case (key, d) if key.toLowerCase == "date" => EmailMessage.DateFormat.parse(d)
+    } getOrElse Time.now
+  def subject: String =
+    headers collectFirst {
+      case (key, subj) if key.toLowerCase == "subject" => subj
+    } getOrElse ""
+  def body: Mime
 }
 
 object EmailMessage {

@@ -8,7 +8,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class SmtpClientDispatcherTest extends FunSuite {
+class ClientDispatcherTest extends FunSuite {
   def newTestSet = {
     val client = new AsyncQueue[Request]
     val server = new AsyncQueue[UnspecifiedReply]
@@ -19,7 +19,7 @@ class SmtpClientDispatcherTest extends FunSuite {
   def newTestSetWithGreeting = {
     val (client, server, transport) = newTestSet
     server.offer(ServiceReady("testdomain","testgreet"))
-    val dispatcher = new SmtpClientDispatcher(transport)
+    val dispatcher = new ClientDispatcher(transport)
     (server, dispatcher)
   }
 
@@ -31,7 +31,7 @@ class SmtpClientDispatcherTest extends FunSuite {
   test("sends QUIT on close") {
     val (client, server, transport) = newTestSet
     server.offer(ServiceReady("testdomain","testgreet"))
-    val dispatcher = new SmtpClientDispatcher(transport)
+    val dispatcher = new ClientDispatcher(transport)
     dispatcher.close()
     assert(Await.result(client.poll()) match {
       case Request.Quit => true
@@ -45,7 +45,7 @@ class SmtpClientDispatcherTest extends FunSuite {
   test("closes on malformed greeting") {
     val (client, server, transport) = newTestSet
     server.offer(InvalidReply("wronggreet"))
-    val dispatcher = new SmtpClientDispatcher(transport)
+    val dispatcher = new ClientDispatcher(transport)
     dispatcher(Request.Hello)
     server.offer(ClosingTransmission("QUIT"))
     assert(!dispatcher.isAvailable)
@@ -90,7 +90,7 @@ class SmtpClientDispatcherTest extends FunSuite {
     val (server, dispatcher) = newTestSetWithGreeting
     val rep = dispatcher(Request.Noop)
     server.offer(SyntaxError("error"))
-    assert(rep.isThrow)
+    assert(Await.result(rep.liftToTry).isThrow)
   }
 
   test("wraps unknown replies") {

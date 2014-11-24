@@ -39,6 +39,6 @@ object SmtpLogFormatter extends LogFormatter[Request, Reply] {
 /**
  * Logs SMTP session using [[com.twitter.finagle.smtp.filter.SmtpLogFormatter]]
  */
-class SmtpLoggingFilter (val log: Logger) extends LoggingFilter[Request, Reply] {
+case class SmtpLoggingFilter(log: Logger) extends LoggingFilter[Request, Reply] {
   val formatter = SmtpLogFormatter
 }

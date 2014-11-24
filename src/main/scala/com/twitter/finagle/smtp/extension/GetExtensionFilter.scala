@@ -15,7 +15,7 @@ import com.twitter.finagle.smtp.{Reply, Request}
  * depending on whether given extension is supported or not.
  */
 object GetExtensionFilter {
-  import com.twitter.finagle.smtp.extension.Extensions._
+  import com.twitter.finagle.smtp.extension.Extension._
   /**
    * Associates given [[com.twitter.finagle.smtp.extension.Extension]]
    * with its corresponding filter given that it is supported by server.

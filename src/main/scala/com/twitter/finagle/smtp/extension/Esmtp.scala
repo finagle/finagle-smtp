@@ -1,14 +1,16 @@
 package com.twitter.finagle.smtp.extension
 
-import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.Stack.Role
+import com.twitter.finagle._
+import com.twitter.finagle.smtp.extension.Extensions.ExtensionList
+import com.twitter.finagle.smtp.filter.{DataFilter, OkToExtFilter}
 import com.twitter.finagle.smtp.{ExtensionsReply, Reply, Request}
-import com.twitter.finagle.smtp.filter.OkToExtFilter
 import com.twitter.util.Future
 
 /**
  * Decorates SMTP client with extension-related behavior.
  */
-case class Esmtp(extensions: Extensions) {
+case class Esmtp(extensions: ExtensionList) {
   // Filters for supported SMTP extensions
   lazy val supportedExtFilters = for {
     extension <- extensions.list
@@ -43,6 +45,35 @@ case class Esmtp(extensions: Extensions) {
 }
 
 object Esmtp {
+  object Stackable extends Stack.Module1[ExtensionList, ServiceFactory[Request, Reply]] {
+    def make(p1: ExtensionList, next: ServiceFactory[Request, Reply]) = {
+      new ServiceFactoryProxy[Request, Reply](next){
+        override def apply(conn: ClientConnection) = {
+          self.apply(conn) flatMap { service =>
+            // Send EHLO and get extensions supported by server
+            greet(service, p1) map { extensions =>
+              // Shield message body
+              DataFilter andThen
+                // Transform OK replies to Extensions replies
+                OkToExtFilter andThen
+                // Make behaviour changes according to supported extensions
+                Esmtp(extensions).extend(service)
+            }}}}
+    }
+
+    val role = Role("EsmtpGreeter")
+    val description = "Greets SMTP server and receives the list of extensions supported by it"
+  }
+
+  /**
+   * Sends a simple HELO greeting.
+   *
+   * @return Future containing empty
+   *         [[com.twitter.finagle.smtp.extension.Extensions.ExtensionList]] object
+   */
+  def simpleGreet(service: Service[Request, Reply]): Future[ExtensionList] =
+    service(Request.SimpleHello) map { _ => ExtensionList()}
+
   /**
    * Sends an EHLO request and processes its reply. If EHLO fails,
    * a HELO request (indicating that extensions should not be supported) is sent.
@@ -53,36 +84,36 @@ object Esmtp {
    */
   def greet(
     service: Service[Request, Reply],
-    clientExtensions: Extensions): Future[Extensions] = clientExtensions.list match {
+    clientExtensions: ExtensionList): Future[ExtensionList] = clientExtensions.list match {
     // If no extensions are supported by client, just send HELO
-    case Seq() => service(Request.SimpleHello) map { _ => Extensions()}
+    case Seq() => simpleGreet(service)
     case _ =>
       val extService = OkToExtFilter andThen service
+
       extService(Request.Hello) map {
 
         // If everything is all right, add available extensions
         case ext: ExtensionsReply => {
-          val lines = ext.lines()
           val clientSupportedKeywords = clientExtensions.list map { _.keyword }
-          val supported = for {
-            line <- lines.tail map { _.toUpperCase split " " }
+          val agreement = for {
+            line <- ext.lines().tail map { _.toUpperCase split " " }
             if clientSupportedKeywords contains line.head
           } yield Extension(line.head, line.tail)
 
           // BINARYMIME can not be supported without CHUNKING
-          val binary = supported contains Extensions.BinaryMime
-          val chunking = supported contains Extensions.Chunking
+          val hasBinary = agreement contains Extension.BinaryMime
+          val hasChunking = agreement contains Extension.Chunking
 
-          val bothSupport = supported filterNot {
-            _.keyword == ExtensionKeywords.BINARYMIME && binary && !chunking
+          val bothSupport = agreement filterNot {
+            _.keyword == ExtensionKeywords.BINARYMIME && hasBinary && !hasChunking
           }
 
-          Extensions(bothSupport:_*)
+          Extensions.ExtensionList(bothSupport:_*)
         }
 
         // Else no extensions are supported and HELO is sent
       } rescue {
-        case _ => service(Request.SimpleHello) map { _ => Extensions() }
+        case _ => simpleGreet(service)
       }
   }
 }

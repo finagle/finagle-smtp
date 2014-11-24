@@ -166,7 +166,7 @@ class ChunkingTest extends FunSuite {
     val server = new AsyncQueue[UnspecifiedReply]
     val transport = new QueueTransport[Request, UnspecifiedReply](client, server)
     server.offer(ServiceReady("testdomain","testgreet"))
-    val dispatcher = new SmtpClientDispatcher(transport)
+    val dispatcher = new ClientDispatcher(transport)
     val service = new Service[Request, Reply] {
       def apply(request: Request) = dispatcher(request)
     }
@@ -175,7 +175,7 @@ class ChunkingTest extends FunSuite {
     val rep = chunkService(Request.BeginData)
     server.offer(BadCommandSequence("data"))
     server.offer(OK("rset"))
-    assert(rep.isThrow)
+    assert(Await.result(rep.liftToTry).isThrow)
     val rep1 = chunkService(Request.Noop)
     server.offer(Help("noop"))
     assert(Await.result(rep1).isInstanceOf[Help])
