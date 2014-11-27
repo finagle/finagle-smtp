@@ -1,8 +1,8 @@
 package com.twitter.finagle.smtp
 
-import com.twitter.io.Files
 import java.io.File
 import java.nio.charset.Charset
+
 import org.jboss.netty.util.CharsetUtil
 
 /**
@@ -88,13 +88,40 @@ sealed trait Mime{
   /**
    * Adds several headers to the message.
    *
-   * @param newHeaders Sequence of [[com]]
+   * @param newHeaders Sequence of [[com.twitter.finagle.smtp.MimeHeader MimeHeaders]]
    */
   def addHeaders(newHeaders: Seq[MimeHeader]): Mime
   }
 
+object MimeTypes {
+  def withTypes(types: Seq[String]) = default ++ types
+
+  val default = Seq (
+    "text/html html htm",
+    "text/plain txt text",
+    "text/richtext rtf",
+    "image/gif gif GIF",
+    "image/png png",
+    "image/jpeg jpeg jpg jpe JPG",
+    "image/tiff tiff tif",
+    "audio/midi midi mid",
+    "audio/aifc aifc",
+    "audio/aiff aif aiff",
+    "audio/mpeg mpeg mpg",
+    "audio/wav wav",
+    "video/mpeg mpeg mpg mpe",
+    "video/quicktime qt mov",
+    "video/avi avi",
+    "application/zip zip"
+  )
+}
+
 object Mime {
   val empty = MimePart.empty
+
+  protected val mimeTypeMap = new javax.activation.MimetypesFileTypeMap
+  MimeTypes.default foreach mimeTypeMap.addMimeTypes
+
 
   private def textContent(text: String, subtype: String, enc: Charset) ={
     val basic = MimePart(text.getBytes(enc))
@@ -162,10 +189,10 @@ object Mime {
    */
   def fromFile(path: String): MimePart = {
     val file = new File(path)
-    val contents = Files.readBytes(file)
-    val probe = new javax.activation.MimetypesFileTypeMap().getContentType(file)//java.nio.file.Files.probeContentType(javaPath)
-    val ct = if (probe == null) ContentType.default
-             else ContentType parse probe
+    val contents = com.twitter.io.Files.readBytes(file)
+    val probe = mimeTypeMap.getContentType(path)
+    val ct = if (probe == "application/octet-stream") ContentType.default
+      else ContentType parse probe
 
     MimePart(contents, Map("Content-Type" -> ct.value))
   }

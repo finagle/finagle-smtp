@@ -1,6 +1,6 @@
 package com.twitter.finagle.smtp
 
-import java.io.{File, FileOutputStream}
+import java.io.{File, PrintWriter}
 import java.nio.charset.Charset
 
 import org.junit.runner.RunWith
@@ -99,16 +99,16 @@ class MimeTest extends FunSuite{
   }
 
   test("MimePart from file") {
-    val bytes = "<html><h1>Test file</h1></html>".getBytes("US-ASCII")
+    val str = "<html><h1>Test file</h1></html>"
     val file = File.createTempFile("file", ".html")
-    val os = new FileOutputStream(file)
-    os.write(bytes)
-    os.close()
+    val pw = new PrintWriter(file)
+    pw.print(str)
+    pw.close()
 
     val mime = Mime.fromFile(file.getAbsolutePath)
 
     assert(mime.contentType === "text/html")
-    assert(mime.content === bytes)
+    assert(mime.content === str.getBytes("US-ASCII"))
 
     file.delete()
   }

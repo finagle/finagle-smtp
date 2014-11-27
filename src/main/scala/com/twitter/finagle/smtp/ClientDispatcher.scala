@@ -1,7 +1,6 @@
 package com.twitter.finagle.smtp
 
 import com.twitter.finagle.dispatch.{GenSerialClientDispatcher, PipeliningDispatcher}
-import com.twitter.finagle.smtp.ReplyCode.Reply
 import com.twitter.finagle.smtp.extension.pipelining.GroupPart
 import com.twitter.finagle.transport.Transport
 import com.twitter.util.TimeConversions._
@@ -86,16 +85,19 @@ class ClientDispatcher(trans: Transport[Request, UnspecifiedReply])
       }
 
       req match {
-        case GroupPart(rq) => pipeliningDispatcher(rq) flatMap { rp =>
+        case GroupPart(rq) => pipeliningDispatcher(rq) map { rp =>
           decodeReply(rp, p)
         }
         case _ =>
           trans.write(req) rescue {
             wrapWriteException
           } flatMap { unit =>
-            trans.read()
-          } flatMap { rp =>
-            decodeReply(rp, p)
+            readLines
+          } map {
+            case Seq(rp) => decodeReply(rp, p)
+            case replies: Seq[UnspecifiedReply] =>
+              val rp = multilineReply(replies)
+              decodeReply(rp, p)
           }
       }
 
@@ -115,12 +117,11 @@ class ClientDispatcher(trans: Transport[Request, UnspecifiedReply])
    * @param rep The reply to specify
    * @param p   The satisfied promise
    */
-  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Future[Unit] = {
+  private def decodeReply(rep: UnspecifiedReply, p: Promise[Reply]): Unit = {
     Reply(rep) match {
       case err: SmtpError => p.setException(err)
       case r@_ => p.setValue(r)
     }
-    Future.Done
   }
 
 }
