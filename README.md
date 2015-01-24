@@ -10,9 +10,8 @@ This is an SMTP client implementation for finagle based on
 
 ### Sending an email
 
-The object for instantiating a client capable of sending a simple email is `SmtpSimple`. You can 
-also instantiate the service from that client using `Smtp.newSimpleService()`.
-For services created with `SmtpSimple` the request type is `EmailMessage`, described in 
+The object for instantiating a client capable of sending a simple email can be obtained by calling
+`Smtp.client.simple`. For services created with it the request type is `EmailMessage`, described in
 [`EmailMessage.scala`][EmailMessage].
 
 You can create an email using `DefaultEmail` class described in [`DefaultEmail.scala`][DefaultEmail]:
@@ -50,8 +49,8 @@ don't require authentication.
 
 #### Logging
 
-By calling `SmtpSimple.withLogging()` you can create a `Client` that behaves just like `SmtpSimple`,
-but also logs the session using the `Logger` passed to the function. Only the dialog is logged, with
+To make a simple client log the session using the `Logger` passed to the function, you should
+call `Smtp.client.withLogging().simple`. Only the dialog is logged, with
 no additional information.
 
 ### Example
@@ -61,7 +60,8 @@ in [`Example.scala`](src/main/scala/com/twitter/finagle/example/smtp/Example.sca
 
 ### Sending independent SMTP commands
 
-The object for instantiating an SMTP client capable of sending any command defined in *RFC5321* is `Smtp`. 
+The object for instantiating an SMTP client capable of sending any command defined in *RFC5321*
+can be obtained by calling `Smtp.client`.
 
 For services created with it the request type is `Request`. Command classes are described in 
 [`Request.scala`][Request]. 
@@ -102,7 +102,7 @@ Upon service.close() a quit command is sent automatically, if not sent earlier.
 
 #### Extensions
 
-You can make the client support SMTP extensions by passing their names to `Smtp.withSupportFor()` and 
+You can make the client support SMTP extensions by passing their names to `Smtp.client.withSupportFor()` and
 instantiating the service from the derived `Client`. Default client does not support any extensions. 
 If the extension is supported by both client and server (and also implemented - see *Using extensions*), 
 it will be able to be used.
