@@ -15,7 +15,14 @@ lazy val root = project.in(file("."))
       "org.mockito" % "mockito-all" % "1.10.19" % "test",
       "org.scalatest" %% "scalatest" % "2.2.3" % "test"
     )
-  ).settings(publishSettings: _*)
+  )
+  .settings(publishSettings: _*)
+  .settings(site.settings: _*)
+  .settings(site.includeScaladoc("docs"): _*)
+  .settings(ghpages.settings: _*)
+  .settings(
+    git.remoteRepo := "git@github.com:finagle/finagle-smtp.git"
+  )
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,

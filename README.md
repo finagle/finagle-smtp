@@ -3,7 +3,8 @@
 [![Build status](https://img.shields.io/travis/finagle/finagle-smtp/master.svg)](http://travis-ci.org/finagle/finagle-smtp) [![Coverage status](https://img.shields.io/coveralls/finagle/finagle-smtp/master.svg)](https://coveralls.io/r/finagle/finagle-smtp?branch=master)
 
 This is a minimum implementation of SMTP client for finagle according to 
-[`RFC5321`][rfc]. The simplest guide to SMTP can be found, for example, [here][smtp2go].
+[`RFC5321`][rfc]. Please see the [API documentation][docs] for information
+that isn't covered in the introduction below.
 
 Note: There is no API yet in this implementation for creating 
 [`MIME`][mimewiki] messages, so the message should be plain US-ASCII text, or converted 
@@ -11,7 +12,7 @@ to such. There is currently no support for any other SMTP extensions, either. Th
 functionality is to be added in future versions.
 
 [rfc]: http://tools.ietf.org/search/rfc5321
-[smtp2go]: http://www.smtp2go.com/articles/smtp-protocol
+[docs]: https://finagle.github.io/finagle-smtp/docs/
 [mimewiki]: http://en.wikipedia.org/wiki/MIME
 
 ## Usage
