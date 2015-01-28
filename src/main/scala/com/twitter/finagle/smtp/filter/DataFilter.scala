@@ -1,9 +1,9 @@
-package com.twitter.finagle.smtp.filter
+package io.github.finagle.smtp.filter
 
-import com.twitter.finagle.smtp._
-import com.twitter.finagle.smtp.reply.Reply
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
+import io.github.finagle.smtp._
+import io.github.finagle.smtp.reply.Reply
 
 /**
  * Duplicates dots in the beginning of each line of email body for transparency

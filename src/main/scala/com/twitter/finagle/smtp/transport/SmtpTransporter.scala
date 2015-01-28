@@ -1,8 +1,8 @@
-package com.twitter.finagle.smtp.transport
+package io.github.finagle.smtp.transport
 
 import com.twitter.finagle.netty3.Netty3Transporter
-import com.twitter.finagle.smtp.Request
-import com.twitter.finagle.smtp.reply.UnspecifiedReply
+import io.github.finagle.smtp.Request
+import io.github.finagle.smtp.reply.UnspecifiedReply
 import org.jboss.netty.channel._
 
 object SmtpPipeline extends ChannelPipelineFactory {

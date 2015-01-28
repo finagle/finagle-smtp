@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import java.net.InetAddress
 

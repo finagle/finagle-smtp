@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp.transport
+package io.github.finagle.smtp.transport
 
 private[smtp] object CodecUtil {
   val aggregation = "aggregateMultiline"

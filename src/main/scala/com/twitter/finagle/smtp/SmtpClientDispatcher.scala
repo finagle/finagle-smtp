@@ -1,10 +1,10 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import com.twitter.finagle.dispatch.GenSerialClientDispatcher
 import com.twitter.logging.Logger
-import com.twitter.finagle.smtp.reply._
 import com.twitter.finagle.transport.Transport
 import com.twitter.util.{Await, Time, Future, Promise}
+import io.github.finagle.smtp.reply._
 /**
  * A ClientDispatcher that implements SMTP client/server protocol.
  */
@@ -36,7 +36,7 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
   /**
    * Reads a reply or a sequence of replies (parts of a multiline reply).
    * Every line of a multiline reply is a
-   * [[com.twitter.finagle.smtp.reply.NonTerminalLine]]. Once
+   * [[io.github.finagle.smtp.reply.NonTerminalLine]]. Once
    * anything else is received, the reply is counted as complete.
    */
   private def readLines: Future[Seq[UnspecifiedReply]] = {
@@ -48,7 +48,7 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
 
   /**
    * Constructs a multiline reply from given sequence of replies.
-   * If their codes are not matching, an [[com.twitter.finagle.smtp.reply.InvalidReply]]
+   * If their codes are not matching, an [[io.github.finagle.smtp.reply.InvalidReply]]
    * is returned.
    */
   private def multilineReply(replies: Seq[UnspecifiedReply]): UnspecifiedReply = {
@@ -103,8 +103,8 @@ class SmtpClientDispatcher(trans: Transport[Request, UnspecifiedReply])
   } ensure super.close(deadline)
 
   /**
-   * Constructs a specified [[com.twitter.finagle.smtp.reply.Reply]] judging by the code
-   * of a given [[com.twitter.finagle.smtp.reply.UnspecifiedReply]].
+   * Constructs a specified [[io.github.finagle.smtp.reply.Reply]] judging by the code
+   * of a given [[io.github.finagle.smtp.reply.UnspecifiedReply]].
    *
    * @param resp The reply to specify
    */

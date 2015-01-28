@@ -1,11 +1,12 @@
-package com.twitter.finagle
+package io.github.finagle
 
+import com.twitter.finagle.{Client, ClientConnection, Name, ServiceFactory, ServiceFactoryProxy}
 import com.twitter.finagle.client.{DefaultClient, Bridge}
-import com.twitter.finagle.smtp._
-import com.twitter.finagle.smtp.filter.{MailFilter, HeadersFilter, DataFilter}
-import com.twitter.finagle.smtp.reply._
-import com.twitter.finagle.smtp.transport.SmtpTransporter
 import com.twitter.util.{Time, Future}
+import io.github.finagle.smtp._
+import io.github.finagle.smtp.filter.{MailFilter, HeadersFilter, DataFilter}
+import io.github.finagle.smtp.reply._
+import io.github.finagle.smtp.transport.SmtpTransporter
 
 // TODO: switch to StackClient
 
@@ -36,7 +37,7 @@ object Smtp extends Client[Request, Reply]{
 }
 
 /**
- * Implements an SMTP client that can send an [[com.twitter.finagle.smtp.EmailMessage]].
+ * Implements an SMTP client that can send an [[io.github.finagle.smtp.EmailMessage]].
  * The application of this client's service returns [[com.twitter.util.Future.Done]]
  * in case of success or the first encountered error in case of a failure.
  */

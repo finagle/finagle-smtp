@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
@@ -31,7 +31,7 @@ object MailingAddress {
   def correct(addrs: Seq[String]): Boolean = addrs.map(MailingAddress.correct(_)).contains(false)
 
   /**
-   * Creates a [[com.twitter.finagle.smtp.MailingAddress]] from the given string.
+   * Creates a [[io.github.finagle.smtp.MailingAddress]] from the given string.
    * The given string representation of a mailbox should be syntactically correct
    * (according to [[http://tools.ietf.org/search/rfc5321#section-4.1.2]], for
    * example: user@domain.org). If it is not, an IllegalArgumentException is thrown.

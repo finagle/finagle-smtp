@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.channel._
@@ -7,8 +7,8 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.mock.MockitoSugar
-import com.twitter.finagle.smtp.transport.{CodecUtil, SmtpDecoder}
-import com.twitter.finagle.smtp.reply.{InvalidReply, NonTerminalLine, UnspecifiedReply}
+import io.github.finagle.smtp.transport.{CodecUtil, SmtpDecoder}
+import io.github.finagle.smtp.reply.{InvalidReply, NonTerminalLine, UnspecifiedReply}
 
 @RunWith(classOf[JUnitRunner])
 class SmtpDecoderTest extends FunSuite with MockitoSugar {

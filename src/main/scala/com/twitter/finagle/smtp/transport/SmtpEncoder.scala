@@ -1,7 +1,7 @@
-package com.twitter.finagle.smtp.transport
+package io.github.finagle.smtp.transport
 
-import com.twitter.finagle.smtp.Request
 import com.twitter.util.NonFatal
+import io.github.finagle.smtp.Request
 import org.jboss.netty.channel._
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.util.CharsetUtil

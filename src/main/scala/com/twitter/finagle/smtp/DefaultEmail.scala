@@ -1,9 +1,9 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import com.twitter.util.Time
 
 /**
- * Constructs an [[com.twitter.finagle.smtp.EmailMessage]].
+ * Constructs an [[io.github.finagle.smtp.EmailMessage]].
  */
 case class DefaultEmail(
   override val from: Seq[MailingAddress] = Seq.empty,
@@ -20,7 +20,7 @@ case class DefaultEmail(
   /**
    * Adds originator addresses, which will appear in the ''From:'' field.
    * These addresses are validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addrs Addresses to be added
    */
@@ -40,7 +40,7 @@ case class DefaultEmail(
    * If the given address is not included in ''From:'' field,
    * it is added there.
    * This address is validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addr Address to be set
    */
@@ -58,7 +58,7 @@ case class DefaultEmail(
   /**
    * Adds recipient addresses, which will appear in the ''To:'' field.
    * These addresses are validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addrs Addresses to be added
    */
@@ -74,7 +74,7 @@ case class DefaultEmail(
   /**
    * Adds carbon copy addresses, which will appear in the ''Cc:'' field.
    * These addresses are validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addrs Addresses to be added
    */
@@ -90,7 +90,7 @@ case class DefaultEmail(
   /**
    * Adds blind carbon copy addresses, which will appear in the ''Bcc:'' field.
    * These addresses are validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addrs Addresses to be added
    */
@@ -106,7 +106,7 @@ case class DefaultEmail(
   /**
    * Adds the addresses to reply to, which will appear in the ''Reply-To:'' field.
    * These addresses are validated when converted to
-   * [[com.twitter.finagle.smtp.MailingAddress]]
+   * [[io.github.finagle.smtp.MailingAddress]]
    *
    * @param addrs Addresses to be added
    */
@@ -148,7 +148,7 @@ case class DefaultEmail(
   def setText(lines: Seq[String]): DefaultEmail = copy(body = lines)
 
   /**
-   * Instantiate an [[com.twitter.finagle.smtp.EmailMessage]] from the payload.
+   * Instantiate an [[io.github.finagle.smtp.EmailMessage]] from the payload.
    * If the date of sending the message is not set,
    * current date is used. If sender of the message
    * is not specified, the first address in ''From:'' is used.
@@ -175,19 +175,19 @@ case class DefaultEmail(
 }
 
 /**
- * Factory for [[com.twitter.finagle.smtp.DefaultEmail]] instances
+ * Factory for [[io.github.finagle.smtp.DefaultEmail]] instances
  */
 object DefaultEmail {
 
   /**
-   * Creates an empty [[com.twitter.finagle.smtp.DefaultEmail]].
+   * Creates an empty [[io.github.finagle.smtp.DefaultEmail]].
    * This method is for Java compatibility.
    */
   def create(): DefaultEmail = DefaultEmail()
 
   /**
-   * Creates an [[com.twitter.finagle.smtp.DefaultEmail]] with payload from given
-   * [[com.twitter.finagle.smtp.EmailMessage]].
+   * Creates an [[io.github.finagle.smtp.DefaultEmail]] with payload from given
+   * [[io.github.finagle.smtp.EmailMessage]].
    *
    * @param msg The message to copy payload from
    */

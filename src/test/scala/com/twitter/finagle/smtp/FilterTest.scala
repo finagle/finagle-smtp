@@ -1,4 +1,4 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -7,8 +7,8 @@ import com.twitter.finagle.Service
 import com.twitter.util.{Try, Await, Future}
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.twitter.finagle.smtp.filter.{HeadersFilter, MailFilter, DataFilter}
-import com.twitter.finagle.smtp.reply.Reply
+import io.github.finagle.smtp.filter.{HeadersFilter, MailFilter, DataFilter}
+import io.github.finagle.smtp.reply.Reply
 
 //a reply that holds request as it is sent to the service
 case class TestReply(req: Request) extends Reply {

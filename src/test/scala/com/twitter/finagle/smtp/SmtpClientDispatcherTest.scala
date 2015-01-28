@@ -1,13 +1,13 @@
-package com.twitter.finagle.smtp
+package io.github.finagle.smtp
 
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import com.twitter.concurrent.AsyncQueue
-import com.twitter.finagle.smtp.reply._
-import com.twitter.finagle.smtp.reply.InvalidReply
-import com.twitter.finagle.smtp.reply.OK
-import com.twitter.finagle.smtp.reply.ServiceReady
+import io.github.finagle.smtp.reply._
+import io.github.finagle.smtp.reply.InvalidReply
+import io.github.finagle.smtp.reply.OK
+import io.github.finagle.smtp.reply.ServiceReady
 import com.twitter.finagle.transport.QueueTransport
 import com.twitter.util.Await
 

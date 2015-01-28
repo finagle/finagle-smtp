@@ -1,6 +1,6 @@
-package com.twitter.finagle.smtp.transport
+package io.github.finagle.smtp.transport
 
-import com.twitter.finagle.smtp.reply._
+import io.github.finagle.smtp.reply._
 import org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder
 import org.jboss.netty.channel.{Channel, ChannelHandlerContext}
 import org.jboss.netty.buffer.ChannelBuffer
