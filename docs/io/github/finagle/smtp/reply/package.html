@@ -1,0 +1,911 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>reply - io.github.finagle.smtp.reply</title>
+          <meta name="description" content="reply - io.github.finagle.smtp.reply" />
+          <meta name="keywords" content="reply io.github.finagle.smtp.reply" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'io.github.finagle.smtp.reply.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="io">io</a>.<a href="../../../package.html" class="extype" name="io.github">github</a>.<a href="../../package.html" class="extype" name="io.github.finagle">finagle</a>.<a href="../package.html" class="extype" name="io.github.finagle.smtp">smtp</a></p>
+        <h1>reply</h1><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reply</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.github.finagle.smtp.reply.ActionErrorReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ActionErrorReplyextendsExceptionwithTransientNegativeCompletionReplywithMailSystemReply"></a>
+      <a id="ActionErrorReply:ActionErrorReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ActionErrorReply.html"><span class="name">ActionErrorReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="TransientNegativeCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.TransientNegativeCompletionReply">TransientNegativeCompletionReply</a> with <a href="MailSystemReply.html" class="extype" name="io.github.finagle.smtp.reply.MailSystemReply">MailSystemReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ActionErrorReplyextendsExceptionwithTransientNegativeCompletionReplywithMailSystemReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.AddressNotRecognized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AddressNotRecognizedextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="AddressNotRecognized:AddressNotRecognized"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="AddressNotRecognized.html"><span class="name">AddressNotRecognized</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@AddressNotRecognizedextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ArgumentSyntaxError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ArgumentSyntaxErrorextendsExceptionwithSyntaxErrorReplywithProductwithSerializable"></a>
+      <a id="ArgumentSyntaxError:ArgumentSyntaxError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ArgumentSyntaxError.html"><span class="name">ArgumentSyntaxError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="SyntaxErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxErrorReply">SyntaxErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ArgumentSyntaxErrorextendsExceptionwithSyntaxErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.BadCommandSequence" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BadCommandSequenceextendsExceptionwithSyntaxErrorReplywithProductwithSerializable"></a>
+      <a id="BadCommandSequence:BadCommandSequence"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BadCommandSequence.html"><span class="name">BadCommandSequence</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="SyntaxErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxErrorReply">SyntaxErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@BadCommandSequenceextendsExceptionwithSyntaxErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ClosingTransmission" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClosingTransmissionextendsServiceInfoReplywithProductwithSerializable"></a>
+      <a id="ClosingTransmission:ClosingTransmission"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClosingTransmission.html"><span class="name">ClosingTransmission</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="ServiceInfoReply.html" class="extype" name="io.github.finagle.smtp.reply.ServiceInfoReply">ServiceInfoReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ClosingTransmissionextendsServiceInfoReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.CommandNotImplemented" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CommandNotImplementedextendsExceptionwithSyntaxErrorReplywithProductwithSerializable"></a>
+      <a id="CommandNotImplemented:CommandNotImplemented"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandNotImplemented.html"><span class="name">CommandNotImplemented</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="SyntaxErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxErrorReply">SyntaxErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@CommandNotImplementedextendsExceptionwithSyntaxErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ConnectionsReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ConnectionsReplyextendsReply"></a>
+      <a id="ConnectionsReply:ConnectionsReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ConnectionsReply.html"><span class="name">ConnectionsReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ConnectionsReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.Error" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ErrorextendsExceptionwithReply"></a>
+      <a id="Error:Error"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Error.html"><span class="name">Error</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ErrorextendsExceptionwithReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Basic trait for error SMTP replies.</p>
+    </li><li name="io.github.finagle.smtp.reply.Help" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HelpextendsSystemInfoReplywithProductwithSerializable"></a>
+      <a id="Help:Help"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Help.html"><span class="name">Help</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="SystemInfoReply.html" class="extype" name="io.github.finagle.smtp.reply.SystemInfoReply">SystemInfoReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@HelpextendsSystemInfoReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.InformationReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="InformationReplyextendsReply"></a>
+      <a id="InformationReply:InformationReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="InformationReply.html"><span class="name">InformationReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@InformationReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.InsufficientStorageError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InsufficientStorageErrorextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="InsufficientStorageError:InsufficientStorageError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="InsufficientStorageError.html"><span class="name">InsufficientStorageError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@InsufficientStorageErrorextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.InvalidMailboxName" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InvalidMailboxNameextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="InvalidMailboxName:InvalidMailboxName"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="InvalidMailboxName.html"><span class="name">InvalidMailboxName</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@InvalidMailboxNameextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.InvalidReply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InvalidReplyextendsExceptionwithErrorwithProductwithSerializable"></a>
+      <a id="InvalidReply:InvalidReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="InvalidReply.html"><span class="name">InvalidReply</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="Error.html" class="extype" name="io.github.finagle.smtp.reply.Error">Error</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@InvalidReplyextendsExceptionwithErrorwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A reply that is either not syntactically an SMTP reply
+or is not expected in given circumstances.</p><div class="fullcomment"><div class="comment cmt"><p>A reply that is either not syntactically an SMTP reply
+or is not expected in given circumstances.
+</p></div><dl class="paramcmts block"><dt class="param">info</dt><dd class="cmt"><p>The string representation of what was received
+               or another useful information.
+</p></dd></dl></div>
+    </li><li name="io.github.finagle.smtp.reply.MailErrorReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MailErrorReplyextendsExceptionwithTransientNegativeCompletionReplywithMailSystemReply"></a>
+      <a id="MailErrorReply:MailErrorReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MailErrorReply.html"><span class="name">MailErrorReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="TransientNegativeCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.TransientNegativeCompletionReply">TransientNegativeCompletionReply</a> with <a href="MailSystemReply.html" class="extype" name="io.github.finagle.smtp.reply.MailSystemReply">MailSystemReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@MailErrorReplyextendsExceptionwithTransientNegativeCompletionReplywithMailSystemReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.MailIntermediateReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MailIntermediateReplyextendsPositiveIntermediateReplywithMailSystemReply"></a>
+      <a id="MailIntermediateReply:MailIntermediateReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MailIntermediateReply.html"><span class="name">MailIntermediateReply</span></a><span class="result"> extends <a href="PositiveIntermediateReply.html" class="extype" name="io.github.finagle.smtp.reply.PositiveIntermediateReply">PositiveIntermediateReply</a> with <a href="MailSystemReply.html" class="extype" name="io.github.finagle.smtp.reply.MailSystemReply">MailSystemReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@MailIntermediateReplyextendsPositiveIntermediateReplywithMailSystemReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.MailOkReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MailOkReplyextendsPositiveCompletionReplywithMailSystemReply"></a>
+      <a id="MailOkReply:MailOkReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MailOkReply.html"><span class="name">MailOkReply</span></a><span class="result"> extends <a href="PositiveCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.PositiveCompletionReply">PositiveCompletionReply</a> with <a href="MailSystemReply.html" class="extype" name="io.github.finagle.smtp.reply.MailSystemReply">MailSystemReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@MailOkReplyextendsPositiveCompletionReplywithMailSystemReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.MailSystemReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MailSystemReplyextendsReply"></a>
+      <a id="MailSystemReply:MailSystemReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MailSystemReply.html"><span class="name">MailSystemReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@MailSystemReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.MailboxUnavailableError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MailboxUnavailableErrorextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="MailboxUnavailableError:MailboxUnavailableError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MailboxUnavailableError.html"><span class="name">MailboxUnavailableError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@MailboxUnavailableErrorextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.NonTerminalLine" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NonTerminalLineextendsUnspecifiedReplywithProductwithSerializable"></a>
+      <a id="NonTerminalLine:NonTerminalLine"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="NonTerminalLine.html"><span class="name">NonTerminalLine</span></a><span class="params">(<span name="code">code: <span class="extype" name="scala.Int">Int</span></span>, <span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="UnspecifiedReply.html" class="extype" name="io.github.finagle.smtp.reply.UnspecifiedReply">UnspecifiedReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@NonTerminalLineextendsUnspecifiedReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A non-terminal part of a multiline reply.</p>
+    </li><li name="io.github.finagle.smtp.reply.NotAvailableReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NotAvailableReplyextendsExceptionwithTransientNegativeCompletionReplywithConnectionsReply"></a>
+      <a id="NotAvailableReply:NotAvailableReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="NotAvailableReply.html"><span class="name">NotAvailableReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="TransientNegativeCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.TransientNegativeCompletionReply">TransientNegativeCompletionReply</a> with <a href="ConnectionsReply.html" class="extype" name="io.github.finagle.smtp.reply.ConnectionsReply">ConnectionsReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@NotAvailableReplyextendsExceptionwithTransientNegativeCompletionReplywithConnectionsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.OK" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="OKextendsMailOkReplywithProductwithSerializable"></a>
+      <a id="OK:OK"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="OK.html"><span class="name">OK</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="MailOkReply.html" class="extype" name="io.github.finagle.smtp.reply.MailOkReply">MailOkReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@OKextendsMailOkReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ParameterNotImplemented" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParameterNotImplementedextendsExceptionwithSyntaxErrorReplywithProductwithSerializable"></a>
+      <a id="ParameterNotImplemented:ParameterNotImplemented"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ParameterNotImplemented.html"><span class="name">ParameterNotImplemented</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="SyntaxErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxErrorReply">SyntaxErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ParameterNotImplementedextendsExceptionwithSyntaxErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ParamsAccommodationError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParamsAccommodationErrorextendsExceptionwithActionErrorReplywithProductwithSerializable"></a>
+      <a id="ParamsAccommodationError:ParamsAccommodationError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ParamsAccommodationError.html"><span class="name">ParamsAccommodationError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="ActionErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.ActionErrorReply">ActionErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ParamsAccommodationErrorextendsExceptionwithActionErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.PermanentNegativeCompletionReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PermanentNegativeCompletionReplyextendsExceptionwithError"></a>
+      <a id="PermanentNegativeCompletionReply:PermanentNegativeCompletionReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PermanentNegativeCompletionReply.html"><span class="name">PermanentNegativeCompletionReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="Error.html" class="extype" name="io.github.finagle.smtp.reply.Error">Error</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@PermanentNegativeCompletionReplyextendsExceptionwithError" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.PositiveCompletionReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PositiveCompletionReplyextendsReply"></a>
+      <a id="PositiveCompletionReply:PositiveCompletionReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PositiveCompletionReply.html"><span class="name">PositiveCompletionReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@PositiveCompletionReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.PositiveIntermediateReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PositiveIntermediateReplyextendsReply"></a>
+      <a id="PositiveIntermediateReply:PositiveIntermediateReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PositiveIntermediateReply.html"><span class="name">PositiveIntermediateReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@PositiveIntermediateReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ProcessingError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ProcessingErrorextendsExceptionwithActionErrorReplywithProductwithSerializable"></a>
+      <a id="ProcessingError:ProcessingError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ProcessingError.html"><span class="name">ProcessingError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="ActionErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.ActionErrorReply">ActionErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ProcessingErrorextendsExceptionwithActionErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.Reply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ReplyextendsUnspecifiedReply"></a>
+      <a id="Reply:Reply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Reply.html"><span class="name">Reply</span></a><span class="result"> extends <a href="UnspecifiedReply.html" class="extype" name="io.github.finagle.smtp.reply.UnspecifiedReply">UnspecifiedReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ReplyextendsUnspecifiedReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Basic trait for all SMTP replies whose type
+is already specified by decoding.</p>
+    </li><li name="io.github.finagle.smtp.reply.ServiceInfoReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ServiceInfoReplyextendsPositiveCompletionReplywithConnectionsReply"></a>
+      <a id="ServiceInfoReply:ServiceInfoReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ServiceInfoReply.html"><span class="name">ServiceInfoReply</span></a><span class="result"> extends <a href="PositiveCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.PositiveCompletionReply">PositiveCompletionReply</a> with <a href="ConnectionsReply.html" class="extype" name="io.github.finagle.smtp.reply.ConnectionsReply">ConnectionsReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ServiceInfoReplyextendsPositiveCompletionReplywithConnectionsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ServiceNotAvailable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ServiceNotAvailableextendsExceptionwithNotAvailableReplywithProductwithSerializable"></a>
+      <a id="ServiceNotAvailable:ServiceNotAvailable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ServiceNotAvailable.html"><span class="name">ServiceNotAvailable</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="NotAvailableReply.html" class="extype" name="io.github.finagle.smtp.reply.NotAvailableReply">NotAvailableReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ServiceNotAvailableextendsExceptionwithNotAvailableReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.ServiceReady" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ServiceReadyextendsServiceInfoReplywithProductwithSerializable"></a>
+      <a id="ServiceReady:ServiceReady"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ServiceReady.html"><span class="name">ServiceReady</span></a><span class="params">(<span name="domain">domain: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="ServiceInfoReply.html" class="extype" name="io.github.finagle.smtp.reply.ServiceInfoReply">ServiceInfoReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ServiceReadyextendsServiceInfoReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.StartInput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StartInputextendsMailIntermediateReplywithProductwithSerializable"></a>
+      <a id="StartInput:StartInput"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="StartInput.html"><span class="name">StartInput</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="MailIntermediateReply.html" class="extype" name="io.github.finagle.smtp.reply.MailIntermediateReply">MailIntermediateReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@StartInputextendsMailIntermediateReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.SyntaxError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SyntaxErrorextendsExceptionwithSyntaxErrorReplywithProductwithSerializable"></a>
+      <a id="SyntaxError:SyntaxError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SyntaxError.html"><span class="name">SyntaxError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="SyntaxErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxErrorReply">SyntaxErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@SyntaxErrorextendsExceptionwithSyntaxErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.SyntaxErrorReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SyntaxErrorReplyextendsExceptionwithPermanentNegativeCompletionReplywithSyntaxReply"></a>
+      <a id="SyntaxErrorReply:SyntaxErrorReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SyntaxErrorReply.html"><span class="name">SyntaxErrorReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="PermanentNegativeCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.PermanentNegativeCompletionReply">PermanentNegativeCompletionReply</a> with <a href="SyntaxReply.html" class="extype" name="io.github.finagle.smtp.reply.SyntaxReply">SyntaxReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@SyntaxErrorReplyextendsExceptionwithPermanentNegativeCompletionReplywithSyntaxReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.SyntaxReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SyntaxReplyextendsReply"></a>
+      <a id="SyntaxReply:SyntaxReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SyntaxReply.html"><span class="name">SyntaxReply</span></a><span class="result"> extends <a href="Reply.html" class="extype" name="io.github.finagle.smtp.reply.Reply">Reply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@SyntaxReplyextendsReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.SystemInfoReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SystemInfoReplyextendsPositiveCompletionReplywithInformationReply"></a>
+      <a id="SystemInfoReply:SystemInfoReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SystemInfoReply.html"><span class="name">SystemInfoReply</span></a><span class="result"> extends <a href="PositiveCompletionReply.html" class="extype" name="io.github.finagle.smtp.reply.PositiveCompletionReply">PositiveCompletionReply</a> with <a href="InformationReply.html" class="extype" name="io.github.finagle.smtp.reply.InformationReply">InformationReply</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@SystemInfoReplyextendsPositiveCompletionReplywithInformationReply" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.SystemStatus" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SystemStatusextendsSystemInfoReplywithProductwithSerializable"></a>
+      <a id="SystemStatus:SystemStatus"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SystemStatus.html"><span class="name">SystemStatus</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="SystemInfoReply.html" class="extype" name="io.github.finagle.smtp.reply.SystemInfoReply">SystemInfoReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@SystemStatusextendsSystemInfoReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TempInsufficientStorage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TempInsufficientStorageextendsExceptionwithActionErrorReplywithProductwithSerializable"></a>
+      <a id="TempInsufficientStorage:TempInsufficientStorage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TempInsufficientStorage.html"><span class="name">TempInsufficientStorage</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="ActionErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.ActionErrorReply">ActionErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TempInsufficientStorageextendsExceptionwithActionErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TempMailboxUnavailable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TempMailboxUnavailableextendsExceptionwithActionErrorReplywithProductwithSerializable"></a>
+      <a id="TempMailboxUnavailable:TempMailboxUnavailable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TempMailboxUnavailable.html"><span class="name">TempMailboxUnavailable</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="ActionErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.ActionErrorReply">ActionErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TempMailboxUnavailableextendsExceptionwithActionErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TempUserNotLocal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TempUserNotLocalextendsMailOkReplywithProductwithSerializable"></a>
+      <a id="TempUserNotLocal:TempUserNotLocal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TempUserNotLocal.html"><span class="name">TempUserNotLocal</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="MailOkReply.html" class="extype" name="io.github.finagle.smtp.reply.MailOkReply">MailOkReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TempUserNotLocalextendsMailOkReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TempUserNotVerified" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TempUserNotVerifiedextendsMailOkReplywithProductwithSerializable"></a>
+      <a id="TempUserNotVerified:TempUserNotVerified"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TempUserNotVerified.html"><span class="name">TempUserNotVerified</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="MailOkReply.html" class="extype" name="io.github.finagle.smtp.reply.MailOkReply">MailOkReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TempUserNotVerifiedextendsMailOkReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TransactionFailed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TransactionFailedextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="TransactionFailed:TransactionFailed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="TransactionFailed.html"><span class="name">TransactionFailed</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TransactionFailedextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.TransientNegativeCompletionReply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TransientNegativeCompletionReplyextendsExceptionwithError"></a>
+      <a id="TransientNegativeCompletionReply:TransientNegativeCompletionReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TransientNegativeCompletionReply.html"><span class="name">TransientNegativeCompletionReply</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="Error.html" class="extype" name="io.github.finagle.smtp.reply.Error">Error</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@TransientNegativeCompletionReplyextendsExceptionwithError" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.reply.UnknownReplyCodeError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnknownReplyCodeErrorextendsExceptionwithErrorwithProductwithSerializable"></a>
+      <a id="UnknownReplyCodeError:UnknownReplyCodeError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnknownReplyCodeError.html"><span class="name">UnknownReplyCodeError</span></a><span class="params">(<span name="code">code: <span class="extype" name="scala.Int">Int</span></span>, <span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="Error.html" class="extype" name="io.github.finagle.smtp.reply.Error">Error</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@UnknownReplyCodeErrorextendsExceptionwithErrorwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A syntactically correct SMTP reply with unknown reply code.</p>
+    </li><li name="io.github.finagle.smtp.reply.UnspecifiedReply" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="UnspecifiedReplyextendsAnyRef"></a>
+      <a id="UnspecifiedReply:UnspecifiedReply"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="UnspecifiedReply.html"><span class="name">UnspecifiedReply</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@UnspecifiedReplyextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Basic trait for all SMTP replies.</p><div class="fullcomment"><div class="comment cmt"><p>Basic trait for all SMTP replies. Describes a reply
+whose type is not yet specified by decoding.
+</p></div></div>
+    </li><li name="io.github.finagle.smtp.reply.UserNotLocalError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UserNotLocalErrorextendsExceptionwithMailErrorReplywithProductwithSerializable"></a>
+      <a id="UserNotLocalError:UserNotLocalError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="UserNotLocalError.html"><span class="name">UserNotLocalError</span></a><span class="params">(<span name="info">info: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="MailErrorReply.html" class="extype" name="io.github.finagle.smtp.reply.MailErrorReply">MailErrorReply</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@UserNotLocalErrorextendsExceptionwithMailErrorReplywithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.github.finagle.smtp.reply.ReplyCode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ReplyCode"></a>
+      <a id="ReplyCode:ReplyCode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ReplyCode$.html"><span class="name">ReplyCode</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.reply.package@ReplyCode" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Contains all known SMTP reply codes.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

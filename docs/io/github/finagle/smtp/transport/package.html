@@ -1,0 +1,176 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>transport - io.github.finagle.smtp.transport</title>
+          <meta name="description" content="transport - io.github.finagle.smtp.transport" />
+          <meta name="keywords" content="transport io.github.finagle.smtp.transport" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'io.github.finagle.smtp.transport.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="io">io</a>.<a href="../../../package.html" class="extype" name="io.github">github</a>.<a href="../../package.html" class="extype" name="io.github.finagle">finagle</a>.<a href="../package.html" class="extype" name="io.github.finagle.smtp">smtp</a></p>
+        <h1>transport</h1><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.transport.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transport</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.github.finagle.smtp.transport.SmtpDecoder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SmtpDecoderextendsLineBasedFrameDecoder"></a>
+      <a id="SmtpDecoder:SmtpDecoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SmtpDecoder.html"><span class="name">SmtpDecoder</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.handler.codec.frame.LineBasedFrameDecoder">LineBasedFrameDecoder</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.transport.package@SmtpDecoderextendsLineBasedFrameDecoder" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Decodes SMTP replies from lines ending with &lt;CRLF&gt;.</p><div class="fullcomment"><div class="comment cmt"><p>Decodes SMTP replies from lines ending with &lt;CRLF&gt;.
+An SMTP reply is a three-digit code followed by
+space and an optional informational string.</p><p>If the three-digit code is followed by a hyphen,
+treats the line as a part of a multiline reply.
+</p></div></div>
+    </li><li name="io.github.finagle.smtp.transport.SmtpEncoder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SmtpEncoderextendsSimpleChannelDownstreamHandler"></a>
+      <a id="SmtpEncoder:SmtpEncoder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SmtpEncoder.html"><span class="name">SmtpEncoder</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.channel.SimpleChannelDownstreamHandler">SimpleChannelDownstreamHandler</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.transport.package@SmtpEncoderextendsSimpleChannelDownstreamHandler" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Encodes a Request into a ChannelBuffer.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.github.finagle.smtp.transport.SmtpPipeline" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SmtpPipeline"></a>
+      <a id="SmtpPipeline:SmtpPipeline"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SmtpPipeline$.html"><span class="name">SmtpPipeline</span></a><span class="result"> extends <span class="extype" name="org.jboss.netty.channel.ChannelPipelineFactory">ChannelPipelineFactory</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.transport.package@SmtpPipeline" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.github.finagle.smtp.transport.SmtpTransporter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SmtpTransporter"></a>
+      <a id="SmtpTransporter:SmtpTransporter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SmtpTransporter$.html"><span class="name">SmtpTransporter</span></a><span class="result"> extends <span class="extype" name="com.twitter.finagle.netty3.Netty3Transporter">Netty3Transporter</span>[<a href="../Request.html" class="extype" name="io.github.finagle.smtp.Request">Request</a>, <a href="../reply/UnspecifiedReply.html" class="extype" name="io.github.finagle.smtp.reply.UnspecifiedReply">UnspecifiedReply</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#io.github.finagle.smtp.transport.package@SmtpTransporter" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
