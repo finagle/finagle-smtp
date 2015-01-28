@@ -1,5 +1,7 @@
 # finagle-smtp
 
+[![Build status](https://img.shields.io/travis/finagle/finagle-smtp/master.svg)](http://travis-ci.org/finagle/finagle-smtp) [![Coverage status](https://img.shields.io/coveralls/finagle/finagle-smtp/master.svg)](https://coveralls.io/r/finagle/finagle-smtp?branch=master)
+
 This is a minimum implementation of SMTP client for finagle according to 
 [`RFC5321`][rfc]. The simplest guide to SMTP can be found, for example, [here][smtp2go].
 
