@@ -23,33 +23,27 @@ The object for instantiating a client capable of sending a simple email is `Smtp
 For services created with it the request type is `EmailMessage`, described in 
 [`EmailMessage.scala`][EmailMessage].
 
-You can create an email using `EmailBuilder` class described in [`EmailBuilder.scala`][EmailBuilder]:
+You can create an email using `DefaultEmail` class described in [`DefaultEmail.scala`][DefaultEmail]:
 
 ```scala
-    val email = EmailBuilder()
-      .sender("from@from.com")
-      .to("first@to.com", "second@to.com")
-      .subject("test")
-      .bodyLines("first line", "second line") //body is a sequence of lines
-      .build
+    val email = DefaultEmail()
+      .from_("from@from.com")
+      .to_("first@to.com", "second@to.com")
+      .subject_("test")
+      .text("first line", "second line") //body is a sequence of lines
 ```
 
 Applying the service on the email returns `Future.Done` in case of a successful operation.
 In case of failure it returns the first encountered error wrapped in a `Future`.
 
 [EmailMessage]: src/main/scala/com/twitter/finagle/smtp/EmailMessage.scala
-[EmailBuilder]: src/main/scala/com/twitter/finagle/smtp/EmailBuilder.scala
+[DefaultEmail]: src/main/scala/com/twitter/finagle/smtp/DefaultEmail.scala
 
 #### Greeting and session
 
 Upon the connection the client receives server greeting.
 In the beginning of the session an EHLO request is sent automatically to identify the client.
 The session state is reset before every subsequent try.
-
-### Example
-
-The example of sending email to a local SMTP server with SmtpSimple and handling errors can be seen 
-in [`Example.scala`](src/main/scala/com/twitter/finagle/example/smtp/Example.scala).
 
 ### Sending independent SMTP commands
 
