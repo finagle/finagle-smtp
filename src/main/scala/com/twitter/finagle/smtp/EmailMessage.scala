@@ -98,7 +98,7 @@ trait EmailMessage {
     headers collectFirst {
       case (key, subj) if key.toLowerCase == "subject" => subj
     } getOrElse ""
-  
+
   def body: Mime
 }
 

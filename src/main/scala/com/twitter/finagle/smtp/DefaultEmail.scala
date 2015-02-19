@@ -1,9 +1,6 @@
 package com.twitter.finagle.smtp
 import java.nio.charset.Charset
 
-import java.nio.charset.Charset
-
-import com.twitter.finagle.smtp.Mime.MimePart
 import com.twitter.util.Time
 /**
  * Constructs a default [[com.twitter.finagle.smtp.EmailMessage]].
