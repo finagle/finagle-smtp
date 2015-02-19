@@ -10,6 +10,7 @@ import org.jboss.netty.util.CharsetUtil
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+
 @RunWith(classOf[JUnitRunner])
 class DataFilterTest extends FunSuite {
   val dataFilterService = DataFilter andThen SimpleTestService
@@ -33,6 +34,7 @@ class DataFilterTest extends FunSuite {
     val response = Await.result(dataFilterService(request)).asInstanceOf[TestReply]
     assert(response.req.asInstanceOf[Request.TextData].cmd === "..\r\n..line1\r\nline2.\r\n.") //last /r/n will be added by encoder, as after any other command
   }
+
   test("duplicates leading dot in byte data") {
     val data = ".\r\n.line1\r\nline2.".getBytes("US-ASCII")
     val request = Request.MimeData(MimePart(data))
@@ -79,6 +81,7 @@ class MailFilterTest extends FunSuite {
     val test = mailFilterService(msg)
   }
 }
+
 @RunWith(classOf[JUnitRunner])
 class HeaderFilterTest extends FunSuite {
   def hasOneHeader(lines: Seq[String], header: String): Boolean =
@@ -103,6 +106,7 @@ class HeaderFilterTest extends FunSuite {
     .to_("to1@test.com", "to2@test.com")
     .subject_("test")
     .text("body")
+
   test("result message has all necessary headers") {
     val headerTestService = new Service[EmailMessage, Unit] {
       def apply(msg: EmailMessage): Future[Unit] = Future {
@@ -136,6 +140,7 @@ class HeaderFilterTest extends FunSuite {
       def apply(msg: EmailMessage): Future[Unit] = Future {
         val body = msg.body
         val lines = body.getMimeHeaders ++ body.message().split("\r\n")
+
         checkHeader(lines, "From: ", msg.from.map(_.mailbox).mkString(","))
         checkHeader(lines, "To: ", msg.to.map(_.mailbox).mkString(","))
         checkHeader(lines, "Subject: ", msg.subject)
@@ -146,12 +151,14 @@ class HeaderFilterTest extends FunSuite {
     val test = headerFilterService(multipleAddressMsg)
   }
 }
+
 @RunWith(classOf[JUnitRunner])
 class SmtpLoggingFilterTest extends FunSuite {
   test("logs successful answers") {
     val successfulService = new Service[Request, Reply] {
       def apply(req: Request): Future[Reply] = Future.value(OK("ok"))
     }
+
     val log = Logger.get("test")
     log.setLevel(Logger.INFO)
     val stringHandler = new StringHandler(BareFormatter, Some(Logger.INFO))
@@ -165,6 +172,7 @@ class SmtpLoggingFilterTest extends FunSuite {
     val unsuccessfulService = new Service[Request, Reply] {
       def apply(req: Request): Future[Reply] = Future.exception(SyntaxError("err"))
     }
+
     val log = Logger.get("test")
     log.setLevel(Logger.INFO)
     val stringHandler = new StringHandler(BareFormatter, Some(Logger.INFO))

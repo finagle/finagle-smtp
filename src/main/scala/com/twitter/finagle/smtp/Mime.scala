@@ -122,7 +122,6 @@ object Mime {
   protected val mimeTypeMap = new javax.activation.MimetypesFileTypeMap
   MimeTypes.default foreach mimeTypeMap.addMimeTypes
 
-
   private def textContent(text: String, subtype: String, enc: Charset) ={
     val basic = MimePart(text.getBytes(enc))
     val withHeaders =

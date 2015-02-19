@@ -102,10 +102,11 @@ Upon service.close() a quit command is sent automatically, if not sent earlier.
 
 #### Extensions
 
-You can make the client support SMTP extensions by passing their names to `Smtp.client.withSupportFor()` and
-instantiating the service from the derived `Client`. Default client does not support any extensions. 
-If the extension is supported by both client and server (and also implemented - see *Using extensions*), 
-it will be able to be used.
+You can make the client support SMTP extensions by passing their names to
+`Smtp.client.withSupportFor()` and instantiating the service from the derived `Client`. Default
+client does not support any extensions.
+If the extension is supported by both client and server
+(and also implemented - see *Using extensions*), it will be able to be used.
 
 #### Logging
 
@@ -115,11 +116,12 @@ You can log the session using `SmtpLoggingFilter` described in [`SmtpLoggingFilt
 
 ### Using extensions
 
-Each implemented extension has its own package in [extension package][extension]. Currently supported
-extensions are: `AUTH`, `BINARYMIME`, `CHUNKING`, `8BITMIME`, `EXPN` (which is actually an extension 
-according to *RFC5321*), `PIPELINING` and `SIZE`. Some of these extensions require adding the parameters
-to `MAIL FROM` command, which you can achieve by sending `ExtendedMailingSession` described in 
-[`ExtendedMailingSession.scala`][ExtMailingSession] instead of `Request.NewMailingSession`
+Each implemented extension has its own package in [extension package][extension].
+Currently supported extensions are: `AUTH`, `BINARYMIME`, `CHUNKING`, `8BITMIME`, `EXPN` (which
+is actually an extension according to *RFC5321*), `PIPELINING` and `SIZE`. Some of these
+extensions require adding the parameters to `MAIL FROM` command, which you can achieve by sending
+ `ExtendedMailingSession` described in [`ExtendedMailingSession.scala`][ExtMailingSession]
+instead of `Request.NewMailingSession`
 
 [extension]: src/main/scala/com/twitter/finagle/smtp/extension
 [ExtMailingSession]: src/main/scala/com/twitter/finagle/smtp/extension/ExtendedMailingSession.scala

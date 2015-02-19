@@ -1,21 +1,24 @@
 package com.twitter.finagle.smtp
 import java.nio.charset.Charset
 
+import java.nio.charset.Charset
+
+import com.twitter.finagle.smtp.Mime.MimePart
 import com.twitter.util.Time
 /**
  * Constructs a default [[com.twitter.finagle.smtp.EmailMessage]].
  */
 case class DefaultEmail(
-                         override val from: Seq[MailingAddress] = Seq.empty,
-                         override val to: Seq[MailingAddress] = Seq.empty,
-                         override val cc: Seq[MailingAddress] = Seq.empty,
-                         override val bcc: Seq[MailingAddress] = Seq.empty,
-                         override val replyTo: Seq[MailingAddress] = Seq.empty,
-                         override val date: Time = Time.now,
-                         override val subject: String = "",
-                         whoSent: Option[MailingAddress] = None,
-                         body : Mime = MimePart.empty
-                         ) extends EmailMessage {
+  override val from: Seq[MailingAddress] = Seq.empty,
+  override val to: Seq[MailingAddress] = Seq.empty,
+  override val cc: Seq[MailingAddress] = Seq.empty,
+  override val bcc: Seq[MailingAddress] = Seq.empty,
+  override val replyTo: Seq[MailingAddress] = Seq.empty,
+  override val date: Time = Time.now,
+  override val subject: String = "",
+  whoSent: Option[MailingAddress] = None,
+  body : Mime = MimePart.empty
+  ) extends EmailMessage {
   /**
    * Adds originator addresses, which will appear in the ''From:'' field.
    * These addresses are validated when converted to

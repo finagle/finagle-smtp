@@ -1,6 +1,8 @@
 package com.twitter.finagle.smtp
 import java.io.{File, FileOutputStream}
 
+import java.io.{File, FileOutputStream}
+
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
@@ -46,12 +48,14 @@ class DefaultEmailTest extends FunSuite {
     val setreplyto = addreplyto.setReplyTo(Seq(MailingAddress("reply3@to.com")))
     assert(setreplyto.replyTo.map(_.mailbox) === Seq("reply3@to.com"), "set reply-to")
   }
+
   test("add single body part") {
     val singlepart = defaultBuilder.addBodyPart(Mime.plainText("part 1"))
     assert(singlepart.body.isInstanceOf[MimeMultipart])
     val mimepart = singlepart.body.asInstanceOf[MimeMultipart]
     assert(new String(mimepart.parts.head.content) === "part 1")
   }
+
   test("add multiple body parts") {
     val multipart = defaultBuilder.addBodyPart(Mime.plainText("part 1")).addBodyPart(Mime.plainText("part 2"))
     assert(multipart.body.isInstanceOf[MimeMultipart])
@@ -60,23 +64,27 @@ class DefaultEmailTest extends FunSuite {
     assert(new String(multimime.parts(0).content) === "part 1")
     assert(new String(multimime.parts(1).content) === "part 2")
   }
+
   test("set text body") {
     val textmsg = defaultBuilder.text("text")
     val body = textmsg.body.asInstanceOf[MimePart]
     assert(body.contentType === "text/plain")
     assert(new String(body.content) === "text")
   }
+
   test("set text body with encoding") {
     val textmsg = defaultBuilder.text("text", "UTF-8")
     val body = textmsg.body.asInstanceOf[MimePart]
     assert(body.contentType === "text/plain; charset=\"UTF-8\"")
     assert(new String(body.content) === "text")
   }
+
   test("attach") {
     val file = File.createTempFile("file", ".txt")
     val os = new FileOutputStream(file)
     os.write("test attachment".getBytes("UTF-8"))
     os.close()
+    
     val msg = defaultBuilder.text("text").attach(file.getAbsolutePath)
     assert(msg.body.isInstanceOf[MimeMultipart])
     val body = msg.body.asInstanceOf[MimeMultipart]

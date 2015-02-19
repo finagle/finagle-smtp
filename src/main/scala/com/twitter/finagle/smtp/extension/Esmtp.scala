@@ -78,7 +78,8 @@ object Esmtp {
    * Sends an EHLO request and processes its reply. If EHLO fails,
    * a HELO request (indicating that extensions should not be supported) is sent.
    *
-   * @param service The service used to send requests and receive replies
+   * @param service The service used to send requests and receive replie
+<<<<<<< HEAD
    * @param clientExtensions The sequence of extensios that can be supported by client
    * @return Future containing extensions supported by server
    */
@@ -89,7 +90,6 @@ object Esmtp {
     case Seq() => simpleGreet(service)
     case _ =>
       val extService = OkToExtFilter andThen service
-
       extService(Request.Hello) map {
 
         // If everything is all right, add available extensions

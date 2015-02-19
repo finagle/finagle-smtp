@@ -1,5 +1,6 @@
 package com.twitter.finagle.smtp
 import com.twitter.util.{Time, TimeFormat, Try}
+
 /**
  * Defines email address
  */
@@ -11,6 +12,7 @@ private[smtp] class MailingAddress(val local: String, val domain: String) {
   val isEmpty: Boolean = local.isEmpty && domain.isEmpty
   val nonEmpty: Boolean = !isEmpty
 }
+
 /**
  * Factory for mailing addresses.
  */
@@ -26,6 +28,7 @@ object MailingAddress {
     require(local.nonEmpty)
     require(domain.nonEmpty)
   }.isReturn
+
   /**
    * Checks if all the addresses in ''addrs'' are syntactically correct according to
    * [[http://tools.ietf.org/search/rfc5321#section-4.1.2]] (for example, user@domain.org)
@@ -48,6 +51,7 @@ object MailingAddress {
     }
     else throw new IllegalArgumentException("Incorrect mailbox syntax: %s" format address)
   }
+
   /**
    * An empty mailing address
    */
@@ -94,6 +98,7 @@ trait EmailMessage {
     headers collectFirst {
       case (key, subj) if key.toLowerCase == "subject" => subj
     } getOrElse ""
+  
   def body: Mime
 }
 
