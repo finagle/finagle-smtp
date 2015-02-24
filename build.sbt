@@ -11,9 +11,9 @@ lazy val root = project.in(file("."))
       "com.twitter" %% "finagle-mux" % "6.24.0",
       "com.twitter" %% "util-codec" % "6.23.0",
       "com.twitter" %% "util-logging" % "6.23.0",
-      "junit" % "junit" % "4.12" % "test",
-      "org.mockito" % "mockito-all" % "1.10.19" % "test",
-      "org.scalatest" %% "scalatest" % "2.2.3" % "test"
+      "junit" % "junit" % "4.12" % "it,test",
+      "org.mockito" % "mockito-all" % "1.10.19" % "it,test",
+      "org.scalatest" %% "scalatest" % "2.2.4" % "it,test"
     )
   )
   .settings(publishSettings: _*)
@@ -23,6 +23,8 @@ lazy val root = project.in(file("."))
   .settings(
     git.remoteRepo := "git@github.com:finagle/finagle-smtp.git"
   )
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings: _*)
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
@@ -38,6 +40,8 @@ lazy val publishSettings = Seq(
   publishArtifact in Test := false,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/finagle/finagle-smtp")),
+  autoAPIMappings := true,
+  apiURL := Some(url("https://finagle.github.io/finagle-smtp/docs/")),
   pomExtra := (
     <scm>
       <url>git://github.com/finagle/finagle-smtp.git</url>

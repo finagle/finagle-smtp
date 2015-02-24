@@ -28,7 +28,7 @@ object AuthMechanism {
   def plain(login: String, password: String): AuthMechanism = AuthMechanism(
     "PLAIN",
     ch => {
-      val authString = login + '\0' + password
+      val authString = login + '\u0000' + password
       ChallengeResponse(Base64StringEncoder.encode(authString.getBytes(CharsetUtil.UTF_8)))
     },
     None
