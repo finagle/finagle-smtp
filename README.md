@@ -1,10 +1,15 @@
 # finagle-smtp
 
+[![Build status](https://img.shields.io/travis/finagle/finagle-smtp/master.svg)](http://travis-ci.org/finagle/finagle-smtp) [![Coverage status](https://img.shields.io/coveralls/finagle/finagle-smtp/master.svg)](https://coveralls.io/r/finagle/finagle-smtp?branch=master)
+
 This is an SMTP client implementation for finagle based on 
 [`RFC5321`][rfc]. The simplest guide to SMTP can be found, for example, [here][smtp2go].
+Please see the [API documentation][docs] for information that isn't covered in the introduction
+below.
 
 [rfc]: http://tools.ietf.org/search/rfc5321
 [smtp2go]: http://www.smtp2go.com/articles/smtp-protocol
+[docs]: https://finagle.github.io/finagle-smtp/docs/
 
 ## Usage
 
@@ -31,9 +36,9 @@ You can either create a plain text message with `DefaultEmail.text()` or a MIME 
 Applying the service on the email returns `Future.Done` in case of a successful operation.
 In case of failure it returns the first encountered error wrapped in a `Future`.
 
-[EmailMessage]: src/main/scala/com/twitter/finagle/smtp/EmailMessage.scala
-[DefaultEmail]: src/main/scala/com/twitter/finagle/smtp/DefaultEmail.scala
-[Mime]: src/main/scala/com/twitter/finagle/smtp/Mime.scala
+[EmailMessage]: src/main/scala/io/github/finagle/smtp/EmailMessage.scala
+[DefaultEmail]: src/main/scala/io/github/finagle/smtp/DefaultEmail.scala
+[Mime]: src/main/scala/io/github/finagle/smtp/Mime.scala
 
 #### Greeting and session
 
@@ -52,11 +57,6 @@ don't require authentication.
 To make a simple client log the session using the `Logger` passed to the function, you should
 call `Smtp.client.withLogging().simple`. Only the dialog is logged, with
 no additional information.
-
-### Example
-
-The example of sending email to a local SMTP server with SmtpSimple and handling errors can be seen 
-in [`Example.scala`](src/main/scala/com/twitter/finagle/example/smtp/Example.scala).
 
 ### Sending independent SMTP commands
 
@@ -90,9 +90,9 @@ val res = service(command) onFailure {
     }
 ```
 
-[Request]: src/main/scala/com/twitter/finagle/smtp/Request.scala
-[ReplyGroups]: src/main/scala/com/twitter/finagle/smtp/ReplyGroups.scala
-[SmtpReplies]: src/main/scala/com/twitter/finagle/smtp/SmtpReplies.scala
+[Request]: src/main/scala/io/github/finagle/smtp/Request.scala
+[ReplyGroups]: src/main/scala/io/github/finagle/smtp/ReplyGroups.scala
+[SmtpReplies]: src/main/scala/io/github/finagle/smtp/SmtpReplies.scala
 
 #### Greeting and session
 
@@ -112,7 +112,7 @@ If the extension is supported by both client and server
 
 You can log the session using `SmtpLoggingFilter` described in [`SmtpLoggingFilter.scala`][logging]
 
-[logging]: src/main/scala/com/twitter/finagle/smtp/filter/SmtpLoggingFilter.scala
+[logging]: src/main/scala/io/github/finagle/smtp/filter/SmtpLoggingFilter.scala
 
 ### Using extensions
 
@@ -123,8 +123,8 @@ extensions require adding the parameters to `MAIL FROM` command, which you can a
  `ExtendedMailingSession` described in [`ExtendedMailingSession.scala`][ExtMailingSession]
 instead of `Request.NewMailingSession`
 
-[extension]: src/main/scala/com/twitter/finagle/smtp/extension
-[ExtMailingSession]: src/main/scala/com/twitter/finagle/smtp/extension/ExtendedMailingSession.scala
+[extension]: src/main/scala/io/github/finagle/smtp/extension
+[ExtMailingSession]: src/main/scala/io/github/finagle/smtp/extension/ExtendedMailingSession.scala
 
 #### AUTH 
 
@@ -151,7 +151,7 @@ email message using `ExtendedMailingSession.authorize()`. For example:
 
 Note that for now there is no API for using more sophisticated SASL mechanisms.
 
-[extauth]: src/main/scala/com/twitter/finagle/smtp/extension/auth
+[extauth]: src/main/scala/io/github/finagle/smtp/extension/auth
 
 #### CHUNKING 
 
@@ -166,7 +166,7 @@ and `BeginLastDataChunk` commands instead of `Request.BeginData`. For example:
     // Sending last 50 bytes...
 ```
 
-[extchunk]: src/main/scala/com/twitter/finagle/smtp/extension/chunking
+[extchunk]: src/main/scala/io/github/finagle/smtp/extension/chunking
 
 #### BINARYMIME 
 
@@ -184,7 +184,7 @@ extension only works with `CHUNKING` extension support. For example:
 
 Without this extension any binary data will be rejected.
 
-[extbmime]: src/main/scala/com/twitter/finagle/smtp/extension/binarymime
+[extbmime]: src/main/scala/io/github/finagle/smtp/extension/binarymime
 
 #### 8BITMIME 
 
@@ -202,7 +202,7 @@ encoding using `ExtendedMailingSession.bodyEncoding()` with `BodyEncoding.EightB
 Without this extension all 8-bit data will be either rejected (if it is MIME data) or converted to 
 7-bit (if it is plain text).
 
-[ext8mime]: src/main/scala/com/twitter/finagle/smtp/extension/eightbitmime
+[ext8mime]: src/main/scala/io/github/finagle/smtp/extension/eightbitmime
 
 #### EXPN 
 
@@ -243,7 +243,7 @@ only in the end of the group:
 * Authentication request 
 * the commands coming from other extensions, for which it is specified.
 
-[extpipe]: src/main/scala/com/twitter/finagle/smtp/extension/pipelining
+[extpipe]: src/main/scala/io/github/finagle/smtp/extension/pipelining
 [rfcpipe]: http://tools.ietf.org/html/rfc4954
 
 #### SIZE 
@@ -260,7 +260,16 @@ message of such size. For example:
     }
 ```
 
-[extsize]: src/main/scala/com/twitter/finagle/smtp/extension/size
+[extsize]: src/main/scala/io/github/finagle/smtp/extension/size
 
+License
+-------
 
+Licensed under the **[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)** (the "License");
+you may not use this software except in compliance with the License.
 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
