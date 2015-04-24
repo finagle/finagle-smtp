@@ -80,6 +80,10 @@ object Smtp extends com.twitter.finagle.Client[Request, Reply] {
         def newClient(dest: Name, label: String) =
           HeadersFilter andThen MailFilter andThen
             DefaultTimeoutsFilter andThen self.newClient(dest, label)
+
+        def newService(dest: Name, label: String) =
+          HeadersFilter andThen MailFilter andThen
+            DefaultTimeoutsFilter andThen self.newService(dest, label)
     }
     }
   }
@@ -87,4 +91,6 @@ object Smtp extends com.twitter.finagle.Client[Request, Reply] {
   val client = Client()
 
   def newClient(dest: Name, label: String) = client.newClient(dest, label)
+
+  def newService(dest: Name, label: String) = client.newService(dest, label)
 }

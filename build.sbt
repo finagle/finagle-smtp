@@ -3,24 +3,22 @@ lazy val root = project.in(file("."))
     moduleName := "finagle-smtp",
     organization := "io.github.finagle",
     version := "0.1.0",
-    scalaVersion := "2.11.5",
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.10.5", "2.11.6"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
     resolvers += "Twitter's Repository" at "http://maven.twttr.com/",
     libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-mux" % "6.24.0",
-      "com.twitter" %% "util-codec" % "6.23.0",
-      "com.twitter" %% "util-logging" % "6.23.0",
+      "com.twitter" %% "finagle-mux" % "6.25.0",
+      "com.twitter" %% "util-codec" % "6.24.0",
+      "com.twitter" %% "util-logging" % "6.24.0",
       "junit" % "junit" % "4.12" % "it,test",
       "org.mockito" % "mockito-all" % "1.10.19" % "it,test",
       "org.scalatest" %% "scalatest" % "2.2.4" % "it,test"
     )
   )
-  .settings(publishSettings: _*)
-  .settings(site.settings: _*)
-  .settings(site.includeScaladoc("docs"): _*)
-  .settings(ghpages.settings: _*)
+  .settings(publishSettings ++ site.settings ++ ghpages.settings)
   .settings(
+    site.includeScaladoc("docs"),
     git.remoteRepo := "git@github.com:finagle/finagle-smtp.git"
   )
   .configs(IntegrationTest)
@@ -42,11 +40,13 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/finagle/finagle-smtp")),
   autoAPIMappings := true,
   apiURL := Some(url("https://finagle.github.io/finagle-smtp/docs/")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/finagle/finagle-smtp"),
+      "scm:git:git@github.com:finagle/finagle-smtp.git"
+    )
+  ),
   pomExtra := (
-    <scm>
-      <url>git://github.com/finagle/finagle-smtp.git</url>
-      <connection>scm:git://github.com/finagle/finagle-smtp.git</connection>
-    </scm>
     <developers>
       <developer>
         <id>suncelesta</id>
