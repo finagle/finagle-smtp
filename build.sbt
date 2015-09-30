@@ -3,17 +3,17 @@ lazy val root = project.in(file("."))
     moduleName := "finagle-smtp",
     organization := "io.github.finagle",
     version := "0.1.0",
-    scalaVersion := "2.11.6",
-    crossScalaVersions := Seq("2.10.5", "2.11.6"),
+    scalaVersion := "2.11.7",
+    crossScalaVersions := Seq("2.10.5", "2.11.7"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
-    resolvers += "Twitter's Repository" at "http://maven.twttr.com/",
+    resolvers += "Twitter's Repository" at "https://maven.twttr.com/",
     libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-mux" % "6.25.0",
-      "com.twitter" %% "util-codec" % "6.24.0",
-      "com.twitter" %% "util-logging" % "6.24.0",
+      "com.twitter" %% "finagle-mux" % "6.29.0",
+      "com.twitter" %% "util-codec" % "6.28.0",
+      "com.twitter" %% "util-logging" % "6.28.0",
       "junit" % "junit" % "4.12" % "it,test",
       "org.mockito" % "mockito-all" % "1.10.19" % "it,test",
-      "org.scalatest" %% "scalatest" % "2.2.4" % "it,test"
+      "org.scalatest" %% "scalatest" % "2.2.5" % "it,test"
     )
   )
   .settings(publishSettings ++ site.settings ++ ghpages.settings)
